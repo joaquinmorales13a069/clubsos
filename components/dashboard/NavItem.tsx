@@ -45,7 +45,7 @@ export default function NavItem({ href, label, icon: Icon, badge, onNavigate }: 
           isActive ? "text-white" : "text-neutral group-hover:text-gray-700"
         )}
       />
-      <span className="truncate">{label}</span>
+      <span className="truncate font-roboto">{label}</span>
       {badge != null && badge > 0 && (
         <span
           className={cn(

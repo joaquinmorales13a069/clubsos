@@ -56,7 +56,7 @@ export default async function DashboardLayout({
 
       {/* Main content area — offset by sidebar width on desktop */}
       <div className="flex-1 flex flex-col min-w-0 md:ml-64">
-        <Topbar role={role} userName={userName} userInitials={userInitials} />
+        <Topbar />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           {children}

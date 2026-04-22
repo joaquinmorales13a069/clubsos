@@ -34,7 +34,7 @@ export default function LogoutButton({ compact = false }: LogoutButtonProps) {
       onClick={handleLogout}
       disabled={loading}
       className={cn(
-        "flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium",
+        "flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-roboto font-medium",
         "text-neutral hover:bg-red-50 hover:text-primary transition-all duration-200",
         "disabled:opacity-60 disabled:cursor-not-allowed"
       )}

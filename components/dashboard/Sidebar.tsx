@@ -111,7 +111,7 @@ function SidebarContent({
           />
           <div>
             <p className="text-sm font-poppins font-bold text-gray-900 leading-tight">ClubSOS</p>
-            <p className="text-xs text-neutral leading-tight">Medical</p>
+            <p className="text-xs font-roboto text-neutral leading-tight">Medical</p>
           </div>
         </Link>
       </div>
@@ -142,7 +142,7 @@ function SidebarContent({
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate leading-tight">{userName}</p>
+            <p className="text-sm font-roboto font-medium text-gray-900 truncate leading-tight">{userName}</p>
             <Badge
               variant="secondary"
               className="text-xs px-1.5 py-0 mt-0.5 font-normal"

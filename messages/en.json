@@ -96,6 +96,9 @@
     }
   },
   "Dashboard": {
+    "topbar": {
+      "notifications": "Notifications"
+    },
     "sidebar": {
       "nav": {
         "dashboard": "Dashboard",
