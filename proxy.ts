@@ -33,9 +33,9 @@ function canAccessDashboard(path: string, role: string | null, locale: string): 
   const adminBase = `/${locale}${ROLE_ROUTES.admin}`;
   const empresaBase = `/${locale}${ROLE_ROUTES.empresa_admin}`;
 
-  if (role === 'admin') return true;
+  // Each role is strictly locked to its own dashboard section
+  if (role === 'admin') return path.startsWith(adminBase);
   if (role === 'empresa_admin') return !path.startsWith(adminBase);
-  // miembro cannot access admin or empresa routes
   return !path.startsWith(adminBase) && !path.startsWith(empresaBase);
 }
 
