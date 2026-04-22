@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/routing";
+import { Link, useRouter } from "@/i18n/routing";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import { sendOtpAction, verifyOtpAction, loginWithPasswordAction } from "./actio
 export default function LoginPage() {
   const t = useTranslations("Auth.login");
   const tf = useTranslations("Auth.footer");
+  const router = useRouter();
   const [loginMethod, setLoginMethod] = useState<"otp" | "password">("otp");
   const [phone, setPhone] = useState<string>();
   const [phoneError, setPhoneError] = useState(false);
@@ -36,6 +37,10 @@ export default function LoginPage() {
     setIsLoading(true);
     const result = await sendOtpAction(phone);
     setIsLoading(false);
+    if (result.redirectToSignup) {
+      router.push("/signup");
+      return;
+    }
     if (result.error) {
       setServerError(result.error);
       return;

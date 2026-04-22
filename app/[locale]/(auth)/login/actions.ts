@@ -16,7 +16,7 @@ import { getLocale } from "next-intl/server";
 
 export async function sendOtpAction(
   phone: string
-): Promise<{ error?: string }> {
+): Promise<{ error?: string; redirectToSignup?: boolean }> {
   const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithOtp({
@@ -27,7 +27,13 @@ export async function sendOtpAction(
     },
   });
 
-  if (error) return { error: error.message };
+  if (error) {
+    // Supabase devuelve este error cuando el teléfono no está registrado
+    if (/not found|signups not allowed|user not found/i.test(error.message)) {
+      return { redirectToSignup: true };
+    }
+    return { error: error.message };
+  }
   return {};
 }
 
