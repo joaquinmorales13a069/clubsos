@@ -42,4 +42,10 @@ next-env.d.ts
 
 # ia and skills
 CONTEXT.md
+.agents
+.claude
+
+# local mcp config (contains project-specific URLs)
+.mcp.json
+
 
