@@ -94,5 +94,48 @@
       "loginLink": "Log in here",
       "phoneError": "Please enter a valid phone number (at least 8 digits)."
     }
+  },
+  "Dashboard": {
+    "topbar": {
+      "notifications": "Notifications"
+    },
+    "sidebar": {
+      "nav": {
+        "dashboard": "Dashboard",
+        "credencial": "My Credential",
+        "citas": "Appointments",
+        "beneficios": "Benefits",
+        "avisos": "Announcements",
+        "documentos": "Documents",
+        "familia": "My Family",
+        "empleados": "Employees",
+        "usuarios": "Users",
+        "empresas": "Companies",
+        "reportes": "Reports",
+        "config": "Settings"
+      },
+      "role": {
+        "admin": "Global Admin",
+        "empresaAdmin": "Company Admin",
+        "miembro": "Member"
+      },
+      "logout": "Sign Out",
+      "loggingOut": "Signing out..."
+    },
+    "miembro": {
+      "title": "Member Dashboard",
+      "subtitle": "Your digital health card, appointments, and benefits — all in one place.",
+      "comingSoon": "Coming in Step 5"
+    },
+    "empresa": {
+      "title": "Company Admin Dashboard",
+      "subtitle": "Manage your team's registrations, appointments, and benefits at a glance.",
+      "comingSoon": "Coming in Step 6"
+    },
+    "admin": {
+      "title": "Global Admin Dashboard",
+      "subtitle": "Full control of the Club SOS Medical ecosystem.",
+      "comingSoon": "Coming in Step 7"
+    }
   }
 }

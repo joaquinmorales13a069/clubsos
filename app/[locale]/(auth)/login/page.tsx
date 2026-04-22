@@ -146,7 +146,7 @@ export default function LoginPage() {
                   maxLength={6}
                 />
                 <p className="text-xs text-gray-500 text-center mt-2">
-                  {t("sentTo", { phone })} ·{" "}
+                  {t("sentTo", { phone: phone ?? "" })} ·{" "}
                   <button
                     type="button"
                     onClick={() => setOtpSent(false)}
