@@ -230,15 +230,23 @@ Deno.serve(async (req: Request) => {
     }
 
     // ── Write ea_customer_id back to public.users ─────────────────────────────
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    // auth options required in Deno: no localStorage, no session refresh
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
 
-    const { error: updateError } = await supabase
+    const { data: updated, error: updateError } = await supabase
       .from("users")
       .update({ ea_customer_id: eaCustomerId })
-      .eq("id", record.id);
+      .eq("id", record.id)
+      .select("id, ea_customer_id")
+      .single();
 
     if (updateError) {
       throw new Error(`Failed to update ea_customer_id: ${updateError.message}`);
+    }
+    if (!updated) {
+      throw new Error(`Update matched 0 rows for user id=${record.id}`);
     }
 
     console.log(`User ${record.id} → ea_customer_id=${eaCustomerId} saved.`);
