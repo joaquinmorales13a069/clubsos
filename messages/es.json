@@ -94,5 +94,45 @@
       "loginLink": "Inicia sesión aquí",
       "phoneError": "Por favor ingresa un número de teléfono válido (mínimo 8 dígitos)."
     }
+  },
+  "Dashboard": {
+    "sidebar": {
+      "nav": {
+        "dashboard": "Inicio",
+        "credencial": "Mi Credencial",
+        "citas": "Mis Citas",
+        "beneficios": "Beneficios",
+        "avisos": "Avisos",
+        "documentos": "Documentos",
+        "familia": "Mi Familia",
+        "empleados": "Empleados",
+        "usuarios": "Usuarios",
+        "empresas": "Empresas",
+        "reportes": "Reportes",
+        "config": "Configuración"
+      },
+      "role": {
+        "admin": "Admin Global",
+        "empresaAdmin": "Admin de Empresa",
+        "miembro": "Miembro"
+      },
+      "logout": "Cerrar Sesión",
+      "loggingOut": "Cerrando sesión..."
+    },
+    "miembro": {
+      "title": "Panel de Miembro",
+      "subtitle": "Tu carnet digital, citas y beneficios — todo en un solo lugar.",
+      "comingSoon": "Próximamente en el Paso 5"
+    },
+    "empresa": {
+      "title": "Panel de Admin de Empresa",
+      "subtitle": "Gestiona los registros, citas y beneficios de tu equipo de un vistazo.",
+      "comingSoon": "Próximamente en el Paso 6"
+    },
+    "admin": {
+      "title": "Panel de Admin Global",
+      "subtitle": "Control total del ecosistema Club SOS Medical.",
+      "comingSoon": "Próximamente en el Paso 7"
+    }
   }
 }
