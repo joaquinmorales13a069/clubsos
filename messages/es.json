@@ -89,10 +89,22 @@
       "usernameLabel": "Nombre de Usuario",
       "usernamePlaceholder": "Para inicio de sesión alternativo",
       "passwordLabel": "Contraseña",
+      "emailLabel": "Correo Electrónico",
+      "emailPlaceholder": "tu@correo.com",
+      "noEmailCheckbox": "No tengo correo electrónico",
       "completeBtn": "Completar Registro",
       "hasAccount": "¿Ya tienes cuenta?",
       "loginLink": "Inicia sesión aquí",
       "phoneError": "Por favor ingresa un número de teléfono válido (mínimo 8 dígitos)."
+    },
+    "errors": {
+      "companyNotFound": "Empresa no encontrada. Verifica el código e intenta de nuevo.",
+      "phoneExists": "Este número de teléfono ya está registrado. Por favor, inicia sesión.",
+      "invalidSession": "Sesión no válida. Por favor verifica tu número de nuevo.",
+      "credentialsError": "Error al configurar credenciales: {message}",
+      "emailError": "Error al guardar email: {message}",
+      "emailExists": "Este correo electrónico ya está registrado con otra cuenta. Por favor, usa uno diferente.",
+      "profileError": "Error al guardar perfil: {message}"
     }
   },
   "Dashboard": {

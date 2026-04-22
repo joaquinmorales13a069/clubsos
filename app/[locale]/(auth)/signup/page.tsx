@@ -38,6 +38,8 @@ export default function SignupPage() {
   const [documento, setDocumento] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [noEmail, setNoEmail] = useState(false);
 
   const handleNextStep = () => setStep((prev) => prev + 1);
   const handlePrevStep = () => setStep((prev) => prev - 1);
@@ -103,6 +105,7 @@ export default function SignupPage() {
       tipoCuenta: tipoCuenta!,
       empresaId: empresaId || undefined,
       titularId: titularDoc || undefined,
+      email: noEmail ? null : email || null,
     });
     setIsLoading(false);
     if (result?.error) setServerError(result.error);
@@ -398,6 +401,30 @@ export default function SignupPage() {
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">{t("passwordLabel")}</label>
                 <Input required type="password" value={password} onChange={e => setPassword(e.target.value)} className="rounded-xl h-11" />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700">{t("emailLabel")}</label>
+                <Input
+                  type="email"
+                  placeholder={t("emailPlaceholder")}
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  disabled={noEmail}
+                  required={!noEmail}
+                  className="rounded-xl h-11 disabled:opacity-50"
+                />
+                <label className="flex items-center gap-2 text-sm text-gray-500 cursor-pointer select-none mt-1">
+                  <input
+                    type="checkbox"
+                    checked={noEmail}
+                    onChange={e => {
+                      setNoEmail(e.target.checked);
+                      if (e.target.checked) setEmail("");
+                    }}
+                    className="rounded border-gray-300 text-primary focus:ring-primary"
+                  />
+                  {t("noEmailCheckbox")}
+                </label>
               </div>
             </div>
           </div>

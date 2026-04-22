@@ -35,6 +35,7 @@ interface UserRecord {
   id: string;
   nombre_completo: string | null;
   telefono: string | null;
+  email: string | null;
   estado: string;
   rol: string;
   empresa_id: string | null;
@@ -227,6 +228,7 @@ Deno.serve(async (req: Request) => {
         firstName,
         lastName,
         phone: phoneFormatted,
+        ...(record.email ? { email: record.email } : {}),
         notes,
         timezone: "America/Managua",
         language: "spanish",

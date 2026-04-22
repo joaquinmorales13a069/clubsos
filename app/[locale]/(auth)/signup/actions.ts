@@ -32,19 +32,38 @@ export async function buscarEmpresaAction(
     .single();
 
   if (error || !data) {
-    return { error: "Empresa no encontrada. Verifica el código e intenta de nuevo." };
+    const t = await getTranslations("Auth.errors");
+    return { error: t("companyNotFound") };
   }
 
   return { id: data.id, nombre: data.nombre };
 }
 import { redirect } from "next/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 // ─── Step 4: Send OTP to verify phone during signup ────────────────────────
 
 export async function sendSignupOtpAction(
   phone: string
 ): Promise<{ error?: string }> {
+  const { createClient: createSupabaseClient } = await import("@supabase/supabase-js");
+  const supabaseAdmin = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!
+  );
+
+  // Check if phone number is already registered
+  const { data: existingUser } = await supabaseAdmin
+    .from("users")
+    .select("id")
+    .eq("telefono", phone)
+    .single();
+
+  if (existingUser) {
+    const t = await getTranslations("Auth.errors");
+    return { error: t("phoneExists") };
+  }
+
   const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithOtp({
@@ -93,6 +112,8 @@ export interface SignupProfileData {
   tipoCuenta: "titular" | "familiar";
   empresaId?: string;
   titularId?: string;
+  /** Optional — null when user checks "No tengo email" */
+  email?: string | null;
 }
 
 export async function completeSignupAction(
@@ -106,28 +127,66 @@ export async function completeSignupAction(
     error: userError,
   } = await supabase.auth.getUser();
 
+  const t = await getTranslations("Auth.errors");
+
   if (userError || !user) {
-    return { error: "Sesión no válida. Por favor verifica tu número de nuevo." };
+    return { error: t("invalidSession") };
   }
 
-  // Set the user's password and metadata (for Display Name in Dashboard)
+  // Check if email is already registered (if provided)
+  if (formData.email) {
+    const { createClient: createAdmin } = await import("@supabase/supabase-js");
+    const adminClient = createAdmin(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    const { data: existingEmail } = await adminClient
+      .from("users")
+      .select("id")
+      .eq("email", formData.email)
+      .neq("id", user.id) // Exclude current user in case they already have this email
+      .single();
+
+    if (existingEmail) {
+      return { error: t("emailExists") };
+    }
+  }
+
+  // Set password, metadata, and optionally email in auth.users.
+  // Email is set via admin client (service role) to skip the confirmation email flow —
+  // phone is already the verified primary auth method.
   const authUpdateData: {
     password?: string;
     data: { full_name: string; display_name: string; nombre_completo: string };
   } = {
-    data: { 
+    data: {
       full_name: formData.nombreCompleto,
       display_name: formData.nombreCompleto,
-      nombre_completo: formData.nombreCompleto
-    }
+      nombre_completo: formData.nombreCompleto,
+    },
   };
-  
+
   if (formData.password) {
     authUpdateData.password = formData.password;
   }
 
   const { error: pwError } = await supabase.auth.updateUser(authUpdateData);
-  if (pwError) return { error: `Error al configurar credenciales: ${pwError.message}` };
+  if (pwError) return { error: t("credentialsError", { message: pwError.message }) };
+
+  // Set email without requiring confirmation (phone is the primary auth method)
+  if (formData.email) {
+    const { createClient: createAdmin } = await import("@supabase/supabase-js");
+    const adminClient = createAdmin(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!
+    );
+    const { error: emailError } = await adminClient.auth.admin.updateUserById(user.id, {
+      email: formData.email,
+      email_confirm: true,
+    });
+    if (emailError) return { error: t("emailError", { message: emailError.message }) };
+  }
 
   // Update the public.users row created by the handle_new_user trigger
   // with the full profile data from Step 5
@@ -142,13 +201,14 @@ export async function completeSignupAction(
       tipo_cuenta: formData.tipoCuenta,
       empresa_id: formData.empresaId || null,
       titular_id: formData.titularId || null,
+      email: formData.email || null,
       // Activate the account once profile is complete
       estado: "activo",
     })
     .eq("id", user.id);
 
   if (profileError) {
-    return { error: `Error al guardar perfil: ${profileError.message}` };
+    return { error: t("profileError", { message: profileError.message }) };
   }
 
   // Redirect to member dashboard on successful registration

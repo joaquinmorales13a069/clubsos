@@ -89,10 +89,22 @@
       "usernameLabel": "Username",
       "usernamePlaceholder": "For alternative login",
       "passwordLabel": "Password",
+      "emailLabel": "Email",
+      "emailPlaceholder": "your@email.com",
+      "noEmailCheckbox": "I don't have an email",
       "completeBtn": "Complete Registration",
       "hasAccount": "Already have an account?",
       "loginLink": "Log in here",
       "phoneError": "Please enter a valid phone number (at least 8 digits)."
+    },
+    "errors": {
+      "companyNotFound": "Company not found. Please check the code and try again.",
+      "phoneExists": "This phone number is already registered. Please log in.",
+      "invalidSession": "Invalid session. Please verify your number again.",
+      "credentialsError": "Error setting credentials: {message}",
+      "emailError": "Error saving email: {message}",
+      "emailExists": "This email is already registered with another account. Please use a different one.",
+      "profileError": "Error saving profile: {message}"
     }
   },
   "Dashboard": {
