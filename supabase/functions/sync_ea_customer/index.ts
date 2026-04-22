@@ -13,7 +13,7 @@
  *   URL: https://<project>.supabase.co/functions/v1/sync_ea_customer
  *
  * Environment variables (Supabase → Edge Functions → Secrets):
- *   EA_API_URL             — Base URL of Easy!Appointments (e.g. https://ea.sosmedical.com)
+ *   EA_API_URL             — Full API base URL of Easy!Appointments (e.g. https://domain.com/index.php/api/v1)
  *   EA_API_TOKEN           — Bearer token configured in EA Settings → API
  *   SUPABASE_URL           — Auto-injected by Supabase runtime
  *   SUPABASE_SERVICE_ROLE_KEY — Needed to write back ea_customer_id to public.users
@@ -110,7 +110,7 @@ async function findEaCustomerByPhone(
   if (!digits) return null;
 
   // Search with both formats: digits-only and +digits
-  const url = `${baseUrl}/api/v1/customers?q=${encodeURIComponent(`+${digits}`)}&fields=id,phone&length=20`;
+  const url = `${baseUrl}/customers?q=${encodeURIComponent(`+${digits}`)}&fields=id,phone&length=20`;
 
   const res = await fetch(url, { headers: eaHeaders(token) });
   if (!res.ok) {
@@ -137,7 +137,7 @@ async function createEaCustomer(
   token: string,
   customer: EaCustomer
 ): Promise<number> {
-  const res = await fetch(`${baseUrl}/api/v1/customers`, {
+  const res = await fetch(`${baseUrl}/customers`, {
     method: "POST",
     headers: eaHeaders(token),
     body: JSON.stringify(customer),
