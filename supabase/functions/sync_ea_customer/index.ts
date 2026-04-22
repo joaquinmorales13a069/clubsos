@@ -69,17 +69,24 @@ function phoneDigits(raw: string | null): string {
 }
 
 /**
- * Split a full name into firstName + lastName.
- * "Juan Carlos Pérez López" → { firstName: "Juan", lastName: "Carlos Pérez López" }
- * Single-word names fall back to lastName: "".
+ * Split a full name into firstName + lastName following Latin American naming conventions:
+ *   4+ words → first 2 = firstName, rest = lastName  ("Joaquin Antonio Morales Cardenas")
+ *   3 words  → first 1 = firstName, rest = lastName  ("Juan Morales Cardenas")
+ *   2 words  → first 1 = firstName, last 1 = lastName ("Juan Morales")
+ *   1 word   → firstName = name,    lastName = ""
  */
 function splitName(nombreCompleto: string | null): { firstName: string; lastName: string } {
-  const name = (nombreCompleto ?? "").trim();
-  const spaceIndex = name.indexOf(" ");
-  if (spaceIndex === -1) return { firstName: name, lastName: "" };
+  const parts = (nombreCompleto ?? "").trim().split(/\s+/).filter(Boolean);
+
+  if (parts.length === 0) return { firstName: "", lastName: "" };
+  if (parts.length === 1) return { firstName: parts[0], lastName: "" };
+  if (parts.length === 2) return { firstName: parts[0], lastName: parts[1] };
+  if (parts.length === 3) return { firstName: parts[0], lastName: parts.slice(1).join(" ") };
+
+  // 4+ words: first 2 as firstName, remaining as lastName
   return {
-    firstName: name.slice(0, spaceIndex),
-    lastName: name.slice(spaceIndex + 1),
+    firstName: parts.slice(0, 2).join(" "),
+    lastName: parts.slice(2).join(" "),
   };
 }
 
