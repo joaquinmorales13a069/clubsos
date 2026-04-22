@@ -8,6 +8,7 @@ ADD COLUMN codigo_empresa TEXT UNIQUE;
 
 -- Alterar tabla users
 ALTER TABLE public.users
+ADD COLUMN username TEXT UNIQUE,
 ADD COLUMN tipo_cuenta public.tipo_cuenta_type NOT NULL DEFAULT 'titular',
 ADD COLUMN fecha_nacimiento DATE,
 ADD COLUMN sexo public.sexo_type,
@@ -22,6 +23,7 @@ BEGIN
     id, 
     nombre_completo, 
     telefono, 
+    username,
     tipo_cuenta, 
     fecha_nacimiento, 
     sexo, 
@@ -33,6 +35,7 @@ BEGIN
     new.id,
     new.raw_user_meta_data->>'nombre_completo',
     new.phone,
+    new.raw_user_meta_data->>'username',
     COALESCE((new.raw_user_meta_data->>'tipo_cuenta')::public.tipo_cuenta_type, 'titular'::public.tipo_cuenta_type),
     (new.raw_user_meta_data->>'fecha_nacimiento')::DATE,
     (new.raw_user_meta_data->>'sexo')::public.sexo_type,
