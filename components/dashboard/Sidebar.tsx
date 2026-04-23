@@ -142,29 +142,33 @@ function SidebarContent({
             onNavigate={onNavigate}
           />
         ))}
+        
+        {/* Separated Logout Button */}
+        <div className="pt-20">
+          <LogoutButton />
+        </div>
       </nav>
 
-      <Separator className="mx-4" />
-
-      {/* User profile + logout */}
-      <div className="px-3 py-4 space-y-1">
-        <div className="flex items-center gap-3 px-3 py-2">
-          <Avatar className="w-8 h-8 shrink-0">
-            <AvatarFallback className="bg-secondary text-white text-xs font-semibold">
+      {/* User profile */}
+      <div className="px-6 py-6 border-t border-gray-100 bg-gray-50/30">
+        <div className="flex flex-col items-center text-center gap-3">
+          <Avatar className="w-12 h-12 shrink-0 border-2 border-white shadow-sm">
+            <AvatarFallback className="bg-secondary text-white text-base font-semibold">
               {userInitials}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-roboto font-medium text-gray-900 truncate leading-tight">{userName}</p>
+          <div className="space-y-1.5 flex flex-col items-center">
+            <p className="text-sm font-roboto font-semibold text-gray-900 leading-tight">
+              {userName}
+            </p>
             <Badge
               variant="secondary"
-              className="text-xs px-1.5 py-0 mt-0.5 font-normal text-white  "
+              className="text-[10px] px-2 py-0.5 font-medium text-white w-fit uppercase tracking-wider"
             >
               {getRoleBadgeLabel(role, t)}
             </Badge>
           </div>
         </div>
-        <LogoutButton />
       </div>
     </div>
   );

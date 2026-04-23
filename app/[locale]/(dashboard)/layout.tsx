@@ -11,6 +11,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/utils/supabase/server";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Topbar from "@/components/dashboard/Topbar";
+import LoginSuccessToast from "@/components/dashboard/LoginSuccessToast";
 import type { UserRole } from "@/utils/supabase/middleware";
 
 /** Derive 1-2 letter initials from a full name string. */
@@ -53,6 +54,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
+      <LoginSuccessToast />
       {/* Sidebar — handles both desktop and mobile versions */}
       <Sidebar role={role} userName={userName} userInitials={userInitials} tipoCuenta={tipoCuenta} />
 

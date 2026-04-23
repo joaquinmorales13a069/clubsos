@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { Link, useRouter } from "@/i18n/routing";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,6 @@ export default function LoginPage() {
   const [otpCode, setOtpCode] = useState("");
   // Loading and server-side error states
   const [isLoading, setIsLoading] = useState(false);
-  const [serverError, setServerError] = useState<string | null>(null);
 
   // Validate phone locally, then call Server Action to trigger WhatsApp OTP
   const handleSendOtp = async (e: React.FormEvent) => {
@@ -33,7 +33,6 @@ export default function LoginPage() {
       return;
     }
     setPhoneError(false);
-    setServerError(null);
     setIsLoading(true);
     const result = await sendOtpAction(phone);
     setIsLoading(false);
@@ -42,30 +41,29 @@ export default function LoginPage() {
       return;
     }
     if (result.error) {
-      setServerError(result.error);
+      toast.error(result.error);
       return;
     }
     setOtpSent(true);
+    toast.success(t("otpSentSuccess"));
   };
 
   // Verify the OTP code — Server Action redirects on success
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setServerError(null);
     setIsLoading(true);
     const result = await verifyOtpAction(phone!, otpCode);
     setIsLoading(false);
-    if (result?.error) setServerError(result.error);
+    if (result?.error) toast.error(result.error);
   };
 
   // Username + password login — Server Action redirects on success
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setServerError(null);
     setIsLoading(true);
     const result = await loginWithPasswordAction(username, password);
     setIsLoading(false);
-    if (result?.error) setServerError(result.error);
+    if (result?.error) toast.error(result.error);
   };
 
   return (
@@ -116,12 +114,6 @@ export default function LoginPage() {
                     <span>⚠</span> {t("phoneError")}
                   </p>
                 )}
-                {/* Server-side error display */}
-                {serverError && (
-                  <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
-                    <span>⚠</span> {serverError}
-                  </p>
-                )}
               </div>
               <Button
                 type="submit"
@@ -155,10 +147,6 @@ export default function LoginPage() {
                     {t("changeNumber")}
                   </button>
                 </p>
-                {/* Show server error on OTP verification */}
-                {serverError && (
-                  <p className="text-xs text-red-500 text-center mt-1">⚠ {serverError}</p>
-                )}
               </div>
               <Button
                 type="submit"
@@ -222,9 +210,6 @@ export default function LoginPage() {
                 className="rounded-xl h-11"
               />
             </div>
-            {serverError && (
-              <p className="text-xs text-red-500 mt-1">⚠ {serverError}</p>
-            )}
             <Button
               type="submit"
               disabled={isLoading}

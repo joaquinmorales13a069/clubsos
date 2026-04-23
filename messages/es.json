@@ -35,7 +35,9 @@
       "loginBtn": "Iniciar Sesión",
       "noAccount": "¿No tienes cuenta?",
       "signupLink": "Regístrate aquí",
-      "phoneError": "Por favor ingresa un número de teléfono válido (mínimo 8 dígitos)."
+      "phoneError": "Por favor ingresa un número de teléfono válido (mínimo 8 dígitos).",
+      "otpSentSuccess": "Código enviado a tu WhatsApp.",
+      "loginSuccess": "¡Bienvenido de vuelta!"
     },
     "footer": {
       "copyright": "Club SOS Medical. Todos los derechos reservados.",
@@ -135,6 +137,7 @@
       },
       "logout": "Cerrar Sesión",
       "loggingOut": "Cerrando sesión...",
+      "logoutSuccess": "Sesión cerrada correctamente.",
       "footer": {
         "rightsReserved": "Todos los derechos reservados."
       }

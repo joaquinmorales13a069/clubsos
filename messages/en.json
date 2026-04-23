@@ -95,7 +95,9 @@
       "completeBtn": "Complete Registration",
       "hasAccount": "Already have an account?",
       "loginLink": "Log in here",
-      "phoneError": "Please enter a valid phone number (at least 8 digits)."
+      "phoneError": "Please enter a valid phone number (at least 8 digits).",
+      "otpSentSuccess": "Code sent to your WhatsApp.",
+      "loginSuccess": "Welcome back!"
     },
     "errors": {
       "companyNotFound": "Company not found. Please check the code and try again.",
@@ -135,6 +137,7 @@
       },
       "logout": "Sign Out",
       "loggingOut": "Signing out...",
+      "logoutSuccess": "You've been signed out.",
       "footer": {
         "rightsReserved": "All rights reserved."
       }

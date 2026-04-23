@@ -10,7 +10,14 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { getLocale } from "next-intl/server";
+
+/** Marks the session so the dashboard can show a welcome toast. */
+async function markJustLoggedIn() {
+  const cookieStore = await cookies();
+  cookieStore.set("just_logged_in", "1", { maxAge: 10, path: "/", httpOnly: false });
+}
 
 // ─── OTP: Send WhatsApp verification code ──────────────────────────────────
 
@@ -62,6 +69,7 @@ export async function verifyOtpAction(
     .single();
 
   const locale = await getLocale();
+  await markJustLoggedIn();
 
   // Redirect based on role — matches CONTEXT.md RBAC requirements
   if (profile?.rol === "admin") {
@@ -102,5 +110,6 @@ export async function loginWithPasswordAction(
   if (signInError) return { error: signInError.message };
 
   const locale = await getLocale();
+  await markJustLoggedIn();
   redirect(`/${locale}/dashboard`);
 }
