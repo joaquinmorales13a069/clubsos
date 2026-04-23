@@ -299,9 +299,32 @@
         "comingSoon": "Coming soon"
       },
       "documentos": {
-        "title": "My Documents",
+        "title": "My Reports",
         "subtitle": "View and download your medical results and reports.",
-        "comingSoon": "Coming soon"
+        "comingSoon": "Coming soon",
+        "filterAll": "All",
+        "filterLaboratorio": "Laboratory",
+        "filterRadiologia": "Radiology",
+        "filterReceta": "Prescriptions",
+        "filterConsulta": "Consultations",
+        "filterEspecialidades": "Specialties",
+        "filterOtro": "Other",
+        "typeLabels": {
+          "laboratorio": "Laboratory",
+          "radiologia": "Radiology",
+          "receta": "Prescription",
+          "consulta_medica": "Consultation",
+          "especialidades": "Specialty",
+          "otro": "Other"
+        },
+        "view": "View",
+        "download": "Download",
+        "empty": "No documents yet",
+        "emptySub": "Your medical results and reports will appear here.",
+        "errorUrl": "Could not generate the link. Please try again.",
+        "pageInfo": "Page {current} of {total}",
+        "prevPage": "Previous",
+        "nextPage": "Next"
       },
       "ajustes": {
         "title": "Settings",

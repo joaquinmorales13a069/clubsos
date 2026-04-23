@@ -299,9 +299,32 @@
         "comingSoon": "Disponible próximamente"
       },
       "documentos": {
-        "title": "Mis Documentos",
+        "title": "Mis Reportes",
         "subtitle": "Consulta y descarga tus resultados y reportes médicos.",
-        "comingSoon": "Disponible próximamente"
+        "comingSoon": "Disponible próximamente",
+        "filterAll": "Todos",
+        "filterLaboratorio": "Laboratorio",
+        "filterRadiologia": "Radiología",
+        "filterReceta": "Recetas",
+        "filterConsulta": "Consultas",
+        "filterEspecialidades": "Especialidades",
+        "filterOtro": "Otros",
+        "typeLabels": {
+          "laboratorio": "Laboratorio",
+          "radiologia": "Radiología",
+          "receta": "Receta",
+          "consulta_medica": "Consulta",
+          "especialidades": "Especialidad",
+          "otro": "Otro"
+        },
+        "view": "Ver",
+        "download": "Descargar",
+        "empty": "Sin documentos",
+        "emptySub": "Tus resultados y reportes médicos aparecerán aquí.",
+        "errorUrl": "No se pudo generar el enlace. Intenta de nuevo.",
+        "pageInfo": "Página {current} de {total}",
+        "prevPage": "Anterior",
+        "nextPage": "Siguiente"
       },
       "ajustes": {
         "title": "Ajustes",

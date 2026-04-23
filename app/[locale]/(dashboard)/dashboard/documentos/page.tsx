@@ -1,18 +1,36 @@
-import { getTranslations } from "next-intl/server";
-import { FileText } from "lucide-react";
+/**
+ * DocumentosPage — Step 5.5
+ * Server Component: prefetches first page + total count, passes to MisDocumentos.
+ */
 
-// Placeholder — full implementation in Step 5.5
+import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
+import { createClient } from "@/utils/supabase/server";
+import MisDocumentos from "@/components/dashboard/miembro/documentos/MisDocumentos";
+
+const PAGE_SIZE = 12;
 
 export default async function DocumentosPage() {
-  const t = await getTranslations("Dashboard.miembro.documentos");
+  const supabase = await createClient();
+  const locale   = await getLocale();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect(`/${locale}/login`);
+
+  const { data, count } = await supabase
+    .from("documentos_medicos")
+    .select(
+      "id, nombre_documento, tipo_documento, file_path, tipo_archivo, fecha_documento, created_at, subido_por_user:users!subido_por(nombre_completo)",
+      { count: "exact" },
+    )
+    .eq("estado_archivo", "activo")
+    .order("created_at", { ascending: false })
+    .range(0, PAGE_SIZE - 1);
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-4">
-      <div className="w-16 h-16 rounded-2xl bg-secondary/10 flex items-center justify-center">
-        <FileText className="w-8 h-8 text-secondary" />
-      </div>
-      <h1 className="text-2xl font-poppins font-bold text-gray-900">{t("title")}</h1>
-      <p className="text-neutral max-w-sm font-roboto">{t("subtitle")}</p>
-      <span className="text-xs text-neutral/60 bg-gray-100 px-3 py-1 rounded-full">{t("comingSoon")}</span>
-    </div>
+    <MisDocumentos
+      initialData={(data as unknown as Parameters<typeof MisDocumentos>[0]["initialData"]) ?? []}
+      initialCount={count ?? 0}
+    />
   );
 }
