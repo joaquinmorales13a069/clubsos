@@ -38,21 +38,22 @@ export default async function DashboardLayout({
     redirect(`/${locale}/login`);
   }
 
-  // Fetch full profile for display name and role
+  // Fetch full profile for display name, role, and tipo_cuenta
   const { data: profile } = await supabase
     .from("users")
-    .select("nombre_completo, rol")
+    .select("nombre_completo, rol, tipo_cuenta")
     .eq("id", user.id)
     .single();
 
   const userName = profile?.nombre_completo ?? user.phone ?? "Usuario";
   const role = (profile?.rol as UserRole) ?? "miembro";
+  const tipoCuenta = (profile?.tipo_cuenta as "titular" | "familiar") ?? "titular";
   const userInitials = getInitials(userName);
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar — handles both desktop and mobile versions */}
-      <Sidebar role={role} userName={userName} userInitials={userInitials} />
+      <Sidebar role={role} userName={userName} userInitials={userInitials} tipoCuenta={tipoCuenta} />
 
       {/* Main content area — offset by sidebar width on desktop */}
       <div className="flex-1 flex flex-col min-w-0 md:ml-64">

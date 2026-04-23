@@ -16,17 +16,18 @@ interface NavItemProps {
   label: string;
   icon: LucideIcon;
   badge?: number;
+  /** When true, only marks active on exact pathname match (no prefix matching) */
+  exact?: boolean;
   /** Called when link is clicked — used to close mobile sidebar */
   onNavigate?: () => void;
 }
 
-export default function NavItem({ href, label, icon: Icon, badge, onNavigate }: NavItemProps) {
+export default function NavItem({ href, label, icon: Icon, badge, exact, onNavigate }: NavItemProps) {
   const pathname = usePathname();
 
-  // Exact match for the base dashboard routes to avoid false positives
-  const isActive =
-    pathname === href ||
-    (href !== "/" && pathname.startsWith(href + "/"));
+  const isActive = exact
+    ? pathname === href
+    : pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
 
   return (
     <Link

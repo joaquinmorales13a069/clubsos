@@ -124,7 +124,8 @@
         "usuarios": "Usuarios",
         "empresas": "Empresas",
         "reportes": "Reportes",
-        "config": "Configuración"
+        "config": "Configuración",
+        "ajustes": "Ajustes"
       },
       "role": {
         "admin": "Admin Global",
@@ -137,7 +138,92 @@
     "miembro": {
       "title": "Panel de Miembro",
       "subtitle": "Tu carnet digital, citas y beneficios — todo en un solo lugar.",
-      "comingSoon": "Próximamente en el Paso 5"
+      "comingSoon": "Próximamente en el Paso 5",
+      "inicio": {
+        "greeting": "Hola,",
+        "greetingSub": "Aquí tienes un resumen de tu cuenta",
+        "credential": {
+          "title": "Credencial Digital",
+          "memberId": "ID de Miembro",
+          "dob": "Nacimiento",
+          "statusActive": "Activo",
+          "statusInactive": "Inactivo",
+          "statusPending": "Pendiente"
+        },
+        "quickActions": {
+          "schedule": "Agendar Cita",
+          "benefits": "Beneficios",
+          "documents": "Documentos",
+          "settings": "Ajustes"
+        },
+        "proximaCita": {
+          "title": "Próxima Cita",
+          "viewAll": "Ver todas",
+          "empty": "Sin citas próximas",
+          "emptySub": "Agenda tu primera cita médica",
+          "schedule": "Agendar",
+          "statusPendiente": "Pendiente",
+          "statusConfirmado": "Confirmado"
+        },
+        "beneficios": {
+          "title": "Beneficios Activos",
+          "viewAll": "Ver todos",
+          "empty": "Sin beneficios disponibles",
+          "typeDiscount": "Descuento",
+          "typePromotion": "Promoción"
+        },
+        "documentos": {
+          "title": "Documentos Recientes",
+          "viewAll": "Ver todos",
+          "empty": "Sin documentos",
+          "emptySub": "Tus resultados aparecerán aquí",
+          "view": "Ver",
+          "download": "Descargar",
+          "typeLabels": {
+            "laboratorio": "Lab",
+            "radiologia": "Radiología",
+            "receta": "Receta",
+            "consulta_medica": "Consulta",
+            "especialidades": "Especialidad",
+            "otro": "Otro"
+          }
+        },
+        "avisos": {
+          "title": "Avisos Recientes",
+          "viewAll": "Ver avisos",
+          "empty": "Sin avisos recientes"
+        }
+      },
+      "citas": {
+        "title": "Mis Citas",
+        "subtitle": "Agenda y consulta el historial de tus citas médicas.",
+        "comingSoon": "Disponible próximamente"
+      },
+      "beneficios": {
+        "title": "Beneficios",
+        "subtitle": "Explora los descuentos y promociones disponibles para ti.",
+        "comingSoon": "Disponible próximamente"
+      },
+      "avisos": {
+        "title": "Avisos",
+        "subtitle": "Mantente al día con los anuncios de Club SOS Medical.",
+        "comingSoon": "Disponible próximamente"
+      },
+      "documentos": {
+        "title": "Mis Documentos",
+        "subtitle": "Consulta y descarga tus resultados y reportes médicos.",
+        "comingSoon": "Disponible próximamente"
+      },
+      "ajustes": {
+        "title": "Ajustes",
+        "subtitle": "Actualiza tu información personal y credenciales de acceso.",
+        "comingSoon": "Disponible próximamente"
+      },
+      "familia": {
+        "title": "Mi Familia",
+        "subtitle": "Gestiona los miembros familiares vinculados a tu cuenta.",
+        "comingSoon": "Disponible próximamente"
+      }
     },
     "empresa": {
       "title": "Panel de Admin de Empresa",

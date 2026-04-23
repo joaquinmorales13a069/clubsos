@@ -124,7 +124,8 @@
         "usuarios": "Users",
         "empresas": "Companies",
         "reportes": "Reports",
-        "config": "Settings"
+        "config": "Settings",
+        "ajustes": "Settings"
       },
       "role": {
         "admin": "Global Admin",
@@ -137,7 +138,92 @@
     "miembro": {
       "title": "Member Dashboard",
       "subtitle": "Your digital health card, appointments, and benefits — all in one place.",
-      "comingSoon": "Coming in Step 5"
+      "comingSoon": "Coming in Step 5",
+      "inicio": {
+        "greeting": "Hello,",
+        "greetingSub": "Here is a summary of your account",
+        "credential": {
+          "title": "Digital Credential",
+          "memberId": "Member ID",
+          "dob": "Date of Birth",
+          "statusActive": "Active",
+          "statusInactive": "Inactive",
+          "statusPending": "Pending"
+        },
+        "quickActions": {
+          "schedule": "Schedule",
+          "benefits": "Benefits",
+          "documents": "Documents",
+          "settings": "Settings"
+        },
+        "proximaCita": {
+          "title": "Next Appointment",
+          "viewAll": "View all",
+          "empty": "No upcoming appointments",
+          "emptySub": "Schedule your first medical visit",
+          "schedule": "Schedule",
+          "statusPendiente": "Pending",
+          "statusConfirmado": "Confirmed"
+        },
+        "beneficios": {
+          "title": "Active Benefits",
+          "viewAll": "View all",
+          "empty": "No benefits available",
+          "typeDiscount": "Discount",
+          "typePromotion": "Promotion"
+        },
+        "documentos": {
+          "title": "Recent Documents",
+          "viewAll": "View all",
+          "empty": "No documents yet",
+          "emptySub": "Your medical results will appear here",
+          "view": "View",
+          "download": "Download",
+          "typeLabels": {
+            "laboratorio": "Lab",
+            "radiologia": "Radiology",
+            "receta": "Prescription",
+            "consulta_medica": "Consult",
+            "especialidades": "Specialty",
+            "otro": "Other"
+          }
+        },
+        "avisos": {
+          "title": "Recent Notices",
+          "viewAll": "View notices",
+          "empty": "No recent notices"
+        }
+      },
+      "citas": {
+        "title": "My Appointments",
+        "subtitle": "Schedule and view your medical appointment history.",
+        "comingSoon": "Coming soon"
+      },
+      "beneficios": {
+        "title": "Benefits",
+        "subtitle": "Explore discounts and promotions available to you.",
+        "comingSoon": "Coming soon"
+      },
+      "avisos": {
+        "title": "Announcements",
+        "subtitle": "Stay up to date with Club SOS Medical notices.",
+        "comingSoon": "Coming soon"
+      },
+      "documentos": {
+        "title": "My Documents",
+        "subtitle": "View and download your medical results and reports.",
+        "comingSoon": "Coming soon"
+      },
+      "ajustes": {
+        "title": "Settings",
+        "subtitle": "Update your personal information and access credentials.",
+        "comingSoon": "Coming soon"
+      },
+      "familia": {
+        "title": "My Family",
+        "subtitle": "Manage family members linked to your account.",
+        "comingSoon": "Coming soon"
+      }
     },
     "empresa": {
       "title": "Company Admin Dashboard",

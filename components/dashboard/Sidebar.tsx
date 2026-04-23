@@ -25,6 +25,7 @@ import {
   Menu,
   X,
   UserCheck,
+  SlidersHorizontal,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -38,11 +39,18 @@ interface SidebarProps {
   role: UserRole;
   userName: string;
   userInitials: string;
+  /** tipo_cuenta from public.users — controls Mi Familia visibility for miembro */
+  tipoCuenta?: "titular" | "familiar";
 }
 
 // ── Nav config per role ─────────────────────────────────────────────────────
 
-function useNavItems(role: UserRole, locale: string, t: ReturnType<typeof useTranslations>) {
+function useNavItems(
+  role: UserRole,
+  locale: string,
+  t: ReturnType<typeof useTranslations>,
+  tipoCuenta?: "titular" | "familiar",
+) {
   const base = `/${locale}/dashboard`;
 
   if (role === "admin") {
@@ -68,15 +76,25 @@ function useNavItems(role: UserRole, locale: string, t: ReturnType<typeof useTra
   }
 
   // miembro (default)
-  return [
-    { href: base, label: t("nav.dashboard"), icon: LayoutDashboard },
-    { href: `${base}/credencial`, label: t("nav.credencial"), icon: CreditCard },
+  const miembroItems = [
+    { href: base, label: t("nav.dashboard"), icon: LayoutDashboard, exact: true },
     { href: `${base}/citas`, label: t("nav.citas"), icon: CalendarDays },
     { href: `${base}/beneficios`, label: t("nav.beneficios"), icon: Gift },
     { href: `${base}/avisos`, label: t("nav.avisos"), icon: Megaphone },
     { href: `${base}/documentos`, label: t("nav.documentos"), icon: FileText },
-    { href: `${base}/familia`, label: t("nav.familia"), icon: Users },
-  ];
+    { href: `${base}/ajustes`, label: t("nav.ajustes"), icon: SlidersHorizontal },
+  ] as { href: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }[];
+
+  // Mi Familia only visible to titulares
+  if (tipoCuenta === "titular") {
+    miembroItems.splice(5, 0, {
+      href: `${base}/familia`,
+      label: t("nav.familia"),
+      icon: Users,
+    });
+  }
+
+  return miembroItems;
 }
 
 function getRoleBadgeLabel(role: UserRole, t: ReturnType<typeof useTranslations>): string {
@@ -91,11 +109,12 @@ function SidebarContent({
   role,
   userName,
   userInitials,
+  tipoCuenta,
   onNavigate,
 }: SidebarProps & { onNavigate?: () => void }) {
   const locale = useLocale();
   const t = useTranslations("Dashboard.sidebar");
-  const navItems = useNavItems(role, locale, t);
+  const navItems = useNavItems(role, locale, t, tipoCuenta);
 
   return (
     <div className="flex flex-col h-full">
@@ -126,6 +145,7 @@ function SidebarContent({
             href={item.href}
             label={item.label}
             icon={item.icon}
+            exact={item.exact}
             onNavigate={onNavigate}
           />
         ))}
@@ -159,7 +179,7 @@ function SidebarContent({
 
 // ── Main exported Sidebar component ─────────────────────────────────────────
 
-export default function Sidebar({ role, userName, userInitials }: SidebarProps) {
+export default function Sidebar({ role, userName, userInitials, tipoCuenta }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -178,12 +198,12 @@ export default function Sidebar({ role, userName, userInitials }: SidebarProps) 
           role={role}
           userName={userName}
           userInitials={userInitials}
+          tipoCuenta={tipoCuenta}
         />
       </aside>
 
       {/* Mobile sidebar — Sheet drawer */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        {/* SheetTrigger renders as <button> natively — no asChild needed */}
         <SheetTrigger
           className="md:hidden fixed top-4 left-4 z-40 p-2 rounded-xl bg-white/90 backdrop-blur-md shadow-md border border-gray-200/60"
           aria-label="Open menu"
@@ -202,6 +222,7 @@ export default function Sidebar({ role, userName, userInitials }: SidebarProps) 
             role={role}
             userName={userName}
             userInitials={userInitials}
+            tipoCuenta={tipoCuenta}
             onNavigate={() => setMobileOpen(false)}
           />
         </SheetContent>
