@@ -7,8 +7,10 @@
  */
 
 import { useTranslations } from "next-intl";
-import { Bell } from "lucide-react";
+import { Bell, ArrowUpRight } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+
+import DateTimeDisplay from "./DateTimeDisplay";
 
 export default function Topbar() {
   const t = useTranslations("Dashboard.topbar");
@@ -24,9 +26,20 @@ export default function Topbar() {
         "flex items-center px-4 pl-14 md:pl-6 gap-4",
       ].join(" ")}
     >
+      <a
+        href="https://www.sosmedical.com.ni"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="hidden sm:flex items-center gap-2 text-xs font-medium text-white bg-secondary hover:bg-secondary/90 px-4 py-2 rounded-full shadow-sm transition-all group"
+      >
+        <span>{t("goToSOS")}</span>
+        <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+      </a>
+
       <div className="flex-1" />
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
+        <DateTimeDisplay />
         <LanguageSwitcher />
 
         <button

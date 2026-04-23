@@ -7,7 +7,7 @@
  */
 
 import { redirect } from "next/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { createClient } from "@/utils/supabase/server";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Topbar from "@/components/dashboard/Topbar";
@@ -27,6 +27,7 @@ export default async function DashboardLayout({
 }) {
   const supabase = await createClient();
   const locale = await getLocale();
+  const t = await getTranslations("Dashboard.sidebar.footer");
 
   // Verify session — middleware should have already redirected unauthenticated users,
   // but this is a defence-in-depth check.
@@ -62,6 +63,12 @@ export default async function DashboardLayout({
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           {children}
         </main>
+
+        <footer className="px-4 py-6 text-center border-t border-gray-100 bg-white/40">
+          <p className="text-xs text-gray-400 font-medium tracking-wide">
+            © {new Date().getFullYear()} SOS Medical. {t("rightsReserved")}
+          </p>
+        </footer>
       </div>
     </div>
   );

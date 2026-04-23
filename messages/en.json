@@ -109,7 +109,8 @@
   },
   "Dashboard": {
     "topbar": {
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "goToSOS": "Go to SOS Medical"
     },
     "sidebar": {
       "nav": {
@@ -133,7 +134,10 @@
         "miembro": "Member"
       },
       "logout": "Sign Out",
-      "loggingOut": "Signing out..."
+      "loggingOut": "Signing out...",
+      "footer": {
+        "rightsReserved": "All rights reserved."
+      }
     },
     "miembro": {
       "title": "Member Dashboard",

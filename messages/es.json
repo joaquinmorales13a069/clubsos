@@ -109,7 +109,8 @@
   },
   "Dashboard": {
     "topbar": {
-      "notifications": "Notificaciones"
+      "notifications": "Notificaciones",
+      "goToSOS": "Ir a SOS Medical"
     },
     "sidebar": {
       "nav": {
@@ -133,7 +134,10 @@
         "miembro": "Miembro"
       },
       "logout": "Cerrar Sesión",
-      "loggingOut": "Cerrando sesión..."
+      "loggingOut": "Cerrando sesión...",
+      "footer": {
+        "rightsReserved": "Todos los derechos reservados."
+      }
     },
     "miembro": {
       "title": "Panel de Miembro",
