@@ -280,7 +280,18 @@
       "beneficios": {
         "title": "Benefits",
         "subtitle": "Explore discounts and promotions available to you.",
-        "comingSoon": "Coming soon"
+        "comingSoon": "Coming soon",
+        "filterAll": "All",
+        "filterDiscount": "Discounts",
+        "filterPromotion": "Promotions",
+        "typeDiscount": "Discount",
+        "typePromotion": "Promotion",
+        "validUntil": "Valid until",
+        "empty": "No benefits available",
+        "emptySub": "There are no active benefits for your company at this time.",
+        "pageInfo": "Page {current} of {total}",
+        "prevPage": "Previous",
+        "nextPage": "Next"
       },
       "avisos": {
         "title": "Announcements",
