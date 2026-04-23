@@ -8,6 +8,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import {
   Users,
   ChevronLeft,
@@ -103,6 +104,11 @@ export default function MiFamilia({ initialData, initialCount, titularId }: MiFa
       setFamiliares((prev) =>
         prev.map((f) => f.id === familiar.id ? { ...f, estado: newEstado } : f)
       );
+      toast.success(
+        newEstado === "activo" ? t("activateBtn") : t("deactivateBtn")
+      );
+    } else {
+      toast.error(t("errorGeneric"));
     }
 
     setTogglingId(null);

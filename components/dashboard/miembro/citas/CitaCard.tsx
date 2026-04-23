@@ -4,6 +4,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { CalendarDays, Clock, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { cancelarCita } from "@/app/[locale]/(dashboard)/dashboard/citas/actions";
@@ -39,8 +40,11 @@ export default function CitaCard({ cita }: CitaCardProps) {
   async function handleCancel() {
     if (!confirm(t("cancelConfirm"))) return;
     setCancelling(true);
-    await cancelarCita(cita.id, cita.ea_appointment_id);
+    const result = await cancelarCita(cita.id, cita.ea_appointment_id);
     setCancelling(false);
+    if (result?.error) {
+      toast.error(result.error);
+    }
   }
 
   return (

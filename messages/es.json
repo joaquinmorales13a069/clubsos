@@ -382,6 +382,7 @@
         "emptySub": "Los familiares vinculados a tu cuenta aparecerán aquí.",
         "activateBtn": "Activar",
         "deactivateBtn": "Desactivar",
+        "errorGeneric": "Ocurrió un error. Inténtalo de nuevo.",
         "pageInfo": "Página {current} de {total}",
         "prevPage": "Anterior",
         "nextPage": "Siguiente",

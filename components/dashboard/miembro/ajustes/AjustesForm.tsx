@@ -15,13 +15,13 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import PhoneInput, { isPossiblePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
+import { toast } from "sonner";
 import {
   User,
   FileText,
   Mail,
   Phone,
   Shield,
-  CheckCircle2,
   Loader2,
   Pencil,
   X,
@@ -115,40 +115,32 @@ export default function AjustesForm({ profile }: AjustesFormProps) {
   const [nombre,    setNombre]    = useState(profile.nombre_completo ?? "");
   const [documento, setDocumento] = useState(profile.documento_identidad ?? "");
   const [savingPersonal, setSavingPersonal] = useState(false);
-  const [personalMsg,    setPersonalMsg]    = useState<{ ok: boolean; text: string } | null>(null);
 
   async function handleSavePersonal() {
     setSavingPersonal(true);
-    setPersonalMsg(null);
     const supabase = createClient();
     const { error } = await supabase
       .from("users")
       .update({ nombre_completo: nombre.trim(), documento_identidad: documento.trim() })
       .eq("id", profile.id);
 
-    setPersonalMsg(
-      error
-        ? { ok: false, text: t("errorGeneric") }
-        : { ok: true,  text: t("savedSuccess") },
-    );
+    error
+      ? toast.error(t("errorGeneric"))
+      : toast.success(t("savedSuccess"));
     setSavingPersonal(false);
   }
 
   // ── Section 3: Email ─────────────────────────────────────────────────
   const [email,       setEmail]       = useState(profile.email ?? "");
   const [savingEmail, setSavingEmail] = useState(false);
-  const [emailMsg,    setEmailMsg]    = useState<{ ok: boolean; text: string } | null>(null);
 
   async function handleSaveEmail() {
     setSavingEmail(true);
-    setEmailMsg(null);
     const supabase = createClient();
     const { error } = await supabase.auth.updateUser({ email: email.trim() });
-    setEmailMsg(
-      error
-        ? { ok: false, text: t("errorGeneric") }
-        : { ok: true,  text: t("emailConfirmSent") },
-    );
+    error
+      ? toast.error(t("errorGeneric"))
+      : toast.info(t("emailConfirmSent"));
     setSavingEmail(false);
   }
 
@@ -156,17 +148,15 @@ export default function AjustesForm({ profile }: AjustesFormProps) {
   const [phoneState,   setPhoneState]   = useState<PhoneState>("idle");
   const [newPhone,     setNewPhone]     = useState<string | undefined>(undefined);
   const [otpCode,      setOtpCode]      = useState("");
-  const [phoneMsg,     setPhoneMsg]     = useState<{ ok: boolean; text: string } | null>(null);
   const [currentPhone, setCurrentPhone] = useState(profile.telefono ?? "");
 
   async function handleSendOtp() {
     if (!newPhone || !isPossiblePhoneNumber(newPhone)) return;
     setPhoneState("enviando_otp");
-    setPhoneMsg(null);
     const supabase = createClient();
     const { error } = await supabase.auth.updateUser({ phone: newPhone });
     if (error) {
-      setPhoneMsg({ ok: false, text: t("errorGeneric") });
+      toast.error(t("errorGeneric"));
       setPhoneState("ingresando");
     } else {
       setPhoneState("verificando");
@@ -176,7 +166,6 @@ export default function AjustesForm({ profile }: AjustesFormProps) {
   async function handleVerifyOtp() {
     if (!newPhone) return;
     setPhoneState("confirmando");
-    setPhoneMsg(null);
     const supabase = createClient();
 
     // 1. Verify OTP via Supabase Auth
@@ -187,7 +176,7 @@ export default function AjustesForm({ profile }: AjustesFormProps) {
     });
 
     if (verifyError) {
-      setPhoneMsg({ ok: false, text: t("otpInvalid") });
+      toast.error(t("otpInvalid"));
       setPhoneState("verificando");
       return;
     }
@@ -200,14 +189,13 @@ export default function AjustesForm({ profile }: AjustesFormProps) {
 
     setCurrentPhone(newPhone);
     setPhoneState("success");
-    setPhoneMsg({ ok: true, text: t("phoneUpdated") });
+    toast.success(t("phoneUpdated"));
   }
 
   function resetPhoneFlow() {
     setPhoneState("idle");
     setNewPhone(undefined);
     setOtpCode("");
-    setPhoneMsg(null);
   }
 
   // ─────────────────────────────────────────────────────────────────────
@@ -271,12 +259,6 @@ export default function AjustesForm({ profile }: AjustesFormProps) {
             />
           </div>
 
-          {personalMsg && (
-            <p className={cn("text-xs font-roboto", personalMsg.ok ? "text-green-600" : "text-red-500")}>
-              {personalMsg.text}
-            </p>
-          )}
-
           <button
             type="button"
             onClick={handleSavePersonal}
@@ -306,16 +288,6 @@ export default function AjustesForm({ profile }: AjustesFormProps) {
             />
           </div>
 
-          {emailMsg && (
-            <div className={cn(
-              "flex items-start gap-2 text-xs font-roboto p-3 rounded-xl",
-              emailMsg.ok ? "bg-green-50 text-green-700" : "bg-red-50 text-red-600"
-            )}>
-              {emailMsg.ok && <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />}
-              <span>{emailMsg.text}</span>
-            </div>
-          )}
-
           <button
             type="button"
             onClick={handleSaveEmail}
@@ -342,20 +314,13 @@ export default function AjustesForm({ profile }: AjustesFormProps) {
               </div>
               <button
                 type="button"
-                onClick={() => { setPhoneState("ingresando"); setPhoneMsg(null); }}
+                onClick={() => setPhoneState("ingresando")}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200
                            text-xs font-semibold font-roboto text-secondary hover:border-secondary/50 transition-colors"
               >
                 <Pencil className="w-3.5 h-3.5" />
                 {t("changeBtn")}
               </button>
-            </div>
-          )}
-
-          {phoneState === "success" && phoneMsg && (
-            <div className="flex items-center gap-2 text-xs font-roboto text-green-700 bg-green-50 p-3 rounded-xl">
-              <CheckCircle2 className="w-4 h-4 shrink-0" />
-              {phoneMsg.text}
             </div>
           )}
 
@@ -429,10 +394,6 @@ export default function AjustesForm({ profile }: AjustesFormProps) {
                              focus:border-secondary transition"
                 />
               </div>
-
-              {phoneMsg && !phoneMsg.ok && (
-                <p className="text-xs font-roboto text-red-500">{phoneMsg.text}</p>
-              )}
 
               <div className="flex gap-2">
                 <button

@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { MapPin, Stethoscope, User, CalendarDays, Clock, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { MapPin, Stethoscope, User, CalendarDays, Clock, AlertCircle, Loader2 } from "lucide-react";
 import { crearCita } from "@/app/[locale]/(dashboard)/dashboard/citas/actions";
 import type { WizardState, WizardUserProfile } from "../types";
 
@@ -42,13 +43,10 @@ export default function PasoConfirmar({ wizard, userProfile, onBack, onSuccess }
   const t  = useTranslations("Dashboard.miembro.citas.wizard");
   const tc = useTranslations("Dashboard.miembro.citas.wizard.confirmar");
   const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   async function handleConfirm() {
     if (!wizard.fecha || !wizard.hora || !wizard.eaServiceId || !wizard.eaProviderId) return;
     setLoading(true);
-    setError(null);
 
     const result = await crearCita({
       empresaId:        userProfile.empresa_id,
@@ -68,20 +66,11 @@ export default function PasoConfirmar({ wizard, userProfile, onBack, onSuccess }
     setLoading(false);
 
     if (result.error) {
-      setError(result.error);
+      toast.error(tc("error"));
     } else {
-      setSuccess(true);
-      setTimeout(onSuccess, 1500);
+      toast.success(tc("success"));
+      onSuccess();
     }
-  }
-
-  if (success) {
-    return (
-      <div className="flex flex-col items-center text-center py-10 space-y-3">
-        <CheckCircle2 className="w-14 h-14 text-green-500" />
-        <p className="text-lg font-poppins font-bold text-gray-900">{tc("success")}</p>
-      </div>
-    );
   }
 
   return (
@@ -106,12 +95,6 @@ export default function PasoConfirmar({ wizard, userProfile, onBack, onSuccess }
         <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
         <p className="text-xs font-roboto text-amber-700">{tc("pendingNote")}</p>
       </div>
-
-      {error && (
-        <p className="text-xs font-roboto text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-          {tc("error")}
-        </p>
-      )}
 
       <div className="flex items-center justify-between pt-2">
         <button

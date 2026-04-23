@@ -382,6 +382,7 @@
         "emptySub": "Family members linked to your account will appear here.",
         "activateBtn": "Activate",
         "deactivateBtn": "Deactivate",
+        "errorGeneric": "An error occurred. Please try again.",
         "pageInfo": "Page {current} of {total}",
         "prevPage": "Previous",
         "nextPage": "Next",

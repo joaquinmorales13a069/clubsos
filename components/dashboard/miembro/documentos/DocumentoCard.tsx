@@ -9,6 +9,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import {
   FlaskConical,
   ScanLine,
@@ -67,7 +68,6 @@ function formatFecha(dateStr: string | null): string | null {
 export default function DocumentoCard({ documento }: DocumentoCardProps) {
   const t = useTranslations("Dashboard.miembro.documentos");
   const [loading, setLoading] = useState<"view" | "download" | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const config = TIPO_CONFIG[documento.tipo_documento] ?? TIPO_CONFIG.otro;
   const Icon   = config.icon;
@@ -75,13 +75,12 @@ export default function DocumentoCard({ documento }: DocumentoCardProps) {
 
   /** Generate one signed URL (300 s) and perform the action */
   async function getSignedUrl(): Promise<string | null> {
-    setErrorMsg(null);
     const supabase = createClient();
     const { data, error } = await supabase.storage
       .from(STORAGE_BUCKET)
       .createSignedUrl(documento.file_path, 300);
     if (error || !data?.signedUrl) {
-      setErrorMsg(t("errorUrl"));
+      toast.error(t("errorUrl"));
       return null;
     }
     return data.signedUrl;
@@ -142,10 +141,6 @@ export default function DocumentoCard({ documento }: DocumentoCardProps) {
           )}
         </div>
 
-        {/* Error */}
-        {errorMsg && (
-          <p className="text-xs text-red-500 font-roboto">{errorMsg}</p>
-        )}
       </div>
 
       {/* Actions */}
