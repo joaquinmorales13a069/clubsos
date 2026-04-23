@@ -197,7 +197,85 @@
       "citas": {
         "title": "Mis Citas",
         "subtitle": "Agenda y consulta el historial de tus citas médicas.",
-        "comingSoon": "Disponible próximamente"
+        "comingSoon": "Disponible próximamente",
+        "scheduleBtn": "Agendar Cita",
+        "scheduleTitle": "Nueva Cita",
+        "cancelWizard": "Cancelar",
+        "noAppointments": "No tienes citas agendadas",
+        "noAppointmentsSub": "Agenda tu primera cita médica con un especialista",
+        "sectionUpcoming": "Próximas",
+        "sectionHistory": "Historial",
+        "cancelBtn": "Cancelar cita",
+        "cancelConfirm": "¿Estás seguro de que deseas cancelar esta cita?",
+        "statusPendiente": "Pendiente aprobación",
+        "statusConfirmado": "Confirmado",
+        "statusCompletado": "Completado",
+        "statusCancelado": "Cancelado",
+        "wizard": {
+          "step": "Paso",
+          "backBtn": "Atrás",
+          "continueBtn": "Continuar",
+          "stepUbicacion": "Ubicación",
+          "stepServicio": "Servicio",
+          "stepDoctor": "Doctor",
+          "stepFecha": "Fecha",
+          "stepHorario": "Horario",
+          "stepPaciente": "Paciente",
+          "stepConfirmar": "Confirmar",
+          "ubicacion": {
+            "title": "¿Dónde deseas tu cita?",
+            "subtitle": "Selecciona la ubicación de la clínica",
+            "managua": "Managua",
+            "managuaDesc": "Clínicas SOS en la capital",
+            "leon": "León",
+            "leonDesc": "Clínicas SOS en el occidente"
+          },
+          "servicio": {
+            "title": "¿Qué servicio necesitas?",
+            "subtitle": "Selecciona el tipo de consulta médica",
+            "loading": "Cargando servicios...",
+            "noServices": "No hay servicios disponibles en esta ubicación",
+            "duration": "min",
+            "price": "C$"
+          },
+          "doctor": {
+            "title": "Selecciona tu doctor",
+            "subtitle": "Elige el profesional que te atenderá",
+            "loading": "Cargando doctores...",
+            "noDoctors": "No hay doctores disponibles para este servicio"
+          },
+          "fecha": {
+            "title": "¿Cuándo deseas tu cita?",
+            "subtitle": "Selecciona una fecha disponible",
+            "constraintInfo": "Puedes agendar con al menos 1 día de anticipación y hasta 3 meses en el futuro. Los domingos no están disponibles."
+          },
+          "horario": {
+            "title": "Selecciona tu horario",
+            "subtitle": "Elige el horario que más te convenga",
+            "loading": "Cargando horarios disponibles...",
+            "noSlots": "No hay horarios disponibles",
+            "noSlotsSub": "Intenta seleccionando otra fecha"
+          },
+          "paciente": {
+            "title": "¿Para quién es la cita?",
+            "subtitle": "Especifica los datos del paciente",
+            "forMe": "Para mí",
+            "forOther": "Otra persona",
+            "nameLabel": "Nombre Completo",
+            "phoneLabel": "Teléfono (opcional)",
+            "emailLabel": "Correo (opcional)",
+            "cedLabel": "Cédula (opcional)"
+          },
+          "confirmar": {
+            "title": "Confirma tu cita",
+            "subtitle": "Revisa los detalles antes de confirmar",
+            "pendingNote": "Tu cita quedará pendiente de aprobación. El equipo médico la confirmará pronto.",
+            "confirmBtn": "Confirmar Cita",
+            "loading": "Agendando...",
+            "success": "¡Cita agendada exitosamente!",
+            "error": "Error al agendar. Por favor intenta de nuevo."
+          }
+        }
       },
       "beneficios": {
         "title": "Beneficios",

@@ -196,8 +196,86 @@
       },
       "citas": {
         "title": "My Appointments",
-        "subtitle": "Schedule and view your medical appointment history.",
-        "comingSoon": "Coming soon"
+        "subtitle": "Schedule and manage your medical appointments.",
+        "comingSoon": "Coming soon",
+        "scheduleBtn": "Schedule Appointment",
+        "scheduleTitle": "New Appointment",
+        "cancelWizard": "Cancel",
+        "noAppointments": "No appointments scheduled",
+        "noAppointmentsSub": "Schedule your first appointment with a specialist",
+        "sectionUpcoming": "Upcoming",
+        "sectionHistory": "History",
+        "cancelBtn": "Cancel appointment",
+        "cancelConfirm": "Are you sure you want to cancel this appointment?",
+        "statusPendiente": "Pending approval",
+        "statusConfirmado": "Confirmed",
+        "statusCompletado": "Completed",
+        "statusCancelado": "Cancelled",
+        "wizard": {
+          "step": "Step",
+          "backBtn": "Back",
+          "continueBtn": "Continue",
+          "stepUbicacion": "Location",
+          "stepServicio": "Service",
+          "stepDoctor": "Doctor",
+          "stepFecha": "Date",
+          "stepHorario": "Time",
+          "stepPaciente": "Patient",
+          "stepConfirmar": "Confirm",
+          "ubicacion": {
+            "title": "Where do you want your appointment?",
+            "subtitle": "Select the clinic location",
+            "managua": "Managua",
+            "managuaDesc": "SOS Clinics in the capital",
+            "leon": "León",
+            "leonDesc": "SOS Clinics in the west"
+          },
+          "servicio": {
+            "title": "What service do you need?",
+            "subtitle": "Select the type of medical consultation",
+            "loading": "Loading services...",
+            "noServices": "No services available at this location",
+            "duration": "min",
+            "price": "C$"
+          },
+          "doctor": {
+            "title": "Select your doctor",
+            "subtitle": "Choose the healthcare professional",
+            "loading": "Loading doctors...",
+            "noDoctors": "No doctors available for this service"
+          },
+          "fecha": {
+            "title": "When do you want your appointment?",
+            "subtitle": "Select an available date",
+            "constraintInfo": "You can book at least 1 day ahead and up to 3 months in the future. Sundays are not available."
+          },
+          "horario": {
+            "title": "Select your time slot",
+            "subtitle": "Choose the time that works best for you",
+            "loading": "Loading available slots...",
+            "noSlots": "No available time slots",
+            "noSlotsSub": "Try selecting a different date"
+          },
+          "paciente": {
+            "title": "Who is the appointment for?",
+            "subtitle": "Specify the patient details",
+            "forMe": "For me",
+            "forOther": "Someone else",
+            "nameLabel": "Full Name",
+            "phoneLabel": "Phone (optional)",
+            "emailLabel": "Email (optional)",
+            "cedLabel": "ID Number (optional)"
+          },
+          "confirmar": {
+            "title": "Confirm your appointment",
+            "subtitle": "Review the details before confirming",
+            "pendingNote": "Your appointment will be pending approval. The medical team will confirm it shortly.",
+            "confirmBtn": "Confirm Appointment",
+            "loading": "Scheduling...",
+            "success": "Appointment scheduled successfully!",
+            "error": "Error scheduling appointment. Please try again."
+          }
+        }
       },
       "beneficios": {
         "title": "Benefits",

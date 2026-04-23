@@ -1,18 +1,38 @@
-import { getTranslations } from "next-intl/server";
-import { CalendarDays } from "lucide-react";
+/**
+ * Citas page — Step 5.3
+ * Server Component: fetches citas and user profile, passes to MisCitas client component.
+ */
 
-// Placeholder — full implementation in Step 5.3
+import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
+import { createClient } from "@/utils/supabase/server";
+import MisCitas from "@/components/dashboard/miembro/citas/MisCitas";
 
 export default async function CitasPage() {
-  const t = await getTranslations("Dashboard.miembro.citas");
+  const supabase = await createClient();
+  const locale   = await getLocale();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect(`/${locale}/login`);
+
+  const [citasRes, profileRes] = await Promise.all([
+    supabase
+      .from("citas")
+      .select("id, fecha_hora_cita, estado_sync, servicio_asociado, ea_appointment_id, paciente_nombre, para_titular")
+      .order("fecha_hora_cita", { ascending: false }),
+
+    supabase
+      .from("users")
+      .select("id, empresa_id, ea_customer_id, nombre_completo, telefono, documento_identidad")
+      .eq("id", user.id)
+      .single(),
+  ]);
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-4">
-      <div className="w-16 h-16 rounded-2xl bg-secondary/10 flex items-center justify-center">
-        <CalendarDays className="w-8 h-8 text-secondary" />
-      </div>
-      <h1 className="text-2xl font-poppins font-bold text-gray-900">{t("title")}</h1>
-      <p className="text-neutral max-w-sm font-roboto">{t("subtitle")}</p>
-      <span className="text-xs text-neutral/60 bg-gray-100 px-3 py-1 rounded-full">{t("comingSoon")}</span>
-    </div>
+    <MisCitas
+      citas={citasRes.data ?? []}
+      userProfile={profileRes.data ?? null}
+      locale={locale}
+    />
   );
 }

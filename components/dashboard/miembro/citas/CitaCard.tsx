@@ -1,0 +1,96 @@
+"use client";
+
+/** Displays a single cita with status badge and cancel action */
+
+import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { CalendarDays, Clock, X, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { cancelarCita } from "@/app/[locale]/(dashboard)/dashboard/citas/actions";
+import type { CitaRow } from "./types";
+
+interface CitaCardProps {
+  cita: CitaRow;
+}
+
+const ESTADO_STYLES: Record<string, { badge: string; label: string }> = {
+  pendiente:  { badge: "bg-amber-100 text-amber-700",  label: "statusPendiente"  },
+  confirmado: { badge: "bg-green-100 text-green-700",  label: "statusConfirmado" },
+  completado: { badge: "bg-blue-100 text-blue-700",    label: "statusCompletado" },
+  cancelado:  { badge: "bg-gray-100 text-gray-500",    label: "statusCancelado"  },
+};
+
+function formatDateTime(dtStr: string) {
+  const dt = new Date(dtStr);
+  return {
+    date: dt.toLocaleDateString("es-NI", { weekday: "short", day: "numeric", month: "short", year: "numeric" }),
+    time: dt.toLocaleTimeString("es-NI", { hour: "2-digit", minute: "2-digit" }),
+  };
+}
+
+const CANCELABLE = new Set(["pendiente", "confirmado"]);
+
+export default function CitaCard({ cita }: CitaCardProps) {
+  const t = useTranslations("Dashboard.miembro.citas");
+  const [cancelling, setCancelling] = useState(false);
+  const style = ESTADO_STYLES[cita.estado_sync] ?? ESTADO_STYLES.cancelado;
+  const { date, time } = formatDateTime(cita.fecha_hora_cita);
+
+  async function handleCancel() {
+    if (!confirm(t("cancelConfirm"))) return;
+    setCancelling(true);
+    await cancelarCita(cita.id, cita.ea_appointment_id);
+    setCancelling(false);
+  }
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-3">
+      {/* Top row */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="space-y-1">
+          <div className="flex items-center gap-1.5 text-gray-700">
+            <CalendarDays className="w-4 h-4 text-secondary shrink-0" />
+            <span className="text-sm font-roboto font-medium capitalize">{date}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-neutral">
+            <Clock className="w-3.5 h-3.5 shrink-0" />
+            <span className="text-sm font-roboto">{time}</span>
+          </div>
+        </div>
+        <span className={cn("shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full", style.badge)}>
+          {t(style.label)}
+        </span>
+      </div>
+
+      {/* Service */}
+      {cita.servicio_asociado && (
+        <p className="text-xs font-roboto text-neutral bg-gray-50 px-3 py-1.5 rounded-lg truncate">
+          {cita.servicio_asociado}
+        </p>
+      )}
+
+      {/* Patient (when not for self) */}
+      {!cita.para_titular && cita.paciente_nombre && (
+        <p className="text-xs font-roboto text-neutral">
+          Paciente: <span className="font-medium text-gray-700">{cita.paciente_nombre}</span>
+        </p>
+      )}
+
+      {/* Cancel button */}
+      {CANCELABLE.has(cita.estado_sync) && (
+        <button
+          onClick={handleCancel}
+          disabled={cancelling}
+          className="flex items-center gap-1.5 text-xs font-semibold text-red-500 hover:text-red-600 disabled:opacity-50 transition-colors"
+        >
+          {cancelling ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : (
+            <X className="w-3.5 h-3.5" />
+          )}
+          {t("cancelBtn")}
+        </button>
+      )}
+    </div>
+  );
+}
