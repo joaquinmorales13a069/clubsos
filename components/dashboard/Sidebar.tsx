@@ -120,18 +120,14 @@ function SidebarContent({
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="px-4 py-5">
-        <Link href={`/${locale}/dashboard`} className="flex items-center gap-3">
+        <Link href={`/${locale}/dashboard`} className="flex items-center">
           <Image
-            src="/logo-clubSOS.webp"
-            alt="Club SOS"
-            width={40}
+            src="/logo-SOSMedical.webp"
+            alt="SOS Medical"
+            width={160}
             height={40}
-            className="object-contain"
+            className="object-contain h-10 w-auto"
           />
-          <div>
-            <p className="text-sm font-poppins font-bold text-gray-900 leading-tight">ClubSOS</p>
-            <p className="text-xs font-roboto text-neutral leading-tight">Medical</p>
-          </div>
         </Link>
       </div>
 
