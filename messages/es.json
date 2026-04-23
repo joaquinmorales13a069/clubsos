@@ -329,7 +329,44 @@
       "ajustes": {
         "title": "Ajustes",
         "subtitle": "Actualiza tu información personal y credenciales de acceso.",
-        "comingSoon": "Disponible próximamente"
+        "comingSoon": "Disponible próximamente",
+        "sectionAccount": "Información de Cuenta",
+        "sectionPersonal": "Datos Personales",
+        "sectionEmail": "Correo Electrónico",
+        "sectionPhone": "Teléfono WhatsApp",
+        "fieldRol": "Rol",
+        "fieldTipoCuenta": "Tipo de Cuenta",
+        "fieldUsername": "Nombre de Usuario",
+        "fieldFechaNacimiento": "Fecha de Nacimiento",
+        "fieldNombre": "Nombre Completo",
+        "fieldDocumento": "Documento de Identidad",
+        "fieldEmail": "Correo Electrónico",
+        "fieldPhoneCurrent": "Número Actual",
+        "fieldPhoneNew": "Nuevo Número de WhatsApp",
+        "fieldOtp": "Código de Verificación",
+        "otpSentTo": "Código enviado por WhatsApp a",
+        "saveBtn": "Guardar Cambios",
+        "changeBtn": "Cambiar",
+        "cancelBtn": "Cancelar",
+        "sendOtpBtn": "Enviar Código",
+        "verifyBtn": "Verificar",
+        "sendingOtp": "Enviando código por WhatsApp...",
+        "verifyingOtp": "Verificando código...",
+        "savedSuccess": "Cambios guardados correctamente.",
+        "emailConfirmSent": "Te enviamos un correo de confirmación a tu nueva dirección. Revisa tu bandeja de entrada.",
+        "phoneUpdated": "Número de teléfono actualizado correctamente.",
+        "otpInvalid": "Código incorrecto o expirado. Intenta de nuevo.",
+        "errorGeneric": "Ocurrió un error. Por favor intenta de nuevo.",
+        "readOnlyNote": "Rol, tipo de cuenta, fecha de nacimiento y nombre de usuario solo pueden modificarse por un administrador.",
+        "rol": {
+          "admin": "Admin Global",
+          "empresa_admin": "Admin de Empresa",
+          "miembro": "Miembro"
+        },
+        "tipoCuenta": {
+          "titular": "Titular",
+          "familiar": "Familiar"
+        }
       },
       "familia": {
         "title": "Mi Familia",

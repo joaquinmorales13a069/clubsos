@@ -329,7 +329,44 @@
       "ajustes": {
         "title": "Settings",
         "subtitle": "Update your personal information and access credentials.",
-        "comingSoon": "Coming soon"
+        "comingSoon": "Coming soon",
+        "sectionAccount": "Account Information",
+        "sectionPersonal": "Personal Details",
+        "sectionEmail": "Email Address",
+        "sectionPhone": "WhatsApp Phone",
+        "fieldRol": "Role",
+        "fieldTipoCuenta": "Account Type",
+        "fieldUsername": "Username",
+        "fieldFechaNacimiento": "Date of Birth",
+        "fieldNombre": "Full Name",
+        "fieldDocumento": "ID Document",
+        "fieldEmail": "Email Address",
+        "fieldPhoneCurrent": "Current Number",
+        "fieldPhoneNew": "New WhatsApp Number",
+        "fieldOtp": "Verification Code",
+        "otpSentTo": "Code sent via WhatsApp to",
+        "saveBtn": "Save Changes",
+        "changeBtn": "Change",
+        "cancelBtn": "Cancel",
+        "sendOtpBtn": "Send Code",
+        "verifyBtn": "Verify",
+        "sendingOtp": "Sending WhatsApp code...",
+        "verifyingOtp": "Verifying code...",
+        "savedSuccess": "Changes saved successfully.",
+        "emailConfirmSent": "We sent a confirmation email to your new address. Please check your inbox.",
+        "phoneUpdated": "Phone number updated successfully.",
+        "otpInvalid": "Incorrect or expired code. Please try again.",
+        "errorGeneric": "An error occurred. Please try again.",
+        "readOnlyNote": "Role, account type, date of birth, and username can only be changed by an administrator.",
+        "rol": {
+          "admin": "Global Admin",
+          "empresa_admin": "Company Admin",
+          "miembro": "Member"
+        },
+        "tipoCuenta": {
+          "titular": "Primary",
+          "familiar": "Family"
+        }
       },
       "familia": {
         "title": "My Family",

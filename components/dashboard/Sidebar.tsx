@@ -131,8 +131,6 @@ function SidebarContent({
         </Link>
       </div>
 
-      <Separator className="mx-4" />
-
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => (
@@ -161,7 +159,7 @@ function SidebarContent({
             <p className="text-sm font-roboto font-medium text-gray-900 truncate leading-tight">{userName}</p>
             <Badge
               variant="secondary"
-              className="text-xs px-1.5 py-0 mt-0.5 font-normal"
+              className="text-xs px-1.5 py-0 mt-0.5 font-normal text-white  "
             >
               {getRoleBadgeLabel(role, t)}
             </Badge>
