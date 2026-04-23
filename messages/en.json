@@ -375,7 +375,25 @@
       "familia": {
         "title": "My Family",
         "subtitle": "Manage family members linked to your account.",
-        "comingSoon": "Coming soon"
+        "comingSoon": "Coming soon",
+        "accessDeniedTitle": "Access restricted",
+        "accessDeniedSub": "This section is only available for primary account holders.",
+        "empty": "No family members registered",
+        "emptySub": "Family members linked to your account will appear here.",
+        "activateBtn": "Activate",
+        "deactivateBtn": "Deactivate",
+        "pageInfo": "Page {current} of {total}",
+        "prevPage": "Previous",
+        "nextPage": "Next",
+        "estado": {
+          "activo": "Active",
+          "inactivo": "Inactive",
+          "pendiente": "Pending"
+        },
+        "tipoCuenta": {
+          "titular": "Primary",
+          "familiar": "Family"
+        }
       }
     },
     "empresa": {

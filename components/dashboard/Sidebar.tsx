@@ -13,7 +13,6 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import {
   LayoutDashboard,
-  CreditCard,
   CalendarDays,
   Gift,
   Megaphone,

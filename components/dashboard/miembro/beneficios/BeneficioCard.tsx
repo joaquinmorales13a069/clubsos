@@ -28,12 +28,12 @@ const TIPO_CONFIG: Record<
   { badge: string; icon: React.ElementType; labelKey: string }
 > = {
   descuento: {
-    badge: "bg-primary/10 text-primary",
+    badge: "bg-primary/10 text-white",
     icon: Percent,
     labelKey: "typeDiscount",
   },
   promocion: {
-    badge: "bg-secondary/10 text-secondary",
+    badge: "bg-secondary/10 text-white",
     icon: Tag,
     labelKey: "typePromotion",
   },

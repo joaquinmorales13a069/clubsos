@@ -375,7 +375,25 @@
       "familia": {
         "title": "Mi Familia",
         "subtitle": "Gestiona los miembros familiares vinculados a tu cuenta.",
-        "comingSoon": "Disponible próximamente"
+        "comingSoon": "Disponible próximamente",
+        "accessDeniedTitle": "Acceso restringido",
+        "accessDeniedSub": "Esta sección solo está disponible para cuentas titulares.",
+        "empty": "Sin familiares registrados",
+        "emptySub": "Los familiares vinculados a tu cuenta aparecerán aquí.",
+        "activateBtn": "Activar",
+        "deactivateBtn": "Desactivar",
+        "pageInfo": "Página {current} de {total}",
+        "prevPage": "Anterior",
+        "nextPage": "Siguiente",
+        "estado": {
+          "activo": "Activo",
+          "inactivo": "Inactivo",
+          "pendiente": "Pendiente"
+        },
+        "tipoCuenta": {
+          "titular": "Titular",
+          "familiar": "Familiar"
+        }
       }
     },
     "empresa": {
