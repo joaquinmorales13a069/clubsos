@@ -38,8 +38,7 @@ export async function buscarEmpresaAction(
 
   return { id: data.id, nombre: data.nombre };
 }
-import { redirect } from "next/navigation";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 
 // ─── Step 4: Send OTP to verify phone during signup ────────────────────────
 
@@ -118,7 +117,7 @@ export interface SignupProfileData {
 
 export async function completeSignupAction(
   formData: SignupProfileData
-): Promise<{ error?: string }> {
+): Promise<{ success?: true; error?: string }> {
   const supabase = await createClient();
 
   // Confirm the user is authenticated (phone was verified in Step 4)
@@ -211,7 +210,5 @@ export async function completeSignupAction(
     return { error: t("profileError", { message: profileError.message }) };
   }
 
-  // Redirect to member dashboard on successful registration
-  const locale = await getLocale();
-  redirect(`/${locale}/dashboard`);
+  return { success: true };
 }

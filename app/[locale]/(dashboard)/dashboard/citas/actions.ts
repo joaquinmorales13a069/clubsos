@@ -8,6 +8,27 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
 
+// ── EA helpers (mirrors app/api/ea/citas/aprobar/route.ts) ────────────────────
+
+const EA_RAW_URL = process.env.NEXT_PUBLIC_EA_API_URL ?? "";
+const EA_KEY     = process.env.EA_API_KEY ?? "";
+
+function eaBase(): string {
+  return EA_RAW_URL
+    .replace(/\/+$/, "")
+    .replace(/\/api\/v1$/, "");
+}
+
+function toEaDatetime(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return (
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +
+    `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+  );
+}
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+
 export interface CrearCitaInput {
   empresaId:        string | null;
   eaCustomerId:     number | null;
@@ -22,6 +43,8 @@ export interface CrearCitaInput {
   pacienteCedula:   string | null;
   motivoCita:       string | null;
 }
+
+// ── crearCita ─────────────────────────────────────────────────────────────────
 
 export async function crearCita(input: CrearCitaInput) {
   const supabase = await createClient();
@@ -38,31 +61,114 @@ export async function crearCita(input: CrearCitaInput) {
     .eq("id", user.id)
     .single();
 
-  const estadoSync = profile?.rol === "empresa_admin" ? "confirmado" : "pendiente";
+  const isEmpresaAdmin = profile?.rol === "empresa_admin";
+  const estadoSync     = isEmpresaAdmin ? "confirmado" : "pendiente";
 
-  const { error } = await supabase.from("citas").insert({
-    paciente_id:       user.id,
-    empresa_id:        input.empresaId,
-    ea_customer_id:    input.eaCustomerId,
-    ea_service_id:     input.eaServiceId,
-    ea_provider_id:    input.eaProviderId,
-    fecha_hora_cita:   input.fechaHoraCita,
-    servicio_asociado: input.servicioAsociado,
-    para_titular:      input.paraTitular,
-    paciente_nombre:   input.pacienteNombre,
-    paciente_telefono: input.pacienteTelefono,
-    paciente_correo:   input.pacienteCorreo,
-    paciente_cedula:   input.pacienteCedula,
-    motivo_cita:       input.motivoCita,
-    estado_sync:       estadoSync,
-    ea_appointment_id: null,
-  });
+  // Insert and return the new cita ID so we can update ea_appointment_id later.
+  const { data: inserted, error } = await supabase
+    .from("citas")
+    .insert({
+      paciente_id:       user.id,
+      empresa_id:        input.empresaId,
+      ea_customer_id:    input.eaCustomerId,
+      ea_service_id:     input.eaServiceId,
+      ea_provider_id:    input.eaProviderId,
+      fecha_hora_cita:   input.fechaHoraCita,
+      servicio_asociado: input.servicioAsociado,
+      para_titular:      input.paraTitular,
+      paciente_nombre:   input.pacienteNombre,
+      paciente_telefono: input.pacienteTelefono,
+      paciente_correo:   input.pacienteCorreo,
+      paciente_cedula:   input.pacienteCedula,
+      motivo_cita:       input.motivoCita,
+      estado_sync:       estadoSync,
+      ea_appointment_id: null,
+    })
+    .select("id")
+    .single();
 
   if (error) return { error: error.message };
+
+  // ── EA sync for empresa_admin (auto-confirmed citas) ──────────────────────
+  // Miembro citas stay pendiente and are synced when empresa_admin approves them.
+  if (isEmpresaAdmin && input.eaCustomerId) {
+    const hasEaCreds   = Boolean(EA_RAW_URL && EA_KEY);
+    const hasEaService = Boolean(input.eaServiceId && input.eaProviderId);
+
+    if (hasEaCreds && hasEaService) {
+      try {
+        // Fetch service duration for end-time calculation.
+        const { data: svcRow } = await supabase
+          .from("servicios")
+          .select("duracion")
+          .eq("ea_service_id", input.eaServiceId)
+          .single();
+
+        const duracionMin = (svcRow?.duracion as number | null) ?? 30;
+        const startDate   = new Date(input.fechaHoraCita);
+        const endDate     = new Date(startDate.getTime() + duracionMin * 60_000);
+
+        // Build notes for third-party patients.
+        let notes: string | undefined;
+        if (!input.paraTitular) {
+          const parts: string[] = ["[Paciente tercero]"];
+          if (input.pacienteNombre)   parts.push(`Nombre: ${input.pacienteNombre}`);
+          if (input.pacienteTelefono) parts.push(`Teléfono: ${input.pacienteTelefono}`);
+          if (input.pacienteCorreo)   parts.push(`Correo: ${input.pacienteCorreo}`);
+          if (input.pacienteCedula)   parts.push(`Cédula: ${input.pacienteCedula}`);
+          if (input.motivoCita)       parts.push(`Motivo: ${input.motivoCita}`);
+          notes = parts.join("\n");
+        } else if (input.motivoCita) {
+          notes = input.motivoCita;
+        }
+
+        const payload: Record<string, unknown> = {
+          book:       toEaDatetime(new Date()),
+          start:      toEaDatetime(startDate),
+          end:        toEaDatetime(endDate),
+          serviceId:  input.eaServiceId,
+          providerId: input.eaProviderId,
+          customerId: input.eaCustomerId,
+        };
+        if (notes) payload.notes = notes;
+
+        const eaRes = await fetch(`${eaBase()}/api/v1/appointments`, {
+          method:  "POST",
+          headers: {
+            "Content-Type":  "application/json",
+            "Authorization": `Bearer ${EA_KEY}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (eaRes.ok) {
+          const eaData = await eaRes.json() as { id?: number };
+          if (eaData.id && inserted?.id) {
+            await supabase
+              .from("citas")
+              .update({ ea_appointment_id: String(eaData.id) })
+              .eq("id", inserted.id);
+          } else {
+            console.warn("[crearCita] EA returned OK but no appointment id:", eaData);
+          }
+        } else {
+          const errText = await eaRes.text().catch(() => "(no body)");
+          console.error(`[crearCita] EA API returned HTTP ${eaRes.status}: ${errText}`);
+        }
+      } catch (err) {
+        console.error("[crearCita] EA API call threw an exception:", err);
+      }
+    } else {
+      if (!hasEaCreds)   console.info("[crearCita] EA credentials not configured — DB-only.");
+      if (!hasEaService) console.info("[crearCita] Missing eaServiceId or eaProviderId — DB-only.");
+    }
+  }
 
   revalidatePath("/", "layout");
   return { success: true };
 }
+
+// ── cancelarCita ──────────────────────────────────────────────────────────────
 
 export async function cancelarCita(citaId: string, eaAppointmentId: string | null) {
   const supabase = await createClient();
@@ -75,7 +181,6 @@ export async function cancelarCita(citaId: string, eaAppointmentId: string | nul
     const EA_BASE = process.env.NEXT_PUBLIC_EA_API_URL ?? "";
     const EA_KEY  = process.env.EA_API_KEY ?? "";
     if (EA_BASE && EA_KEY) {
-      // Normalize EA_BASE: remove trailing slash and redundant /api/v1 if present
       const base = EA_BASE.replace(/\/+$/, "").replace(/\/api\/v1$/, "");
       await fetch(`${base}/api/v1/appointments/${eaAppointmentId}`, {
         method: "DELETE",

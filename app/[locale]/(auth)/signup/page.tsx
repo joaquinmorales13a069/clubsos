@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,8 +13,10 @@ import { UserCircle, Users, Building2, Search, ShieldCheck, ArrowRight, ArrowLef
 import { sendSignupOtpAction, verifySignupOtpAction, completeSignupAction, buscarEmpresaAction } from "./actions";
 
 export default function SignupPage() {
-  const t = useTranslations("Auth.signup");
+  const t  = useTranslations("Auth.signup");
   const tf = useTranslations("Auth.footer");
+  const router = useRouter();
+  const locale = useLocale();
   const [step, setStep] = useState(1);
   
   // Form State
@@ -108,7 +111,13 @@ export default function SignupPage() {
       email: noEmail ? null : email || null,
     });
     setIsLoading(false);
-    if (result?.error) setServerError(result.error);
+    if (result?.error) {
+      setServerError(result.error);
+      return;
+    }
+    if (result?.success) {
+      router.push(`/${locale}/dashboard`);
+    }
   };
 
   const renderStep1 = () => (

@@ -1,37 +1,90 @@
 /**
  * POST /api/ea/citas/aprobar
  *
- * Approves a pending cita. Keeps Easy!Appointments credentials server-side.
+ * Approves a pending cita and syncs it with Easy!Appointments.
  *
  * Flow:
- *   1. Verify the caller is an authenticated empresa_admin.
- *   2. (TODO: EA integration) Push appointment to Easy!Appointments API,
- *      receive the ea_appointment_id back.
- *   3. Update public.citas: estado_sync = 'confirmado', ea_appointment_id = <from EA>.
+ *   1. Verify caller is an authenticated empresa_admin.
+ *   2. Fetch the cita (with service duration + paciente ea_customer_id).
+ *   3. Verify cita is still `pendiente` and belongs to the caller's empresa.
+ *   4. Build the EA appointment payload:
+ *        - customerId  → public.users.ea_customer_id of the paciente_id user
+ *        - start       → fecha_hora_cita formatted as "YYYY-MM-DD HH:mm:ss"
+ *        - end         → start + service duration (default 30 min if unknown)
+ *        - book        → current server timestamp
+ *        - notes       → patient details when para_titular = false (third-party)
+ *   5. POST to EA API /appointments.
+ *   6. Update public.citas: estado_sync = 'confirmado', ea_appointment_id = <id from EA>.
  *
- * Body: { citaId: string }
+ *   If the EA call fails for any reason, the cita is still approved in DB
+ *   (soft fail — EA downtime must not block the approval workflow).
+ *
+ * Body:   { citaId: string }
  * Returns: { ok: true, cita: { id, estado_sync, ea_appointment_id } }
- *
- * NOTE: EA integration is a future step. Until credentials are configured,
- * the handler approves directly in DB (estado_sync = 'confirmado').
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
-const EA_BASE = process.env.NEXT_PUBLIC_EA_API_URL ?? "";
-const EA_KEY  = process.env.EA_API_KEY ?? "";
+// ── EA credentials (server-side only) ─────────────────────────────────────────
+
+const EA_RAW_URL = process.env.NEXT_PUBLIC_EA_API_URL ?? "";
+const EA_KEY     = process.env.EA_API_KEY ?? "";
+
+/**
+ * Normalise the configured EA URL to a base that ends without /api/v1.
+ * Supports both  https://host/index.php/api/v1/  and  https://host
+ */
+function eaBase(): string {
+  return EA_RAW_URL
+    .replace(/\/+$/, "")          // strip trailing slash
+    .replace(/\/api\/v1$/, "");   // strip /api/v1 suffix if present
+}
+
+/** Format a Date as "YYYY-MM-DD HH:mm:ss" for the EA REST API */
+function toEaDatetime(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return (
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +
+    `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+  );
+}
+
+// ── Types for Supabase joined result ──────────────────────────────────────────
+
+type CitaRow = {
+  id:                string;
+  estado_sync:       string;
+  ea_appointment_id: string | null;
+  ea_service_id:     number | null;
+  ea_provider_id:    number | null;
+  fecha_hora_cita:   string;
+  para_titular:      boolean;
+  paciente_nombre:   string | null;
+  paciente_telefono: string | null;
+  paciente_correo:   string | null;
+  paciente_cedula:   string | null;
+  motivo_cita:       string | null;
+  paciente: {
+    ea_customer_id: number | null;
+  } | null;
+  servicio: {
+    duracion: number | null;
+  } | null;
+};
+
+// ── Handler ───────────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
 
-  // Verify session
+  // ── 1. Verify session ──────────────────────────────────────────────────────
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Verify role
+  // ── 2. Verify role ─────────────────────────────────────────────────────────
   const { data: profile } = await supabase
     .from("users")
     .select("rol, empresa_id")
@@ -42,7 +95,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  // Parse body
+  // ── 3. Parse body ──────────────────────────────────────────────────────────
   let citaId: string | undefined;
   try {
     const body = await req.json() as { citaId?: string };
@@ -55,10 +108,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "citaId is required" }, { status: 400 });
   }
 
-  // Fetch the cita to verify it belongs to this empresa and is still pending
+  // ── 4. Fetch cita with service duration + paciente ea_customer_id ──────────
   const { data: cita, error: citaError } = await supabase
     .from("citas")
-    .select("id, estado_sync, ea_appointment_id, ea_service_id, ea_provider_id, paciente_id, fecha_hora_cita")
+    .select(`
+      id, estado_sync, ea_appointment_id,
+      ea_service_id, ea_provider_id,
+      fecha_hora_cita, para_titular,
+      paciente_nombre, paciente_telefono, paciente_correo, paciente_cedula, motivo_cita,
+      paciente:users!paciente_id(ea_customer_id),
+      servicio:servicios!citas_ea_service_id_fkey(duracion)
+    `)
     .eq("id", citaId)
     .single();
 
@@ -66,52 +126,95 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Cita not found" }, { status: 404 });
   }
 
-  if (cita.estado_sync !== "pendiente") {
+  const citaTyped = cita as unknown as CitaRow;
+
+  // ── 5. Guard: must still be pending ───────────────────────────────────────
+  if (citaTyped.estado_sync !== "pendiente") {
     return NextResponse.json(
-      { error: `Cita already in state: ${cita.estado_sync}` },
+      { error: `Cita already in state: ${citaTyped.estado_sync}` },
       { status: 409 },
     );
   }
 
-  let eaAppointmentId: string | null = cita.ea_appointment_id ?? null;
+  // ── 6. EA sync ────────────────────────────────────────────────────────────
+  let eaAppointmentId: string | null = citaTyped.ea_appointment_id ?? null;
 
-  // ── EA Integration (when credentials are configured) ───────────────────────
-  if (EA_BASE && EA_KEY && cita.ea_service_id && cita.ea_provider_id) {
+  const hasEaCreds   = Boolean(EA_RAW_URL && EA_KEY);
+  const hasEaService = Boolean(citaTyped.ea_service_id && citaTyped.ea_provider_id);
+  const customerId   = citaTyped.paciente?.ea_customer_id ?? null;
+
+  if (hasEaCreds && hasEaService && customerId) {
     try {
-      const base = EA_BASE.replace(/\/+$/, "").replace(/\/api\/v1$/, "");
+      const base         = eaBase();
+      const startDate    = new Date(citaTyped.fecha_hora_cita);
+      const duracionMin  = citaTyped.servicio?.duracion ?? 30;
+      const endDate      = new Date(startDate.getTime() + duracionMin * 60_000);
+
+      // Build notes for third-party patients (para_titular = false)
+      let notes: string | undefined;
+      if (!citaTyped.para_titular) {
+        const parts: string[] = ["[Paciente tercero]"];
+        if (citaTyped.paciente_nombre)   parts.push(`Nombre: ${citaTyped.paciente_nombre}`);
+        if (citaTyped.paciente_telefono) parts.push(`Teléfono: ${citaTyped.paciente_telefono}`);
+        if (citaTyped.paciente_correo)   parts.push(`Correo: ${citaTyped.paciente_correo}`);
+        if (citaTyped.paciente_cedula)   parts.push(`Cédula: ${citaTyped.paciente_cedula}`);
+        if (citaTyped.motivo_cita)       parts.push(`Motivo: ${citaTyped.motivo_cita}`);
+        notes = parts.join("\n");
+      } else if (citaTyped.motivo_cita) {
+        notes = citaTyped.motivo_cita;
+      }
+
+      const payload: Record<string, unknown> = {
+        book:       toEaDatetime(new Date()),
+        start:      toEaDatetime(startDate),
+        end:        toEaDatetime(endDate),
+        serviceId:  citaTyped.ea_service_id,
+        providerId: citaTyped.ea_provider_id,
+        customerId: Number(customerId),
+      };
+
+      if (notes) payload.notes = notes;
 
       const eaRes = await fetch(`${base}/api/v1/appointments`, {
-        method: "POST",
+        method:  "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${EA_KEY}`,
+          "Authorization": `Bearer ${EA_KEY}`,
         },
-        body: JSON.stringify({
-          start: cita.fecha_hora_cita,
-          end:   cita.fecha_hora_cita, // EA calculates end from service duration
-          serviceId:  cita.ea_service_id,
-          providerId: cita.ea_provider_id,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (eaRes.ok) {
         const eaData = await eaRes.json() as { id?: number };
         if (eaData.id) {
           eaAppointmentId = String(eaData.id);
+        } else {
+          console.warn("[aprobar] EA returned OK but no appointment id:", eaData);
         }
+      } else {
+        const errText = await eaRes.text().catch(() => "(no body)");
+        console.error(
+          `[aprobar] EA API returned HTTP ${eaRes.status}: ${errText}`,
+        );
+        // Soft fail — approve in DB even if EA rejects
       }
-      // If EA call fails, still approve in DB — EA sync can be retried later.
-    } catch {
-      // Log and continue — EA downtime should not block approval workflow.
-      console.error("[aprobar] EA API call failed, approving in DB only.");
+    } catch (err) {
+      // Network error or unexpected exception — approve in DB only
+      console.error("[aprobar] EA API call threw an exception:", err);
     }
+  } else {
+    // Log why EA sync was skipped (helps debugging)
+    if (!hasEaCreds)   console.info("[aprobar] EA credentials not configured — DB-only approval.");
+    if (!hasEaService) console.info("[aprobar] Cita missing ea_service_id or ea_provider_id — DB-only approval.");
+    if (!customerId)   console.warn("[aprobar] Paciente has no ea_customer_id — DB-only approval.");
   }
 
-  // Update cita in DB — RLS citas_empresa_admin_update enforces authorization
+  // ── 7. Persist approval in DB ─────────────────────────────────────────────
+  // RLS citas_empresa_admin_update enforces empresa scope — no extra filter needed.
   const { data: updated, error: updateError } = await supabase
     .from("citas")
     .update({
-      estado_sync:      "confirmado",
+      estado_sync:       "confirmado",
       ea_appointment_id: eaAppointmentId,
     })
     .eq("id", citaId)
@@ -119,6 +222,7 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (updateError) {
+    console.error("[aprobar] Failed to update cita in DB:", updateError);
     return NextResponse.json({ error: "Failed to update cita" }, { status: 500 });
   }
 

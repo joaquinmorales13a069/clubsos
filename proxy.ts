@@ -54,8 +54,12 @@ export async function proxy(request: NextRequest) {
     routing.defaultLocale;
 
   // ── Guard: auth pages ────────────────────────────────────────────────────
-  // Authenticated users trying to access login/signup → redirect to their dashboard
-  if (user) {
+  // Authenticated users trying to access login/signup → redirect to their dashboard.
+  // Skip this guard for Server Action requests: they POST to the page URL but must
+  // not be intercepted — the `next-action` header identifies them.
+  const isServerAction = request.headers.has("next-action");
+
+  if (user && !isServerAction) {
     const isAuthPage = AUTH_PAGES.some((page) =>
       routing.locales.some((l) => pathname === `/${l}${page}`)
     );
