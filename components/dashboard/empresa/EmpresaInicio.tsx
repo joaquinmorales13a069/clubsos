@@ -36,6 +36,7 @@ import EmpresaInicioCitasPendientes, {
 import EmpresaInicioMiembrosRecientes, {
   type MiembroRecienteRow,
 } from "./EmpresaInicioMiembrosRecientes";
+import EmpresaInicioCitasPorServicio from "./EmpresaInicioCitasPorServicio";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -307,6 +308,9 @@ export default function EmpresaInicio({ firstName }: Props) {
           ))}
         </div>
       )}
+
+      {/* A'. Citas por servicio bar chart — full-width, below KPI cards */}
+      <EmpresaInicioCitasPorServicio />
 
       {/* B. Alert banner — only when there are pending citas */}
       {!kpisLoading && !kpisError && citasPendientesCount > 0 && (

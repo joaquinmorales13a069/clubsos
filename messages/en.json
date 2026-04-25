@@ -431,6 +431,17 @@
         "miembrosRecientes_titulo": "Recent members",
         "miembrosRecientes_verTodos": "View all",
         "miembrosRecientes_empty": "No members registered yet.",
+        "graficoCitas": {
+          "titulo": "Appointments by service",
+          "subtitle": "Number of appointments scheduled per service type in the selected month.",
+          "mesPrevio": "Previous month",
+          "mesSiguiente": "Next month",
+          "labelCitas": "appointment(s)",
+          "sinServicio": "No service",
+          "empty": "No appointments this month",
+          "emptySub": "No appointments were recorded in this period.",
+          "errorCargar": "Could not load the chart."
+        },
         "errorKpis": "Could not load indicators.",
         "errorCitas": "Could not load pending appointments.",
         "errorMiembros": "Could not load recent members."

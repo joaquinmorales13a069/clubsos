@@ -431,6 +431,17 @@
         "miembrosRecientes_titulo": "Miembros recientes",
         "miembrosRecientes_verTodos": "Ver todos",
         "miembrosRecientes_empty": "No hay miembros registrados aún.",
+        "graficoCitas": {
+          "titulo": "Citas por servicio",
+          "subtitle": "Cantidad de citas agendadas por tipo de servicio en el mes seleccionado.",
+          "mesPrevio": "Mes anterior",
+          "mesSiguiente": "Mes siguiente",
+          "labelCitas": "cita(s)",
+          "sinServicio": "Sin servicio",
+          "empty": "Sin citas este mes",
+          "emptySub": "No se registraron citas en este período.",
+          "errorCargar": "No se pudo cargar el gráfico."
+        },
         "errorKpis": "No se pudieron cargar los indicadores.",
         "errorCitas": "No se pudieron cargar las citas pendientes.",
         "errorMiembros": "No se pudieron cargar los miembros recientes."
