@@ -113,9 +113,10 @@ function buildEmpresaAdminNav(
 
   // "Administrar Empresa" — empresa-specific management routes
   const administrarItems: NavItemConfig[] = [
-    { href: `${base}/empresa/citas`,    label: t("nav.registroCitas"),     icon: CalendarCheck },
-    { href: `${base}/empresa/usuarios`, label: t("nav.gestionarUsuarios"), icon: UserCog },
-    { href: `${base}/empresa/ajustes`,  label: t("nav.ajustesEmpresa"),    icon: UserCheck },
+    { href: `${base}/empresa/citas`,     label: t("nav.registroCitas"),     icon: CalendarCheck },
+    { href: `${base}/empresa/usuarios`,  label: t("nav.gestionarUsuarios"), icon: UserCog },
+    { href: `${base}/empresa/reportes`,  label: t("nav.generarReportes"),   icon: BarChart3 },
+    { href: `${base}/empresa/ajustes`,   label: t("nav.ajustesEmpresa"),    icon: UserCheck },
   ];
 
   return [
