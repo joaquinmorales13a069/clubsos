@@ -4,7 +4,14 @@
  * Sidebar — desktop persistent sidebar + mobile Sheet drawer.
  *
  * Receives `role` from the server layout component and renders
- * role-appropriate navigation items. Glassmorphism aesthetic.
+ * role-appropriate navigation items.
+ *
+ * - miembro / admin: flat nav list (single group, no label)
+ * - empresa_admin:   two labeled groups:
+ *     "Mi Perfil"         → shared miembro routes (RLS scopes data automatically)
+ *     "Administrar Empresa" → empresa-specific routes
+ *
+ * Glassmorphism aesthetic consistent with design system.
  */
 
 import { useState } from "react";
@@ -25,6 +32,9 @@ import {
   X,
   UserCheck,
   SlidersHorizontal,
+  CalendarCheck,
+  UserCog,
+  type LucideIcon,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -34,70 +44,126 @@ import NavItem from "./NavItem";
 import LogoutButton from "./LogoutButton";
 import type { UserRole } from "@/utils/supabase/middleware";
 
+// ── Types ───────────────────────────────────────────────────────────────────
+
+interface NavItemConfig {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  exact?: boolean;
+}
+
+/**
+ * A navigation group. When `label` is provided, a section header is rendered
+ * above the items. Groups are separated by a thin Separator.
+ */
+interface NavGroup {
+  label?: string;
+  items: NavItemConfig[];
+}
+
 interface SidebarProps {
   role: UserRole;
   userName: string;
   userInitials: string;
-  /** tipo_cuenta from public.users — controls Mi Familia visibility for miembro */
+  /** tipo_cuenta from public.users — controls Mi Familia visibility */
   tipoCuenta?: "titular" | "familiar";
 }
 
-// ── Nav config per role ─────────────────────────────────────────────────────
+// ── Nav config builders ──────────────────────────────────────────────────────
 
-function useNavItems(
-  role: UserRole,
-  locale: string,
+function buildAdminNav(base: string, t: ReturnType<typeof useTranslations>): NavGroup[] {
+  return [
+    {
+      items: [
+        { href: `${base}/admin`,           label: t("nav.dashboard"),  icon: LayoutDashboard },
+        { href: `${base}/admin/usuarios`,  label: t("nav.usuarios"),   icon: Users },
+        { href: `${base}/admin/empresas`,  label: t("nav.empresas"),   icon: Building2 },
+        { href: `${base}/admin/beneficios`,label: t("nav.beneficios"), icon: Gift },
+        { href: `${base}/admin/avisos`,    label: t("nav.avisos"),     icon: Megaphone },
+        { href: `${base}/admin/reportes`,  label: t("nav.reportes"),   icon: BarChart3 },
+        { href: `${base}/admin/config`,    label: t("nav.config"),     icon: Settings },
+      ],
+    },
+  ];
+}
+
+function buildEmpresaAdminNav(
+  base: string,
   t: ReturnType<typeof useTranslations>,
   tipoCuenta?: "titular" | "familiar",
-) {
-  const base = `/${locale}/dashboard`;
-
-  if (role === "admin") {
-    return [
-      { href: `${base}/admin`, label: t("nav.dashboard"), icon: LayoutDashboard },
-      { href: `${base}/admin/usuarios`, label: t("nav.usuarios"), icon: Users },
-      { href: `${base}/admin/empresas`, label: t("nav.empresas"), icon: Building2 },
-      { href: `${base}/admin/beneficios`, label: t("nav.beneficios"), icon: Gift },
-      { href: `${base}/admin/avisos`, label: t("nav.avisos"), icon: Megaphone },
-      { href: `${base}/admin/reportes`, label: t("nav.reportes"), icon: BarChart3 },
-      { href: `${base}/admin/config`, label: t("nav.config"), icon: Settings },
-    ];
-  }
-
-  if (role === "empresa_admin") {
-    return [
-      { href: `${base}/empresa`, label: t("nav.dashboard"), icon: LayoutDashboard },
-      { href: `${base}/empresa/empleados`, label: t("nav.empleados"), icon: UserCheck },
-      { href: `${base}/empresa/citas`, label: t("nav.citas"), icon: CalendarDays },
-      { href: `${base}/empresa/beneficios`, label: t("nav.beneficios"), icon: Gift },
-      { href: `${base}/empresa/reportes`, label: t("nav.reportes"), icon: BarChart3 },
-    ];
-  }
-
-  // miembro (default)
-  const miembroItems = [
-    { href: base, label: t("nav.dashboard"), icon: LayoutDashboard, exact: true },
-    { href: `${base}/citas`, label: t("nav.citas"), icon: CalendarDays },
+): NavGroup[] {
+  // "Mi Perfil" — reuses the same miembro routes; RLS policies scope data automatically.
+  const miPerfilItems: NavItemConfig[] = [
+    { href: `${base}/empresa`, label: t("nav.dashboard"), icon: LayoutDashboard, exact: true },
+    { href: `${base}/citas`,      label: t("nav.citas"),      icon: CalendarDays },
     { href: `${base}/beneficios`, label: t("nav.beneficios"), icon: Gift },
-    { href: `${base}/avisos`, label: t("nav.avisos"), icon: Megaphone },
     { href: `${base}/documentos`, label: t("nav.documentos"), icon: FileText },
-    { href: `${base}/ajustes`, label: t("nav.ajustes"), icon: SlidersHorizontal },
-  ] as { href: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }[];
+    { href: `${base}/ajustes`,    label: t("nav.ajustes"),    icon: SlidersHorizontal },
+  ];
 
-  // Mi Familia only visible to titulares
+  // Mi Familia only visible to titulares (same rule as miembro)
   if (tipoCuenta === "titular") {
-    miembroItems.splice(5, 0, {
+    miPerfilItems.splice(4, 0, {
       href: `${base}/familia`,
       label: t("nav.familia"),
       icon: Users,
     });
   }
 
-  return miembroItems;
+  // "Administrar Empresa" — empresa-specific management routes
+  const administrarItems: NavItemConfig[] = [
+    { href: `${base}/empresa/citas`,    label: t("nav.registroCitas"),     icon: CalendarCheck },
+    { href: `${base}/empresa/usuarios`, label: t("nav.gestionarUsuarios"), icon: UserCog },
+    { href: `${base}/empresa/ajustes`,  label: t("nav.ajustesEmpresa"),    icon: UserCheck },
+  ];
+
+  return [
+    { label: t("groupMiPerfil"),    items: miPerfilItems },
+    { label: t("groupAdministrar"), items: administrarItems },
+  ];
+}
+
+function buildMiembroNav(
+  base: string,
+  t: ReturnType<typeof useTranslations>,
+  tipoCuenta?: "titular" | "familiar",
+): NavGroup[] {
+  const items: NavItemConfig[] = [
+    { href: base,                 label: t("nav.dashboard"),  icon: LayoutDashboard, exact: true },
+    { href: `${base}/citas`,      label: t("nav.citas"),      icon: CalendarDays },
+    { href: `${base}/beneficios`, label: t("nav.beneficios"), icon: Gift },
+    { href: `${base}/avisos`,     label: t("nav.avisos"),     icon: Megaphone },
+    { href: `${base}/documentos`, label: t("nav.documentos"), icon: FileText },
+    { href: `${base}/ajustes`,    label: t("nav.ajustes"),    icon: SlidersHorizontal },
+  ];
+
+  if (tipoCuenta === "titular") {
+    items.splice(5, 0, {
+      href: `${base}/familia`,
+      label: t("nav.familia"),
+      icon: Users,
+    });
+  }
+
+  return [{ items }];
+}
+
+function useNavGroups(
+  role: UserRole,
+  locale: string,
+  t: ReturnType<typeof useTranslations>,
+  tipoCuenta?: "titular" | "familiar",
+): NavGroup[] {
+  const base = `/${locale}/dashboard`;
+
+  if (role === "admin")         return buildAdminNav(base, t);
+  if (role === "empresa_admin") return buildEmpresaAdminNav(base, t, tipoCuenta);
+  return buildMiembroNav(base, t, tipoCuenta);
 }
 
 function getRoleBadgeLabel(role: UserRole, t: ReturnType<typeof useTranslations>): string {
-  if (role === "admin") return t("role.admin");
+  if (role === "admin")         return t("role.admin");
   if (role === "empresa_admin") return t("role.empresaAdmin");
   return t("role.miembro");
 }
@@ -111,9 +177,9 @@ function SidebarContent({
   tipoCuenta,
   onNavigate,
 }: SidebarProps & { onNavigate?: () => void }) {
-  const locale = useLocale();
-  const t = useTranslations("Dashboard.sidebar");
-  const navItems = useNavItems(role, locale, t, tipoCuenta);
+  const locale     = useLocale();
+  const t          = useTranslations("Dashboard.sidebar");
+  const navGroups  = useNavGroups(role, locale, t, tipoCuenta);
 
   return (
     <div className="flex flex-col h-full">
@@ -131,25 +197,44 @@ function SidebarContent({
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {navItems.map((item) => (
-          <NavItem
-            key={item.href}
-            href={item.href}
-            label={item.label}
-            icon={item.icon}
-            exact={item.exact}
-            onNavigate={onNavigate}
-          />
+      <nav className="flex-1 px-3 py-4 overflow-y-auto">
+        {navGroups.map((group, groupIdx) => (
+          <div key={groupIdx}>
+            {/* Optional group label header */}
+            {group.label && (
+              <p className="px-3 mb-1 mt-1 text-[10px] font-semibold text-gray-400 uppercase tracking-widest">
+                {group.label}
+              </p>
+            )}
+
+            {/* Nav items in this group */}
+            <div className="space-y-0.5">
+              {group.items.map((item) => (
+                <NavItem
+                  key={item.href}
+                  href={item.href}
+                  label={item.label}
+                  icon={item.icon}
+                  exact={item.exact}
+                  onNavigate={onNavigate}
+                />
+              ))}
+            </div>
+
+            {/* Separator between groups (not after the last one) */}
+            {groupIdx < navGroups.length - 1 && (
+              <Separator className="my-3 bg-gray-100" />
+            )}
+          </div>
         ))}
-        
-        {/* Separated Logout Button */}
+
+        {/* Logout — always at the bottom of the nav area */}
         <div className="pt-20">
           <LogoutButton />
         </div>
       </nav>
 
-      {/* User profile */}
+      {/* User profile footer */}
       <div className="px-6 py-6 border-t border-gray-100 bg-gray-50/30">
         <div className="flex flex-col items-center text-center gap-3">
           <Avatar className="w-12 h-12 shrink-0 border-2 border-white shadow-sm">

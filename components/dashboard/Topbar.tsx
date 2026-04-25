@@ -30,7 +30,7 @@ export default function Topbar() {
         href="https://www.sosmedical.com.ni"
         target="_blank"
         rel="noopener noreferrer"
-        className="hidden sm:flex items-center gap-2 text-xs font-bold text-white bg-secondary hover:bg-secondary/90 px-4 py-2 rounded-full shadow-sm transition-all group"
+        className="hidden sm:flex sm:ml-10 items-center gap-2 text-xs font-bold text-white bg-secondary hover:bg-secondary/90 px-4 py-2 rounded-full shadow-sm transition-all group"
       >
         <span>{t("goToSOS")}</span>
         <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5  group-hover:w-5 group-hover:h-5 transition-transform" />
