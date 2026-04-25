@@ -75,6 +75,7 @@ export interface CitaRow {
 /** User profile data needed by the wizard */
 export interface WizardUserProfile {
   id:                 string;
+  rol:                string;
   empresa_id:         string | null;
   ea_customer_id:     number | null;
   nombre_completo:    string | null;

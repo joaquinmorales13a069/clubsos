@@ -23,7 +23,7 @@ export default async function CitasPage() {
 
     supabase
       .from("users")
-      .select("id, empresa_id, ea_customer_id, nombre_completo, telefono, documento_identidad")
+      .select("id, rol, empresa_id, ea_customer_id, nombre_completo, telefono, documento_identidad")
       .eq("id", user.id)
       .single(),
   ]);

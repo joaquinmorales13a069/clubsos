@@ -90,11 +90,13 @@ export default function PasoConfirmar({ wizard, userProfile, onBack, onSuccess }
         ))}
       </div>
 
-      {/* Pending approval notice */}
-      <div className="flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3">
-        <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-        <p className="text-xs font-roboto text-amber-700">{tc("pendingNote")}</p>
-      </div>
+      {/* Pending approval notice — only shown for miembro (empresa_admin auto-confirms) */}
+      {userProfile.rol !== "empresa_admin" && (
+        <div className="flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3">
+          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+          <p className="text-xs font-roboto text-amber-700">{tc("pendingNote")}</p>
+        </div>
+      )}
 
       <div className="flex items-center justify-between pt-2">
         <button

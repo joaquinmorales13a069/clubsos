@@ -29,21 +29,32 @@ export async function crearCita(input: CrearCitaInput) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "No autenticado" };
 
+  // Fetch rol server-side — never trust a value passed from the client.
+  // empresa_admin schedules citas on behalf of their empresa, so their
+  // appointments are auto-confirmed (no approval step needed).
+  const { data: profile } = await supabase
+    .from("users")
+    .select("rol")
+    .eq("id", user.id)
+    .single();
+
+  const estadoSync = profile?.rol === "empresa_admin" ? "confirmado" : "pendiente";
+
   const { error } = await supabase.from("citas").insert({
-    paciente_id:      user.id,
-    empresa_id:       input.empresaId,
-    ea_customer_id:   input.eaCustomerId,
-    ea_service_id:    input.eaServiceId,
-    ea_provider_id:   input.eaProviderId,
-    fecha_hora_cita:  input.fechaHoraCita,
+    paciente_id:       user.id,
+    empresa_id:        input.empresaId,
+    ea_customer_id:    input.eaCustomerId,
+    ea_service_id:     input.eaServiceId,
+    ea_provider_id:    input.eaProviderId,
+    fecha_hora_cita:   input.fechaHoraCita,
     servicio_asociado: input.servicioAsociado,
-    para_titular:     input.paraTitular,
-    paciente_nombre:  input.pacienteNombre,
+    para_titular:      input.paraTitular,
+    paciente_nombre:   input.pacienteNombre,
     paciente_telefono: input.pacienteTelefono,
-    paciente_correo:  input.pacienteCorreo,
-    paciente_cedula:  input.pacienteCedula,
-    motivo_cita:      input.motivoCita,
-    estado_sync:      "pendiente",
+    paciente_correo:   input.pacienteCorreo,
+    paciente_cedula:   input.pacienteCedula,
+    motivo_cita:       input.motivoCita,
+    estado_sync:       estadoSync,
     ea_appointment_id: null,
   });
 
