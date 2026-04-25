@@ -1,18 +1,53 @@
 /**
- * Empresa Admin — Ajustes de Empresa (placeholder)
- * Full implementation in Step 6.5.
+ * Empresa Admin — Ajustes de Empresa (Step 6.5).
+ *
+ * Server Component: fetches the empresa data server-side to avoid a
+ * client-side waterfall (auth → users → empresas).
+ * Passes initial data to the EmpresaAjustes client component.
  */
-export default function EmpresaAjustesPage() {
+import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
+import { createClient } from "@/utils/supabase/server";
+import EmpresaAjustes from "@/components/dashboard/empresa/EmpresaAjustes";
+
+export default async function EmpresaAjustesPage() {
+  const supabase = await createClient();
+  const locale   = await getLocale();
+
+  // Defence-in-depth session check (middleware already handles redirect)
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect(`/${locale}/login`);
+
+  // Fetch empresa_id from the user's profile
+  const { data: profile } = await supabase
+    .from("users")
+    .select("empresa_id, rol")
+    .eq("id", user.id)
+    .single();
+
+  // Guard: only empresa_admin with a linked empresa should reach this page
+  if (profile?.rol !== "empresa_admin" || !profile?.empresa_id) {
+    redirect(`/${locale}/dashboard`);
+  }
+
+  // Fetch full empresa data
+  const { data: empresa } = await supabase
+    .from("empresas")
+    .select("id, nombre, codigo_empresa, notas, created_at")
+    .eq("id", profile.empresa_id)
+    .single();
+
+  if (!empresa) redirect(`/${locale}/dashboard`);
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-4">
-      <div className="w-16 h-16 rounded-2xl bg-secondary/10 flex items-center justify-center">
-        <span className="text-3xl">⚙️</span>
-      </div>
-      <h1 className="text-2xl font-poppins font-bold text-gray-900">Ajustes de Empresa</h1>
-      <p className="text-neutral max-w-sm font-roboto">Configura la información de tu empresa.</p>
-      <span className="text-xs text-neutral/60 bg-gray-100 px-3 py-1 rounded-full">
-        Próximamente — Paso 6.5
-      </span>
-    </div>
+    <EmpresaAjustes
+      empresa={{
+        id:             empresa.id,
+        nombre:         empresa.nombre          ?? "",
+        codigo_empresa: empresa.codigo_empresa  ?? "",
+        notas:          empresa.notas           ?? null,
+        created_at:     empresa.created_at,
+      }}
+    />
   );
 }
