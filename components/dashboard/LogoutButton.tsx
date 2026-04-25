@@ -7,6 +7,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { createClient } from "@/utils/supabase/client";
 import { LogOut } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
@@ -26,6 +27,7 @@ export default function LogoutButton({ compact = false }: LogoutButtonProps) {
     setLoading(true);
     const supabase = createClient();
     await supabase.auth.signOut();
+    toast.success(t("logoutSuccess"));
     router.push(`/${locale}/login`);
   };
 

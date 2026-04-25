@@ -13,7 +13,6 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import {
   LayoutDashboard,
-  CreditCard,
   CalendarDays,
   Gift,
   Megaphone,
@@ -25,6 +24,7 @@ import {
   Menu,
   X,
   UserCheck,
+  SlidersHorizontal,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -38,11 +38,18 @@ interface SidebarProps {
   role: UserRole;
   userName: string;
   userInitials: string;
+  /** tipo_cuenta from public.users — controls Mi Familia visibility for miembro */
+  tipoCuenta?: "titular" | "familiar";
 }
 
 // ── Nav config per role ─────────────────────────────────────────────────────
 
-function useNavItems(role: UserRole, locale: string, t: ReturnType<typeof useTranslations>) {
+function useNavItems(
+  role: UserRole,
+  locale: string,
+  t: ReturnType<typeof useTranslations>,
+  tipoCuenta?: "titular" | "familiar",
+) {
   const base = `/${locale}/dashboard`;
 
   if (role === "admin") {
@@ -68,15 +75,25 @@ function useNavItems(role: UserRole, locale: string, t: ReturnType<typeof useTra
   }
 
   // miembro (default)
-  return [
-    { href: base, label: t("nav.dashboard"), icon: LayoutDashboard },
-    { href: `${base}/credencial`, label: t("nav.credencial"), icon: CreditCard },
+  const miembroItems = [
+    { href: base, label: t("nav.dashboard"), icon: LayoutDashboard, exact: true },
     { href: `${base}/citas`, label: t("nav.citas"), icon: CalendarDays },
     { href: `${base}/beneficios`, label: t("nav.beneficios"), icon: Gift },
     { href: `${base}/avisos`, label: t("nav.avisos"), icon: Megaphone },
     { href: `${base}/documentos`, label: t("nav.documentos"), icon: FileText },
-    { href: `${base}/familia`, label: t("nav.familia"), icon: Users },
-  ];
+    { href: `${base}/ajustes`, label: t("nav.ajustes"), icon: SlidersHorizontal },
+  ] as { href: string; label: string; icon: typeof LayoutDashboard; exact?: boolean }[];
+
+  // Mi Familia only visible to titulares
+  if (tipoCuenta === "titular") {
+    miembroItems.splice(5, 0, {
+      href: `${base}/familia`,
+      label: t("nav.familia"),
+      icon: Users,
+    });
+  }
+
+  return miembroItems;
 }
 
 function getRoleBadgeLabel(role: UserRole, t: ReturnType<typeof useTranslations>): string {
@@ -91,32 +108,27 @@ function SidebarContent({
   role,
   userName,
   userInitials,
+  tipoCuenta,
   onNavigate,
 }: SidebarProps & { onNavigate?: () => void }) {
   const locale = useLocale();
   const t = useTranslations("Dashboard.sidebar");
-  const navItems = useNavItems(role, locale, t);
+  const navItems = useNavItems(role, locale, t, tipoCuenta);
 
   return (
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="px-4 py-5">
-        <Link href={`/${locale}/dashboard`} className="flex items-center gap-3">
+        <Link href={`/${locale}/dashboard`} className="flex items-center">
           <Image
-            src="/logo-clubSOS.webp"
-            alt="Club SOS"
-            width={40}
+            src="/logo-SOSMedical.webp"
+            alt="SOS Medical"
+            width={160}
             height={40}
-            className="object-contain"
+            className="object-contain h-10 w-auto"
           />
-          <div>
-            <p className="text-sm font-poppins font-bold text-gray-900 leading-tight">ClubSOS</p>
-            <p className="text-xs font-roboto text-neutral leading-tight">Medical</p>
-          </div>
         </Link>
       </div>
-
-      <Separator className="mx-4" />
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
@@ -126,32 +138,37 @@ function SidebarContent({
             href={item.href}
             label={item.label}
             icon={item.icon}
+            exact={item.exact}
             onNavigate={onNavigate}
           />
         ))}
+        
+        {/* Separated Logout Button */}
+        <div className="pt-20">
+          <LogoutButton />
+        </div>
       </nav>
 
-      <Separator className="mx-4" />
-
-      {/* User profile + logout */}
-      <div className="px-3 py-4 space-y-1">
-        <div className="flex items-center gap-3 px-3 py-2">
-          <Avatar className="w-8 h-8 shrink-0">
-            <AvatarFallback className="bg-secondary text-white text-xs font-semibold">
+      {/* User profile */}
+      <div className="px-6 py-6 border-t border-gray-100 bg-gray-50/30">
+        <div className="flex flex-col items-center text-center gap-3">
+          <Avatar className="w-12 h-12 shrink-0 border-2 border-white shadow-sm">
+            <AvatarFallback className="bg-secondary text-white text-base font-semibold">
               {userInitials}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-roboto font-medium text-gray-900 truncate leading-tight">{userName}</p>
+          <div className="space-y-1.5 flex flex-col items-center">
+            <p className="text-sm font-roboto font-semibold text-gray-900 leading-tight">
+              {userName}
+            </p>
             <Badge
               variant="secondary"
-              className="text-xs px-1.5 py-0 mt-0.5 font-normal"
+              className="text-[10px] px-2 py-0.5 font-medium text-white w-fit uppercase tracking-wider"
             >
               {getRoleBadgeLabel(role, t)}
             </Badge>
           </div>
         </div>
-        <LogoutButton />
       </div>
     </div>
   );
@@ -159,7 +176,7 @@ function SidebarContent({
 
 // ── Main exported Sidebar component ─────────────────────────────────────────
 
-export default function Sidebar({ role, userName, userInitials }: SidebarProps) {
+export default function Sidebar({ role, userName, userInitials, tipoCuenta }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -178,12 +195,12 @@ export default function Sidebar({ role, userName, userInitials }: SidebarProps) 
           role={role}
           userName={userName}
           userInitials={userInitials}
+          tipoCuenta={tipoCuenta}
         />
       </aside>
 
       {/* Mobile sidebar — Sheet drawer */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        {/* SheetTrigger renders as <button> natively — no asChild needed */}
         <SheetTrigger
           className="md:hidden fixed top-4 left-4 z-40 p-2 rounded-xl bg-white/90 backdrop-blur-md shadow-md border border-gray-200/60"
           aria-label="Open menu"
@@ -202,6 +219,7 @@ export default function Sidebar({ role, userName, userInitials }: SidebarProps) 
             role={role}
             userName={userName}
             userInitials={userInitials}
+            tipoCuenta={tipoCuenta}
             onNavigate={() => setMobileOpen(false)}
           />
         </SheetContent>

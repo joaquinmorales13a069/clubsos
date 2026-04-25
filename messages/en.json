@@ -95,7 +95,9 @@
       "completeBtn": "Complete Registration",
       "hasAccount": "Already have an account?",
       "loginLink": "Log in here",
-      "phoneError": "Please enter a valid phone number (at least 8 digits)."
+      "phoneError": "Please enter a valid phone number (at least 8 digits).",
+      "otpSentSuccess": "Code sent to your WhatsApp.",
+      "loginSuccess": "Welcome back!"
     },
     "errors": {
       "companyNotFound": "Company not found. Please check the code and try again.",
@@ -109,7 +111,8 @@
   },
   "Dashboard": {
     "topbar": {
-      "notifications": "Notifications"
+      "notifications": "Notifications",
+      "goToSOS": "Go to SOS Medical"
     },
     "sidebar": {
       "nav": {
@@ -124,7 +127,8 @@
         "usuarios": "Users",
         "empresas": "Companies",
         "reportes": "Reports",
-        "config": "Settings"
+        "config": "Settings",
+        "ajustes": "Settings"
       },
       "role": {
         "admin": "Global Admin",
@@ -132,12 +136,269 @@
         "miembro": "Member"
       },
       "logout": "Sign Out",
-      "loggingOut": "Signing out..."
+      "loggingOut": "Signing out...",
+      "logoutSuccess": "You've been signed out.",
+      "footer": {
+        "rightsReserved": "All rights reserved."
+      }
     },
     "miembro": {
       "title": "Member Dashboard",
       "subtitle": "Your digital health card, appointments, and benefits — all in one place.",
-      "comingSoon": "Coming in Step 5"
+      "comingSoon": "Coming in Step 5",
+      "inicio": {
+        "greeting": "Hello,",
+        "greetingSub": "Here is a summary of your account",
+        "credential": {
+          "title": "Digital Credential",
+          "memberId": "Member ID",
+          "dob": "Date of Birth",
+          "statusActive": "Active",
+          "statusInactive": "Inactive",
+          "statusPending": "Pending"
+        },
+        "quickActions": {
+          "schedule": "Schedule",
+          "benefits": "Benefits",
+          "documents": "Documents",
+          "settings": "Settings"
+        },
+        "proximaCita": {
+          "title": "Next Appointment",
+          "viewAll": "View all",
+          "empty": "No upcoming appointments",
+          "emptySub": "Schedule your first medical visit",
+          "schedule": "Schedule",
+          "statusPendiente": "Pending",
+          "statusConfirmado": "Confirmed"
+        },
+        "beneficios": {
+          "title": "Active Benefits",
+          "viewAll": "View all",
+          "empty": "No benefits available",
+          "typeDiscount": "Discount",
+          "typePromotion": "Promotion"
+        },
+        "documentos": {
+          "title": "Recent Documents",
+          "viewAll": "View all",
+          "empty": "No documents yet",
+          "emptySub": "Your medical results will appear here",
+          "view": "View",
+          "download": "Download",
+          "typeLabels": {
+            "laboratorio": "Lab",
+            "radiologia": "Radiology",
+            "receta": "Prescription",
+            "consulta_medica": "Consult",
+            "especialidades": "Specialty",
+            "otro": "Other"
+          }
+        },
+        "avisos": {
+          "title": "Recent Notices",
+          "viewAll": "View notices",
+          "empty": "No recent notices"
+        }
+      },
+      "citas": {
+        "title": "My Appointments",
+        "subtitle": "Schedule and manage your medical appointments.",
+        "comingSoon": "Coming soon",
+        "scheduleBtn": "Schedule Appointment",
+        "scheduleTitle": "New Appointment",
+        "cancelWizard": "Cancel",
+        "noAppointments": "No appointments scheduled",
+        "noAppointmentsSub": "Schedule your first appointment with a specialist",
+        "sectionUpcoming": "Upcoming",
+        "sectionHistory": "History",
+        "cancelBtn": "Cancel appointment",
+        "cancelConfirm": "Are you sure you want to cancel this appointment?",
+        "statusPendiente": "Pending approval",
+        "statusConfirmado": "Confirmed",
+        "statusCompletado": "Completed",
+        "statusCancelado": "Cancelled",
+        "wizard": {
+          "step": "Step",
+          "backBtn": "Back",
+          "continueBtn": "Continue",
+          "stepUbicacion": "Location",
+          "stepServicio": "Service",
+          "stepDoctor": "Doctor",
+          "stepFecha": "Date",
+          "stepHorario": "Time",
+          "stepPaciente": "Patient",
+          "stepConfirmar": "Confirm",
+          "ubicacion": {
+            "title": "Where do you want your appointment?",
+            "subtitle": "Select the clinic location",
+            "managua": "Managua",
+            "managuaDesc": "SOS Clinics in the capital",
+            "leon": "León",
+            "leonDesc": "SOS Clinics in the west"
+          },
+          "servicio": {
+            "title": "What service do you need?",
+            "subtitle": "Select the type of medical consultation",
+            "loading": "Loading services...",
+            "noServices": "No services available at this location",
+            "duration": "min",
+            "price": "C$"
+          },
+          "doctor": {
+            "title": "Select your doctor",
+            "subtitle": "Choose the healthcare professional",
+            "loading": "Loading doctors...",
+            "noDoctors": "No doctors available for this service"
+          },
+          "fecha": {
+            "title": "When do you want your appointment?",
+            "subtitle": "Select an available date",
+            "constraintInfo": "You can book at least 1 day ahead and up to 3 months in the future. Sundays are not available."
+          },
+          "horario": {
+            "title": "Select your time slot",
+            "subtitle": "Choose the time that works best for you",
+            "loading": "Loading available slots...",
+            "noSlots": "No available time slots",
+            "noSlotsSub": "Try selecting a different date"
+          },
+          "paciente": {
+            "title": "Who is the appointment for?",
+            "subtitle": "Specify the patient details",
+            "forMe": "For me",
+            "forOther": "Someone else",
+            "nameLabel": "Full Name",
+            "phoneLabel": "Phone (optional)",
+            "emailLabel": "Email (optional)",
+            "cedLabel": "ID Number (optional)"
+          },
+          "confirmar": {
+            "title": "Confirm your appointment",
+            "subtitle": "Review the details before confirming",
+            "pendingNote": "Your appointment will be pending approval. The medical team will confirm it shortly.",
+            "confirmBtn": "Confirm Appointment",
+            "loading": "Scheduling...",
+            "success": "Appointment scheduled successfully!",
+            "error": "Error scheduling appointment. Please try again."
+          }
+        }
+      },
+      "beneficios": {
+        "title": "Benefits",
+        "subtitle": "Explore discounts and promotions available to you.",
+        "comingSoon": "Coming soon",
+        "filterAll": "All",
+        "filterDiscount": "Discounts",
+        "filterPromotion": "Promotions",
+        "typeDiscount": "Discount",
+        "typePromotion": "Promotion",
+        "validUntil": "Valid until",
+        "empty": "No benefits available",
+        "emptySub": "There are no active benefits for your company at this time.",
+        "pageInfo": "Page {current} of {total}",
+        "prevPage": "Previous",
+        "nextPage": "Next"
+      },
+      "avisos": {
+        "title": "Announcements",
+        "subtitle": "Stay up to date with Club SOS Medical notices.",
+        "comingSoon": "Coming soon"
+      },
+      "documentos": {
+        "title": "My Reports",
+        "subtitle": "View and download your medical results and reports.",
+        "comingSoon": "Coming soon",
+        "filterAll": "All",
+        "filterLaboratorio": "Laboratory",
+        "filterRadiologia": "Radiology",
+        "filterReceta": "Prescriptions",
+        "filterConsulta": "Consultations",
+        "filterEspecialidades": "Specialties",
+        "filterOtro": "Other",
+        "typeLabels": {
+          "laboratorio": "Laboratory",
+          "radiologia": "Radiology",
+          "receta": "Prescription",
+          "consulta_medica": "Consultation",
+          "especialidades": "Specialty",
+          "otro": "Other"
+        },
+        "view": "View",
+        "download": "Download",
+        "empty": "No documents yet",
+        "emptySub": "Your medical results and reports will appear here.",
+        "errorUrl": "Could not generate the link. Please try again.",
+        "pageInfo": "Page {current} of {total}",
+        "prevPage": "Previous",
+        "nextPage": "Next"
+      },
+      "ajustes": {
+        "title": "Settings",
+        "subtitle": "Update your personal information and access credentials.",
+        "comingSoon": "Coming soon",
+        "sectionAccount": "Account Information",
+        "sectionPersonal": "Personal Details",
+        "sectionEmail": "Email Address",
+        "sectionPhone": "WhatsApp Phone",
+        "fieldRol": "Role",
+        "fieldTipoCuenta": "Account Type",
+        "fieldUsername": "Username",
+        "fieldFechaNacimiento": "Date of Birth",
+        "fieldNombre": "Full Name",
+        "fieldDocumento": "ID Document",
+        "fieldEmail": "Email Address",
+        "fieldPhoneCurrent": "Current Number",
+        "fieldPhoneNew": "New WhatsApp Number",
+        "fieldOtp": "Verification Code",
+        "otpSentTo": "Code sent via WhatsApp to",
+        "saveBtn": "Save Changes",
+        "changeBtn": "Change",
+        "cancelBtn": "Cancel",
+        "sendOtpBtn": "Send Code",
+        "verifyBtn": "Verify",
+        "sendingOtp": "Sending WhatsApp code...",
+        "verifyingOtp": "Verifying code...",
+        "savedSuccess": "Changes saved successfully.",
+        "emailConfirmSent": "We sent a confirmation email to your new address. Please check your inbox.",
+        "phoneUpdated": "Phone number updated successfully.",
+        "otpInvalid": "Incorrect or expired code. Please try again.",
+        "errorGeneric": "An error occurred. Please try again.",
+        "readOnlyNote": "Role, account type, date of birth, and username can only be changed by an administrator.",
+        "rol": {
+          "admin": "Global Admin",
+          "empresa_admin": "Company Admin",
+          "miembro": "Member"
+        },
+        "tipoCuenta": {
+          "titular": "Primary",
+          "familiar": "Family"
+        }
+      },
+      "familia": {
+        "title": "My Family",
+        "subtitle": "Manage family members linked to your account.",
+        "comingSoon": "Coming soon",
+        "accessDeniedTitle": "Access restricted",
+        "accessDeniedSub": "This section is only available for primary account holders.",
+        "empty": "No family members registered",
+        "emptySub": "Family members linked to your account will appear here.",
+        "activateBtn": "Activate",
+        "deactivateBtn": "Deactivate",
+        "errorGeneric": "An error occurred. Please try again.",
+        "pageInfo": "Page {current} of {total}",
+        "prevPage": "Previous",
+        "nextPage": "Next",
+        "estado": {
+          "activo": "Active",
+          "inactivo": "Inactive",
+          "pendiente": "Pending"
+        },
+        "tipoCuenta": {
+          "titular": "Primary",
+          "familiar": "Family"
+        }
+      }
     },
     "empresa": {
       "title": "Company Admin Dashboard",

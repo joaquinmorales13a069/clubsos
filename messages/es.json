@@ -35,7 +35,9 @@
       "loginBtn": "Iniciar Sesión",
       "noAccount": "¿No tienes cuenta?",
       "signupLink": "Regístrate aquí",
-      "phoneError": "Por favor ingresa un número de teléfono válido (mínimo 8 dígitos)."
+      "phoneError": "Por favor ingresa un número de teléfono válido (mínimo 8 dígitos).",
+      "otpSentSuccess": "Código enviado a tu WhatsApp.",
+      "loginSuccess": "¡Bienvenido de vuelta!"
     },
     "footer": {
       "copyright": "Club SOS Medical. Todos los derechos reservados.",
@@ -109,7 +111,8 @@
   },
   "Dashboard": {
     "topbar": {
-      "notifications": "Notificaciones"
+      "notifications": "Notificaciones",
+      "goToSOS": "Ir a SOS Medical"
     },
     "sidebar": {
       "nav": {
@@ -124,7 +127,8 @@
         "usuarios": "Usuarios",
         "empresas": "Empresas",
         "reportes": "Reportes",
-        "config": "Configuración"
+        "config": "Configuración",
+        "ajustes": "Ajustes"
       },
       "role": {
         "admin": "Admin Global",
@@ -132,12 +136,269 @@
         "miembro": "Miembro"
       },
       "logout": "Cerrar Sesión",
-      "loggingOut": "Cerrando sesión..."
+      "loggingOut": "Cerrando sesión...",
+      "logoutSuccess": "Sesión cerrada correctamente.",
+      "footer": {
+        "rightsReserved": "Todos los derechos reservados."
+      }
     },
     "miembro": {
       "title": "Panel de Miembro",
       "subtitle": "Tu carnet digital, citas y beneficios — todo en un solo lugar.",
-      "comingSoon": "Próximamente en el Paso 5"
+      "comingSoon": "Próximamente en el Paso 5",
+      "inicio": {
+        "greeting": "Hola,",
+        "greetingSub": "Aquí tienes un resumen de tu cuenta",
+        "credential": {
+          "title": "Credencial Digital",
+          "memberId": "ID de Miembro",
+          "dob": "Nacimiento",
+          "statusActive": "Activo",
+          "statusInactive": "Inactivo",
+          "statusPending": "Pendiente"
+        },
+        "quickActions": {
+          "schedule": "Agendar Cita",
+          "benefits": "Beneficios",
+          "documents": "Documentos",
+          "settings": "Ajustes"
+        },
+        "proximaCita": {
+          "title": "Próxima Cita",
+          "viewAll": "Ver todas",
+          "empty": "Sin citas próximas",
+          "emptySub": "Agenda tu primera cita médica",
+          "schedule": "Agendar",
+          "statusPendiente": "Pendiente",
+          "statusConfirmado": "Confirmado"
+        },
+        "beneficios": {
+          "title": "Beneficios Activos",
+          "viewAll": "Ver todos",
+          "empty": "Sin beneficios disponibles",
+          "typeDiscount": "Descuento",
+          "typePromotion": "Promoción"
+        },
+        "documentos": {
+          "title": "Documentos Recientes",
+          "viewAll": "Ver todos",
+          "empty": "Sin documentos",
+          "emptySub": "Tus resultados aparecerán aquí",
+          "view": "Ver",
+          "download": "Descargar",
+          "typeLabels": {
+            "laboratorio": "Lab",
+            "radiologia": "Radiología",
+            "receta": "Receta",
+            "consulta_medica": "Consulta",
+            "especialidades": "Especialidad",
+            "otro": "Otro"
+          }
+        },
+        "avisos": {
+          "title": "Avisos Recientes",
+          "viewAll": "Ver avisos",
+          "empty": "Sin avisos recientes"
+        }
+      },
+      "citas": {
+        "title": "Mis Citas",
+        "subtitle": "Agenda y consulta el historial de tus citas médicas.",
+        "comingSoon": "Disponible próximamente",
+        "scheduleBtn": "Agendar Cita",
+        "scheduleTitle": "Nueva Cita",
+        "cancelWizard": "Cancelar",
+        "noAppointments": "No tienes citas agendadas",
+        "noAppointmentsSub": "Agenda tu primera cita médica con un especialista",
+        "sectionUpcoming": "Próximas",
+        "sectionHistory": "Historial",
+        "cancelBtn": "Cancelar cita",
+        "cancelConfirm": "¿Estás seguro de que deseas cancelar esta cita?",
+        "statusPendiente": "Pendiente aprobación",
+        "statusConfirmado": "Confirmado",
+        "statusCompletado": "Completado",
+        "statusCancelado": "Cancelado",
+        "wizard": {
+          "step": "Paso",
+          "backBtn": "Atrás",
+          "continueBtn": "Continuar",
+          "stepUbicacion": "Ubicación",
+          "stepServicio": "Servicio",
+          "stepDoctor": "Doctor",
+          "stepFecha": "Fecha",
+          "stepHorario": "Horario",
+          "stepPaciente": "Paciente",
+          "stepConfirmar": "Confirmar",
+          "ubicacion": {
+            "title": "¿Dónde deseas tu cita?",
+            "subtitle": "Selecciona la ubicación de la clínica",
+            "managua": "Managua",
+            "managuaDesc": "Clínicas SOS en la capital",
+            "leon": "León",
+            "leonDesc": "Clínicas SOS en el occidente"
+          },
+          "servicio": {
+            "title": "¿Qué servicio necesitas?",
+            "subtitle": "Selecciona el tipo de consulta médica",
+            "loading": "Cargando servicios...",
+            "noServices": "No hay servicios disponibles en esta ubicación",
+            "duration": "min",
+            "price": "C$"
+          },
+          "doctor": {
+            "title": "Selecciona tu doctor",
+            "subtitle": "Elige el profesional que te atenderá",
+            "loading": "Cargando doctores...",
+            "noDoctors": "No hay doctores disponibles para este servicio"
+          },
+          "fecha": {
+            "title": "¿Cuándo deseas tu cita?",
+            "subtitle": "Selecciona una fecha disponible",
+            "constraintInfo": "Puedes agendar con al menos 1 día de anticipación y hasta 3 meses en el futuro. Los domingos no están disponibles."
+          },
+          "horario": {
+            "title": "Selecciona tu horario",
+            "subtitle": "Elige el horario que más te convenga",
+            "loading": "Cargando horarios disponibles...",
+            "noSlots": "No hay horarios disponibles",
+            "noSlotsSub": "Intenta seleccionando otra fecha"
+          },
+          "paciente": {
+            "title": "¿Para quién es la cita?",
+            "subtitle": "Especifica los datos del paciente",
+            "forMe": "Para mí",
+            "forOther": "Otra persona",
+            "nameLabel": "Nombre Completo",
+            "phoneLabel": "Teléfono (opcional)",
+            "emailLabel": "Correo (opcional)",
+            "cedLabel": "Cédula (opcional)"
+          },
+          "confirmar": {
+            "title": "Confirma tu cita",
+            "subtitle": "Revisa los detalles antes de confirmar",
+            "pendingNote": "Tu cita quedará pendiente de aprobación. El equipo médico la confirmará pronto.",
+            "confirmBtn": "Confirmar Cita",
+            "loading": "Agendando...",
+            "success": "¡Cita agendada exitosamente!",
+            "error": "Error al agendar. Por favor intenta de nuevo."
+          }
+        }
+      },
+      "beneficios": {
+        "title": "Beneficios",
+        "subtitle": "Explora los descuentos y promociones disponibles para ti.",
+        "comingSoon": "Disponible próximamente",
+        "filterAll": "Todos",
+        "filterDiscount": "Descuentos",
+        "filterPromotion": "Promociones",
+        "typeDiscount": "Descuento",
+        "typePromotion": "Promoción",
+        "validUntil": "Válido hasta",
+        "empty": "Sin beneficios disponibles",
+        "emptySub": "No hay beneficios activos para tu empresa en este momento.",
+        "pageInfo": "Página {current} de {total}",
+        "prevPage": "Anterior",
+        "nextPage": "Siguiente"
+      },
+      "avisos": {
+        "title": "Avisos",
+        "subtitle": "Mantente al día con los anuncios de Club SOS Medical.",
+        "comingSoon": "Disponible próximamente"
+      },
+      "documentos": {
+        "title": "Mis Reportes",
+        "subtitle": "Consulta y descarga tus resultados y reportes médicos.",
+        "comingSoon": "Disponible próximamente",
+        "filterAll": "Todos",
+        "filterLaboratorio": "Laboratorio",
+        "filterRadiologia": "Radiología",
+        "filterReceta": "Recetas",
+        "filterConsulta": "Consultas",
+        "filterEspecialidades": "Especialidades",
+        "filterOtro": "Otros",
+        "typeLabels": {
+          "laboratorio": "Laboratorio",
+          "radiologia": "Radiología",
+          "receta": "Receta",
+          "consulta_medica": "Consulta",
+          "especialidades": "Especialidad",
+          "otro": "Otro"
+        },
+        "view": "Ver",
+        "download": "Descargar",
+        "empty": "Sin documentos",
+        "emptySub": "Tus resultados y reportes médicos aparecerán aquí.",
+        "errorUrl": "No se pudo generar el enlace. Intenta de nuevo.",
+        "pageInfo": "Página {current} de {total}",
+        "prevPage": "Anterior",
+        "nextPage": "Siguiente"
+      },
+      "ajustes": {
+        "title": "Ajustes",
+        "subtitle": "Actualiza tu información personal y credenciales de acceso.",
+        "comingSoon": "Disponible próximamente",
+        "sectionAccount": "Información de Cuenta",
+        "sectionPersonal": "Datos Personales",
+        "sectionEmail": "Correo Electrónico",
+        "sectionPhone": "Teléfono WhatsApp",
+        "fieldRol": "Rol",
+        "fieldTipoCuenta": "Tipo de Cuenta",
+        "fieldUsername": "Nombre de Usuario",
+        "fieldFechaNacimiento": "Fecha de Nacimiento",
+        "fieldNombre": "Nombre Completo",
+        "fieldDocumento": "Documento de Identidad",
+        "fieldEmail": "Correo Electrónico",
+        "fieldPhoneCurrent": "Número Actual",
+        "fieldPhoneNew": "Nuevo Número de WhatsApp",
+        "fieldOtp": "Código de Verificación",
+        "otpSentTo": "Código enviado por WhatsApp a",
+        "saveBtn": "Guardar Cambios",
+        "changeBtn": "Cambiar",
+        "cancelBtn": "Cancelar",
+        "sendOtpBtn": "Enviar Código",
+        "verifyBtn": "Verificar",
+        "sendingOtp": "Enviando código por WhatsApp...",
+        "verifyingOtp": "Verificando código...",
+        "savedSuccess": "Cambios guardados correctamente.",
+        "emailConfirmSent": "Te enviamos un correo de confirmación a tu nueva dirección. Revisa tu bandeja de entrada.",
+        "phoneUpdated": "Número de teléfono actualizado correctamente.",
+        "otpInvalid": "Código incorrecto o expirado. Intenta de nuevo.",
+        "errorGeneric": "Ocurrió un error. Por favor intenta de nuevo.",
+        "readOnlyNote": "Rol, tipo de cuenta, fecha de nacimiento y nombre de usuario solo pueden modificarse por un administrador.",
+        "rol": {
+          "admin": "Admin Global",
+          "empresa_admin": "Admin de Empresa",
+          "miembro": "Miembro"
+        },
+        "tipoCuenta": {
+          "titular": "Titular",
+          "familiar": "Familiar"
+        }
+      },
+      "familia": {
+        "title": "Mi Familia",
+        "subtitle": "Gestiona los miembros familiares vinculados a tu cuenta.",
+        "comingSoon": "Disponible próximamente",
+        "accessDeniedTitle": "Acceso restringido",
+        "accessDeniedSub": "Esta sección solo está disponible para cuentas titulares.",
+        "empty": "Sin familiares registrados",
+        "emptySub": "Los familiares vinculados a tu cuenta aparecerán aquí.",
+        "activateBtn": "Activar",
+        "deactivateBtn": "Desactivar",
+        "errorGeneric": "Ocurrió un error. Inténtalo de nuevo.",
+        "pageInfo": "Página {current} de {total}",
+        "prevPage": "Anterior",
+        "nextPage": "Siguiente",
+        "estado": {
+          "activo": "Activo",
+          "inactivo": "Inactivo",
+          "pendiente": "Pendiente"
+        },
+        "tipoCuenta": {
+          "titular": "Titular",
+          "familiar": "Familiar"
+        }
+      }
     },
     "empresa": {
       "title": "Panel de Admin de Empresa",
