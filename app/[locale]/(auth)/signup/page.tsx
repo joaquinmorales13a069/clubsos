@@ -395,7 +395,7 @@ export default function SignupPage() {
 
           <div className="space-y-2 md:col-span-2">
             <label className="text-sm font-medium text-gray-700">{t("docLabel")}</label>
-            <Input required value={documento} onChange={e => setDocumento(e.target.value)} className="rounded-xl h-11" />
+            <Input required value={documento} onChange={e => setDocumento(e.target.value.replace(/[^a-zA-Z0-9-]/g, ""))} className="rounded-xl h-11" />
           </div>
 
           <div className="col-span-1 md:col-span-2 mt-4 pt-4 border-t border-gray-100">

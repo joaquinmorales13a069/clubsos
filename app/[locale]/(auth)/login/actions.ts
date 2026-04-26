@@ -87,12 +87,16 @@ export async function loginWithPasswordAction(
   username: string,
   password: string
 ): Promise<{ error?: string }> {
-  const supabase = await createClient();
+  // Admin client bypasses RLS — required because user is not authenticated yet
+  const { createClient: createSupabaseClient } = await import("@supabase/supabase-js");
+  const supabaseAdmin = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!
+  );
 
-  // Look up the user's phone number via their username in public.users
-  const { data: profile, error: profileError } = await supabase
+  const { data: profile, error: profileError } = await supabaseAdmin
     .from("users")
-    .select("id, telefono")
+    .select("id, telefono, rol")
     .eq("username", username)
     .single();
 
@@ -100,8 +104,8 @@ export async function loginWithPasswordAction(
     return { error: "Usuario no encontrado o sin número registrado." };
   }
 
-  // Sign in using phone + password
-  // Note: this requires the user to have set a password previously (Step 5 of signup)
+  // Sign in using phone + password (regular client for auth)
+  const supabase = await createClient();
   const { error: signInError } = await supabase.auth.signInWithPassword({
     phone: profile.telefono,
     password,
@@ -111,5 +115,12 @@ export async function loginWithPasswordAction(
 
   const locale = await getLocale();
   await markJustLoggedIn();
-  redirect(`/${locale}/dashboard`);
+
+  if (profile.rol === "admin") {
+    redirect(`/${locale}/dashboard/admin`);
+  } else if (profile.rol === "empresa_admin") {
+    redirect(`/${locale}/dashboard/empresa`);
+  } else {
+    redirect(`/${locale}/dashboard`);
+  }
 }

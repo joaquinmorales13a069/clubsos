@@ -124,7 +124,7 @@ export default function PasoPaciente({ userProfile, onSelect, onBack }: PasoPaci
               <input
                 type="text"
                 value={cedula}
-                onChange={(e) => setCedula(e.target.value)}
+                onChange={(e) => setCedula(e.target.value.replace(/[^a-zA-Z0-9-]/g, ""))}
                 placeholder="001-XXXXXX-XXXX"
                 className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm font-roboto focus:outline-none focus:border-secondary"
               />
