@@ -121,7 +121,8 @@
     },
     "topbar": {
       "notifications": "Notifications",
-      "goToSOS": "Go to SOS Medical"
+      "goToSOS": "Go to SOS Medical",
+      "refresh": "Refresh"
     },
     "sidebar": {
       "nav": {

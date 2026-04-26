@@ -6,14 +6,27 @@
  * User identity and logout live in the Sidebar.
  */
 
+import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Bell, ArrowUpRight } from "lucide-react";
+import { Bell, ArrowUpRight, RefreshCw } from "lucide-react";
+import { useRouter } from "@/i18n/routing";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 import DateTimeDisplay from "./DateTimeDisplay";
 
 export default function Topbar() {
   const t = useTranslations("Dashboard.topbar");
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [spinning, setSpinning] = useState(false);
+
+  function handleRefresh() {
+    setSpinning(true);
+    startTransition(() => {
+      router.refresh();
+    });
+    setTimeout(() => setSpinning(false), 800);
+  }
 
   return (
     <header
@@ -26,20 +39,30 @@ export default function Topbar() {
         "flex items-center px-4 pl-14 md:pl-6 gap-4",
       ].join(" ")}
     >
-      <a
-        href="https://www.sosmedical.com.ni"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="hidden sm:flex sm:ml-10 items-center gap-2 text-xs font-bold text-white bg-secondary hover:bg-secondary/90 px-4 py-2 rounded-full shadow-sm transition-all group"
+      <button
+        onClick={handleRefresh}
+        disabled={isPending}
+        aria-label={t("refresh")}
+        className="p-2 rounded-xl text-neutral hover:bg-gray-100 transition-colors disabled:opacity-50"
       >
-        <span>{t("goToSOS")}</span>
-        <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5  group-hover:w-5 group-hover:h-5 transition-transform" />
-      </a>
+        <RefreshCw className={`w-5 h-5 transition-transform duration-500 ${spinning ? "animate-spin" : ""}`} />
+      </button>
 
       <div className="flex-1" />
 
       <div className="flex items-center gap-3">
         <DateTimeDisplay />
+
+        <a
+          href="https://www.sosmedical.com.ni"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hidden sm:flex items-center gap-2 text-xs font-bold text-white bg-secondary hover:bg-secondary/90 px-4 py-2 rounded-full shadow-sm transition-all group"
+        >
+          <span>{t("goToSOS")}</span>
+          <ArrowUpRight className="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:w-5 group-hover:h-5 transition-transform" />
+        </a>
+
         <LanguageSwitcher />
 
         <button
