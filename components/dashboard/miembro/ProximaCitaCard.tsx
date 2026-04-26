@@ -11,7 +11,7 @@ import { CalendarDays, ChevronRight, Clock } from "lucide-react";
 type Cita = {
   id: string;
   fecha_hora_cita: string;
-  estado_sync: "pendiente" | "confirmado" | "completado" | "cancelado";
+  estado_sync: "pendiente" | "confirmado" | "completado" | "cancelado" | "rechazado";
   servicio_asociado: string | null;
 } | null;
 

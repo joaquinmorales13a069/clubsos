@@ -65,7 +65,7 @@ export const INITIAL_WIZARD: WizardState = {
 export interface CitaRow {
   id:               string;
   fecha_hora_cita:  string;
-  estado_sync:      "pendiente" | "confirmado" | "completado" | "cancelado";
+  estado_sync:      "pendiente" | "confirmado" | "completado" | "cancelado" | "rechazado";
   servicio_asociado: string | null;
   ea_appointment_id: string | null;
   paciente_nombre:  string | null;

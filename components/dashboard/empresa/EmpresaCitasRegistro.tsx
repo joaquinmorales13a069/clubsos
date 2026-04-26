@@ -56,7 +56,7 @@ export type CitaRegistro = {
 
 const PAGE_SIZE = 20;
 
-type FilterKey = "todas" | "pendiente" | "confirmado" | "completado" | "cancelado";
+type FilterKey = "todas" | "pendiente" | "confirmado" | "completado" | "cancelado" | "rechazado";
 
 // Maps filter key → i18n label key and badge style
 const FILTER_CONFIG: Array<{
@@ -69,6 +69,7 @@ const FILTER_CONFIG: Array<{
   { key: "confirmado", i18n: "filterAprobadas",   badge: "bg-emerald-100 text-emerald-700" },
   { key: "completado", i18n: "filterCompletadas", badge: "bg-blue-100 text-blue-700" },
   { key: "cancelado",  i18n: "filterCanceladas",  badge: "bg-gray-100 text-gray-500" },
+  { key: "rechazado",  i18n: "filterRechazadas",  badge: "bg-red-100 text-red-600" },
 ];
 
 // Status badge styles for table rows
@@ -77,6 +78,7 @@ const STATUS_BADGE: Record<string, { i18n: string; cls: string }> = {
   confirmado: { i18n: "statusConfirmado", cls: "bg-emerald-100 text-emerald-700" },
   completado: { i18n: "statusCompletado", cls: "bg-blue-100 text-blue-700" },
   cancelado:  { i18n: "statusCancelado",  cls: "bg-gray-100 text-gray-500" },
+  rechazado:  { i18n: "statusRechazado",  cls: "bg-red-100 text-red-600" },
 };
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
@@ -150,6 +152,7 @@ export default function EmpresaCitasRegistro() {
     confirmado: citas.filter((c) => c.estado_sync === "confirmado").length,
     completado: citas.filter((c) => c.estado_sync === "completado").length,
     cancelado:  citas.filter((c) => c.estado_sync === "cancelado").length,
+    rechazado:  citas.filter((c) => c.estado_sync === "rechazado").length,
   }), [citas]);
 
   // ── Filtered + searched + paged data ─────────────────────────────────────
@@ -219,17 +222,17 @@ export default function EmpresaCitasRegistro() {
 
     const { error } = await supabase
       .from("citas")
-      .update({ estado_sync: "cancelado" })
+      .update({ estado_sync: "rechazado" })
       .eq("id", citaId);
 
     if (!error) {
       setCitas((prev) =>
         prev.map((c) =>
-          c.id === citaId ? { ...c, estado_sync: "cancelado" } : c,
+          c.id === citaId ? { ...c, estado_sync: "rechazado" } : c,
         ),
       );
       if (selectedCita?.id === citaId) {
-        setSelectedCita((prev) => prev ? { ...prev, estado_sync: "cancelado" } : prev);
+        setSelectedCita((prev) => prev ? { ...prev, estado_sync: "rechazado" } : prev);
       }
       toast.success(tCitas("rechazada"));
     } else {

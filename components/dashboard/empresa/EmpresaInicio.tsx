@@ -232,7 +232,7 @@ export default function EmpresaInicio({ firstName }: Props) {
 
     const { error } = await supabase
       .from("citas")
-      .update({ estado_sync: "cancelado" })
+      .update({ estado_sync: "rechazado" })
       .eq("id", citaId);
 
     if (!error) {

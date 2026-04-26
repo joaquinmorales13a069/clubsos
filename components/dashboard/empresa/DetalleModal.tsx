@@ -26,6 +26,7 @@ const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
   confirmado: { label: "statusConfirmado", cls: "bg-emerald-100 text-emerald-700" },
   completado: { label: "statusCompletado", cls: "bg-blue-100 text-blue-700" },
   cancelado:  { label: "statusCancelado",  cls: "bg-gray-100 text-gray-500" },
+  rechazado:  { label: "statusRechazado",  cls: "bg-red-100 text-red-600" },
 };
 
 // ── Field row ─────────────────────────────────────────────────────────────────

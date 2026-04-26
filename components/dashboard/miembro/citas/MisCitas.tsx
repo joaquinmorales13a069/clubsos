@@ -137,8 +137,8 @@ export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) 
   // ── List view ────────────────────────────────────────────────────────────────
   // Filter into upcoming and past
   const now        = new Date();
-  const upcoming   = citas.filter((c) => new Date(c.fecha_hora_cita) >= now && c.estado_sync !== "cancelado");
-  const history    = citas.filter((c) => new Date(c.fecha_hora_cita) < now  || c.estado_sync === "cancelado");
+  const upcoming   = citas.filter((c) => new Date(c.fecha_hora_cita) >= now && c.estado_sync !== "cancelado" && c.estado_sync !== "rechazado");
+  const history    = citas.filter((c) => new Date(c.fecha_hora_cita) < now  || c.estado_sync === "cancelado" || c.estado_sync === "rechazado");
 
   return (
     <div className="space-y-6">
