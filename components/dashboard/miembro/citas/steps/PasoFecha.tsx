@@ -12,7 +12,9 @@ interface PasoFechaProps {
 }
 
 /**
- * Format Date to "YYYY-MM-DD" using local date parts (avoids UTC shift from toISOString).
+ * Format Date to "YYYY-MM-DD" using local date parts.
+ * The calendar always produces a Date at midnight LOCAL time for the picked day,
+ * and local date parts match what the user sees — correct for EA which uses Nicaragua dates.
  */
 function toDateStr(date: Date): string {
   const y = date.getFullYear();
@@ -21,18 +23,28 @@ function toDateStr(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
+/**
+ * Compute a calendar-comparable Date from Nicaragua "today" + dayOffset.
+ * Nicaragua is UTC-6 (no DST). We read the UTC date parts of (now - 6h) to get
+ * Nicaragua local date, then construct a local-midnight Date so the shadcn
+ * Calendar disables the correct days regardless of the user's own timezone.
+ */
+const NI_OFFSET_MS = -6 * 60 * 60 * 1000;
+function nicaraguaCalendarDate(dayOffset = 0): Date {
+  const ni = new Date(Date.now() + NI_OFFSET_MS);
+  return new Date(ni.getUTCFullYear(), ni.getUTCMonth(), ni.getUTCDate() + dayOffset);
+}
+
 export default function PasoFecha({ onSelect, onBack }: PasoFechaProps) {
   const t  = useTranslations("Dashboard.miembro.citas.wizard");
   const tf = useTranslations("Dashboard.miembro.citas.wizard.fecha");
   const [selected, setSelected] = useState<Date | undefined>(undefined);
 
-  // Minimum: tomorrow (no same-day booking)
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  // Anchored to Nicaragua time so testers outside Nicaragua see the correct range.
+  const tomorrow = nicaraguaCalendarDate(1);
   tomorrow.setHours(0, 0, 0, 0);
 
-  // Maximum: 3 months from today
-  const maxDate = new Date();
+  const maxDate = nicaraguaCalendarDate(0);
   maxDate.setMonth(maxDate.getMonth() + 3);
   maxDate.setHours(23, 59, 59, 999);
 

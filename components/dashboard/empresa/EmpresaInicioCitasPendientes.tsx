@@ -7,8 +7,15 @@
  */
 
 import { useTranslations } from "next-intl";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+/** Formats a UTC ISO timestamp as "27 abr 2026 · 09:00" in Nicaragua time.
+ *  Uses Intl with explicit timeZone — correct in any browser/server timezone. */
+function formatNiShort(isoStr: string): string {
+  const dt   = new Date(isoStr);
+  const tz   = "America/Managua";
+  const date = dt.toLocaleDateString("es-NI", { timeZone: tz, day: "numeric", month: "short", year: "numeric" });
+  const time = dt.toLocaleTimeString("es-NI", { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
+  return `${date} · ${time}`;
+}
 import {
   CalendarClock,
   Loader2,
@@ -120,11 +127,7 @@ export default function EmpresaInicioCitasPendientes({
                   ? (cita.paciente?.nombre_completo ?? "—")
                   : (cita.paciente_nombre ?? "—");
 
-              const fechaFormateada = format(
-                new Date(cita.fecha_hora_cita),
-                "d MMM yyyy · HH:mm",
-                { locale: es },
-              );
+              const fechaFormateada = formatNiShort(cita.fecha_hora_cita);
 
               const isAprobando  = aprobandoIds.has(cita.id);
               const isRechazando = rechazandoIds.has(cita.id);

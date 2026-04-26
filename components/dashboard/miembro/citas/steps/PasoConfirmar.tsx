@@ -53,7 +53,7 @@ export default function PasoConfirmar({ wizard, userProfile, onBack, onSuccess }
       eaCustomerId:     userProfile.ea_customer_id,
       eaServiceId:      wizard.eaServiceId,
       eaProviderId:     wizard.eaProviderId,
-      fechaHoraCita:    `${wizard.fecha}T${wizard.hora}:00`,
+      fechaHoraCita:    `${wizard.fecha}T${wizard.hora}:00-06:00`,
       servicioAsociado: wizard.servicioNombre,
       paraTitular:      wizard.paraTitular,
       pacienteNombre:   wizard.paraTitular ? null : wizard.pacienteNombre,

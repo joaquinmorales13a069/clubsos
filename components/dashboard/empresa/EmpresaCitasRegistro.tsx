@@ -13,8 +13,20 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+/** Formats UTC ISO timestamp in Nicaragua time. Correct in any browser/server timezone. */
+const NI_TZ = "America/Managua";
+function formatNiShort(isoStr: string): string {
+  const dt   = new Date(isoStr);
+  const date = dt.toLocaleDateString("es-NI", { timeZone: NI_TZ, day: "numeric", month: "short", year: "numeric" });
+  const time = dt.toLocaleTimeString("es-NI", { timeZone: NI_TZ, hour: "2-digit", minute: "2-digit", hour12: false });
+  return `${date} · ${time}`;
+}
+function formatNiCompact(isoStr: string): string {
+  const dt   = new Date(isoStr);
+  const date = dt.toLocaleDateString("es-NI", { timeZone: NI_TZ, day: "numeric", month: "short" });
+  const time = dt.toLocaleTimeString("es-NI", { timeZone: NI_TZ, hour: "2-digit", minute: "2-digit", hour12: false });
+  return `${date} · ${time}`;
+}
 import { toast } from "sonner";
 import {
   Search,
@@ -359,11 +371,7 @@ export default function EmpresaCitasRegistro() {
                       ? (cita.paciente?.nombre_completo ?? "—")
                       : (cita.paciente_nombre ?? "—");
 
-                    const fecha = format(
-                      new Date(cita.fecha_hora_cita),
-                      "d MMM yyyy · HH:mm",
-                      { locale: es },
-                    );
+                    const fecha = formatNiShort(cita.fecha_hora_cita);
                     const isAprobando  = aprobandoId  === cita.id;
                     const isRechazando = rechazandoId === cita.id;
                     const isPendiente  = cita.estado_sync === "pendiente";
@@ -475,7 +483,7 @@ export default function EmpresaCitasRegistro() {
                 const pacienteNombre = cita.para_titular
                   ? (cita.paciente?.nombre_completo ?? "—")
                   : (cita.paciente_nombre ?? "—");
-                const fecha  = format(new Date(cita.fecha_hora_cita), "d MMM · HH:mm", { locale: es });
+                const fecha  = formatNiCompact(cita.fecha_hora_cita);
                 const isPend = cita.estado_sync === "pendiente";
                 const isBusy = aprobandoId === cita.id || rechazandoId === cita.id;
 

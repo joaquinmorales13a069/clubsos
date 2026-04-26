@@ -25,7 +25,7 @@ const ESTADO_BADGE: Record<string, string> = {
   confirmado: "bg-green-100 text-green-700",
 };
 
-/** Format TIMESTAMPTZ to separate date string and time string in es-NI locale */
+/** Format TIMESTAMPTZ to date/time strings in Nicaragua local time. */
 function formatDateTime(dtStr: string) {
   const dt = new Date(dtStr);
   return {
@@ -33,10 +33,12 @@ function formatDateTime(dtStr: string) {
       weekday: "long",
       month: "long",
       day: "numeric",
+      timeZone: "America/Managua",
     }),
     time: dt.toLocaleTimeString("es-NI", {
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: "America/Managua",
     }),
   };
 }

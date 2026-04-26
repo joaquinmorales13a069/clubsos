@@ -19,11 +19,14 @@ function eaBase(): string {
     .replace(/\/api\/v1$/, "");
 }
 
+/** EA expects "YYYY-MM-DD HH:mm:ss" in Nicaragua local time (UTC-6, no DST). */
+const NI_OFFSET_MS = -6 * 60 * 60 * 1000;
 function toEaDatetime(d: Date): string {
+  const ni  = new Date(d.getTime() + NI_OFFSET_MS);
   const pad = (n: number) => String(n).padStart(2, "0");
   return (
-    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ` +
-    `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+    `${ni.getUTCFullYear()}-${pad(ni.getUTCMonth() + 1)}-${pad(ni.getUTCDate())} ` +
+    `${pad(ni.getUTCHours())}:${pad(ni.getUTCMinutes())}:${pad(ni.getUTCSeconds())}`
   );
 }
 

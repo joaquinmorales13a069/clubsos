@@ -25,8 +25,8 @@ const ESTADO_STYLES: Record<string, { badge: string; label: string }> = {
 function formatDateTime(dtStr: string) {
   const dt = new Date(dtStr);
   return {
-    date: dt.toLocaleDateString("es-NI", { weekday: "short", day: "numeric", month: "short", year: "numeric" }),
-    time: dt.toLocaleTimeString("es-NI", { hour: "2-digit", minute: "2-digit" }),
+    date: dt.toLocaleDateString("es-NI", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "America/Managua" }),
+    time: dt.toLocaleTimeString("es-NI", { hour: "2-digit", minute: "2-digit", timeZone: "America/Managua" }),
   };
 }
 

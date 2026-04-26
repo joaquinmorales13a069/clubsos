@@ -7,8 +7,15 @@
  */
 
 import { useTranslations } from "next-intl";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+/** Formats a UTC ISO timestamp as "lunes 27 de abril 2026 · 09:00" in Nicaragua time.
+ *  Uses Intl with explicit timeZone — works correctly in any browser/server timezone. */
+function formatNiFull(isoStr: string): string {
+  const dt   = new Date(isoStr);
+  const tz   = "America/Managua";
+  const date = dt.toLocaleDateString("es-NI", { timeZone: tz, weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const time = dt.toLocaleTimeString("es-NI", { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
+  return `${date} · ${time}`;
+}
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 import {
   Sheet,
@@ -72,11 +79,7 @@ export default function DetalleModal({
   const isPendiente = cita.estado_sync === "pendiente";
   const isBusy      = aprobando || rechazando;
 
-  const fechaFormateada = format(
-    new Date(cita.fecha_hora_cita),
-    "EEEE d 'de' MMMM yyyy · HH:mm",
-    { locale: es },
-  );
+  const fechaFormateada = formatNiFull(cita.fecha_hora_cita);
 
   // "Creado por" — always the submitting user (paciente_id → public.users)
   const creadoPor = cita.paciente?.nombre_completo ?? t("sinRegistro");
