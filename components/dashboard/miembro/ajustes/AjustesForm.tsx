@@ -14,6 +14,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import PhoneInput, { isPossiblePhoneNumber } from "react-phone-number-input";
+import { updateEmailAction } from "@/app/[locale]/(dashboard)/dashboard/ajustes/actions";
 import "react-phone-number-input/style.css";
 import { toast } from "sonner";
 import {
@@ -136,10 +137,9 @@ export default function AjustesForm({ profile }: AjustesFormProps) {
 
   async function handleSaveEmail() {
     setSavingEmail(true);
-    const supabase = createClient();
-    const { error } = await supabase.auth.updateUser({ email: email.trim() });
-    error
-      ? toast.error(t("errorGeneric"))
+    const result = await updateEmailAction(email.trim());
+    "error" in result
+      ? toast.error(result.error)
       : toast.info(t("emailConfirmSent"));
     setSavingEmail(false);
   }
