@@ -572,6 +572,10 @@
         "confirmRegenerarDesc": "Existing invitation links using the previous code will stop working. This action cannot be undone.",
         "confirmRegenerarAceptar": "Yes, regenerate",
         "confirmRegenerarCancelar": "Cancel",
+        "sectionCitas": "Appointment settings",
+        "sectionCitasSubtitle": "Control how new appointments are handled.",
+        "autoConfirmarLabel": "Auto-confirm appointments",
+        "autoConfirmarDesc": "When enabled, new appointments are automatically confirmed without manual approval. The member receives their confirmation immediately and admins are not notified.",
         "successGuardado": "Company settings saved successfully.",
         "errorGuardar": "Error saving settings. Please try again.",
         "errorCopiar": "Could not copy to clipboard."

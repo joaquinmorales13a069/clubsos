@@ -33,7 +33,7 @@ export default async function EmpresaAjustesPage() {
   // Fetch full empresa data
   const { data: empresa } = await supabase
     .from("empresas")
-    .select("id, nombre, codigo_empresa, notas, created_at")
+    .select("id, nombre, codigo_empresa, notas, created_at, auto_confirmar_citas")
     .eq("id", profile.empresa_id)
     .single();
 
@@ -42,11 +42,12 @@ export default async function EmpresaAjustesPage() {
   return (
     <EmpresaAjustes
       empresa={{
-        id:             empresa.id,
-        nombre:         empresa.nombre          ?? "",
-        codigo_empresa: empresa.codigo_empresa  ?? "",
-        notas:          empresa.notas           ?? null,
-        created_at:     empresa.created_at,
+        id:                   empresa.id,
+        nombre:               empresa.nombre         ?? "",
+        codigo_empresa:       empresa.codigo_empresa ?? "",
+        notas:                empresa.notas          ?? null,
+        created_at:           empresa.created_at,
+        auto_confirmar_citas: empresa.auto_confirmar_citas ?? false,
       }}
     />
   );

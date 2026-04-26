@@ -572,6 +572,10 @@
         "confirmRegenerarDesc": "Los links de invitación existentes que usen el código anterior dejarán de funcionar. Esta acción no se puede deshacer.",
         "confirmRegenerarAceptar": "Sí, regenerar",
         "confirmRegenerarCancelar": "Cancelar",
+        "sectionCitas": "Configuración de citas",
+        "sectionCitasSubtitle": "Controla el comportamiento de las nuevas citas.",
+        "autoConfirmarLabel": "Auto-confirmar citas",
+        "autoConfirmarDesc": "Cuando está activo, las citas nuevas se confirman automáticamente sin requerir aprobación manual. El miembro recibe su confirmación de inmediato y no se notifica a los administradores.",
         "successGuardado": "Ajustes de empresa guardados exitosamente.",
         "errorGuardar": "Error al guardar los ajustes. Intenta de nuevo.",
         "errorCopiar": "No se pudo copiar al portapapeles."

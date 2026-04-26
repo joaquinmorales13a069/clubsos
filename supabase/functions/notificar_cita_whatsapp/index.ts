@@ -254,6 +254,19 @@ serve(async (req: Request) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
+    // Si la empresa tiene auto_confirmar_citas, el DB trigger ya confirmó la cita
+    // y notificar_estado_cita enviará cita_confirmada al miembro. No notificar admins.
+    const { data: empresaSettings } = await supabase
+      .from("empresas")
+      .select("auto_confirmar_citas")
+      .eq("id", cita.empresa_id)
+      .single();
+
+    if (empresaSettings?.auto_confirmar_citas === true) {
+      console.log(`[cita ${cita.id}] auto_confirmar_citas activo — omitiendo notificación a admins`);
+      return new Response(JSON.stringify({ skipped: true, reason: "auto_confirmar" }), { status: 200 });
+    }
+
     // Lookups en paralelo: admins + paciente + servicio
     const [adminsRes, pacienteRes, servicioRes] = await Promise.all([
       supabase

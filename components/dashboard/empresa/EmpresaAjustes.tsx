@@ -32,6 +32,7 @@ import {
   Hash,
   FileText,
   Info,
+  CalendarClock,
 } from "lucide-react";
 import {
   Dialog,
@@ -47,11 +48,12 @@ import { cn } from "@/lib/utils";
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type EmpresaData = {
-  id:              string;
-  nombre:          string;
-  codigo_empresa:  string;
-  notas:           string | null;
-  created_at:      string;
+  id:                   string;
+  nombre:               string;
+  codigo_empresa:       string;
+  notas:                string | null;
+  created_at:           string;
+  auto_confirmar_citas: boolean;
 };
 
 interface Props {
@@ -120,10 +122,11 @@ export default function EmpresaAjustes({ empresa }: Props) {
   const t = useTranslations("Dashboard.empresa.ajustesEmpresa");
 
   // ── Form state ───────────────────────────────────────────────────────────
-  const [nombre,   setNombre]   = useState(empresa.nombre);
-  const [codigo,   setCodigo]   = useState(empresa.codigo_empresa);
-  const [notas,    setNotas]    = useState(empresa.notas ?? "");
-  const [saving,   setSaving]   = useState(false);
+  const [nombre,          setNombre]          = useState(empresa.nombre);
+  const [codigo,          setCodigo]          = useState(empresa.codigo_empresa);
+  const [notas,           setNotas]           = useState(empresa.notas ?? "");
+  const [autoConfirmar,   setAutoConfirmar]   = useState(empresa.auto_confirmar_citas);
+  const [saving,          setSaving]          = useState(false);
 
   // Copy button feedback state
   const [copied,   setCopied]   = useState(false);
@@ -136,8 +139,9 @@ export default function EmpresaAjustes({ empresa }: Props) {
     () =>
       nombre.trim()  !== empresa.nombre ||
       codigo.trim()  !== empresa.codigo_empresa ||
-      notas.trim()   !== (empresa.notas ?? ""),
-    [nombre, codigo, notas, empresa],
+      notas.trim()   !== (empresa.notas ?? "") ||
+      autoConfirmar  !== empresa.auto_confirmar_citas,
+    [nombre, codigo, notas, autoConfirmar, empresa],
   );
 
   // ── Validation ────────────────────────────────────────────────────────────
@@ -150,6 +154,7 @@ export default function EmpresaAjustes({ empresa }: Props) {
     setNombre(empresa.nombre);
     setCodigo(empresa.codigo_empresa);
     setNotas(empresa.notas ?? "");
+    setAutoConfirmar(empresa.auto_confirmar_citas);
   }
 
   // ── Copy codigo to clipboard ──────────────────────────────────────────────
@@ -178,9 +183,10 @@ export default function EmpresaAjustes({ empresa }: Props) {
     const { error } = await supabase
       .from("empresas")
       .update({
-        nombre:         nombre.trim(),
-        codigo_empresa: codigo.trim().toUpperCase(),
-        notas:          notas.trim() || null,
+        nombre:               nombre.trim(),
+        codigo_empresa:       codigo.trim().toUpperCase(),
+        notas:                notas.trim() || null,
+        auto_confirmar_citas: autoConfirmar,
       })
       .eq("id", empresa.id);
 
@@ -189,9 +195,10 @@ export default function EmpresaAjustes({ empresa }: Props) {
     } else {
       toast.success(t("successGuardado"));
       // Update the baseline so isDirty resets to false
-      empresa.nombre         = nombre.trim();
-      empresa.codigo_empresa = codigo.trim().toUpperCase();
-      empresa.notas          = notas.trim() || null;
+      empresa.nombre               = nombre.trim();
+      empresa.codigo_empresa       = codigo.trim().toUpperCase();
+      empresa.notas                = notas.trim() || null;
+      empresa.auto_confirmar_citas = autoConfirmar;
       // Sync controlled fields after normalization
       setNombre(empresa.nombre);
       setCodigo(empresa.codigo_empresa);
@@ -348,6 +355,51 @@ export default function EmpresaAjustes({ empresa }: Props) {
             {t("charCount", { count: notas.length })}
           </p>
         </div>
+      </Section>
+
+      {/* ── 5. Configuración de citas ──────────────────────────────────────── */}
+      <Section
+        icon={CalendarClock}
+        title={t("sectionCitas")}
+        subtitle={t("sectionCitasSubtitle")}
+      >
+        <div className="flex items-start justify-between gap-6">
+          <div className="space-y-1 flex-1">
+            <p className="text-sm font-roboto font-medium text-gray-800">
+              {t("autoConfirmarLabel")}
+            </p>
+            <p className="text-xs font-roboto text-neutral/60 leading-relaxed">
+              {t("autoConfirmarDesc")}
+            </p>
+          </div>
+
+          {/* Toggle switch */}
+          <button
+            type="button"
+            role="switch"
+            aria-checked={autoConfirmar}
+            onClick={() => setAutoConfirmar((v) => !v)}
+            className={cn(
+              "shrink-0 relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-secondary/50",
+              autoConfirmar ? "bg-secondary" : "bg-gray-200",
+            )}
+          >
+            <span
+              className={cn(
+                "inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200",
+                autoConfirmar ? "translate-x-6" : "translate-x-1",
+              )}
+            />
+          </button>
+        </div>
+
+        {/* Active state hint */}
+        {autoConfirmar && (
+          <div className="mt-4 flex items-center gap-2 bg-secondary/5 border border-secondary/20 text-secondary text-xs font-semibold px-4 py-2.5 rounded-xl">
+            <span className="w-2 h-2 rounded-full bg-secondary animate-pulse shrink-0" />
+            {t("autoConfirmarLabel")} · activo
+          </div>
+        )}
       </Section>
 
       {/* ── Action bar ──────────────────────────────────────────────────────── */}
