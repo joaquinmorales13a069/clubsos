@@ -110,6 +110,15 @@
     }
   },
   "Dashboard": {
+    "pendiente": {
+      "titulo": "Cuenta Pendiente de Activación",
+      "subtituloTitular": "Tu solicitud de registro fue recibida. Un administrador de tu empresa debe activar tu cuenta para que puedas acceder a los servicios de Club SOS Medical.",
+      "subtituloFamiliar": "Tu cuenta está esperando activación. El titular de tu cuenta debe activar tu acceso desde la sección \"Mi Familia\" en su panel.",
+      "estadoBadge": "Pendiente de activación",
+      "verificarBtn": "Verificar estado",
+      "verificando": "Verificando...",
+      "aunPendiente": "Tu cuenta aún está pendiente de activación. Por favor espera a que sea activada."
+    },
     "topbar": {
       "notifications": "Notificaciones",
       "goToSOS": "Ir a SOS Medical"

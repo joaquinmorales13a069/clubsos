@@ -201,8 +201,8 @@ export async function completeSignupAction(
       empresa_id: formData.empresaId || null,
       titular_id: formData.titularId || null,
       email: formData.email || null,
-      // Activate the account once profile is complete
-      estado: "activo",
+      // Account starts as pending — activated by empresa_admin (titular) or titular (familiar)
+      estado: "pendiente",
     })
     .eq("id", user.id);
 
