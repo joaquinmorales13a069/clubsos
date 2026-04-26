@@ -14,6 +14,7 @@
  */
 
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Clock, ShieldCheck, RefreshCw } from "lucide-react";
@@ -27,13 +28,16 @@ interface PendingActivationScreenProps {
 
 export default function PendingActivationScreen({ tipoCuenta }: PendingActivationScreenProps) {
   const t = useTranslations("Dashboard.pendiente");
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const handleVerificar = () => {
     startTransition(async () => {
       const result = await checkActivationStatusAction();
-      // redirect() throws internally — if we reach here, the account is still pending
-      if (result?.stillPending) {
+      if ("activo" in result) {
+        // Force layout Server Component to re-render with new estado
+        router.refresh();
+      } else {
         toast.info(t("aunPendiente"));
       }
     });

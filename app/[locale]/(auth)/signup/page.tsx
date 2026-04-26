@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
@@ -112,7 +113,7 @@ export default function SignupPage() {
     });
     setIsLoading(false);
     if (result?.error) {
-      setServerError(result.error);
+      toast.error(result.error);
       return;
     }
     if (result?.success) {

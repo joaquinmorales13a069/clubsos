@@ -1,38 +1,29 @@
 "use server";
 
-import { redirect } from "next/navigation";
-import { getLocale } from "next-intl/server";
 import { createClient } from "@/utils/supabase/server";
-
-const ROLE_DASHBOARD: Record<string, string> = {
-  admin:         "dashboard/admin",
-  empresa_admin: "dashboard/empresa",
-  miembro:       "dashboard",
-};
 
 /**
  * Re-checks the current user's `estado` in public.users.
- * If now `activo` → redirects to their role-based dashboard.
- * If still `pendiente` → returns { stillPending: true } so the
- * client can show a feedback toast without a page reload.
+ * Returns { activo: true } so the client can call router.refresh(),
+ * which causes the dashboard layout Server Component to re-render
+ * and show the full dashboard now that estado = 'activo'.
+ * Returns { stillPending: true } if the account hasn't been activated yet.
  */
-export async function checkActivationStatusAction(): Promise<{ stillPending: true } | void> {
+export async function checkActivationStatusAction(): Promise<
+  { activo: true } | { stillPending: true }
+> {
   const supabase = await createClient();
-  const locale   = await getLocale();
 
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect(`/${locale}/login`);
+  if (!user) return { stillPending: true };
 
   const { data: profile } = await supabase
     .from("users")
-    .select("estado, rol")
-    .eq("id", user!.id)
+    .select("estado")
+    .eq("id", user.id)
     .single();
 
-  if (profile?.estado === "activo") {
-    const path = ROLE_DASHBOARD[profile.rol] ?? "dashboard";
-    redirect(`/${locale}/${path}`);
-  }
+  if (profile?.estado === "activo") return { activo: true };
 
   return { stillPending: true };
 }
