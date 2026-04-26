@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { Clock, ShieldCheck, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import LogoutButton from "@/components/dashboard/LogoutButton";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { checkActivationStatusAction } from "@/app/[locale]/(dashboard)/pending-actions";
 
 interface PendingActivationScreenProps {
@@ -45,6 +46,11 @@ export default function PendingActivationScreen({ tipoCuenta }: PendingActivatio
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50/30 flex items-center justify-center p-4">
+      {/* Language toggle — top-right, matches Topbar pattern */}
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
+
       <div className="w-full max-w-md">
         {/* Card */}
         <div className="bg-white/80 backdrop-blur-md rounded-2xl shadow-lg border border-gray-100 p-8 space-y-6 text-center">
