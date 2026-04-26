@@ -55,17 +55,17 @@ export async function crearCita(input: CrearCitaInput) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "No autenticado" };
 
-  // Fetch rol server-side — never trust a value passed from the client.
-  // empresa_admin schedules citas on behalf of their empresa, so their
-  // appointments are auto-confirmed (no approval step needed).
-  const { data: profile } = await supabase
-    .from("users")
-    .select("rol")
-    .eq("id", user.id)
-    .single();
+  // Fetch rol + empresa auto_confirmar_citas in parallel.
+  const [profileRes, empresaRes] = await Promise.all([
+    supabase.from("users").select("rol").eq("id", user.id).single(),
+    input.empresaId
+      ? supabase.from("empresas").select("auto_confirmar_citas").eq("id", input.empresaId).single()
+      : Promise.resolve({ data: null }),
+  ]);
 
-  const isEmpresaAdmin = profile?.rol === "empresa_admin";
-  const estadoSync     = isEmpresaAdmin ? "confirmado" : "pendiente";
+  const isEmpresaAdmin  = profileRes.data?.rol === "empresa_admin";
+  const autoConfirmar   = empresaRes.data?.auto_confirmar_citas ?? false;
+  const estadoSync      = isEmpresaAdmin ? "confirmado" : "pendiente";
 
   // Insert and return the new cita ID so we can update ea_appointment_id later.
   const { data: inserted, error } = await supabase
@@ -92,9 +92,10 @@ export async function crearCita(input: CrearCitaInput) {
 
   if (error) return { error: error.message };
 
-  // ── EA sync for empresa_admin (auto-confirmed citas) ──────────────────────
-  // Miembro citas stay pendiente and are synced when empresa_admin approves them.
-  if (isEmpresaAdmin && input.eaCustomerId) {
+  // ── EA sync ───────────────────────────────────────────────────────────────
+  // Triggers when: empresa_admin creates (always confirmed) OR empresa has
+  // auto_confirmar_citas ON (DB trigger already confirmed the cita).
+  if ((isEmpresaAdmin || autoConfirmar) && input.eaCustomerId) {
     const hasEaCreds   = Boolean(EA_RAW_URL && EA_KEY);
     const hasEaService = Boolean(input.eaServiceId && input.eaProviderId);
 
