@@ -132,7 +132,7 @@ export async function completeSignupAction(
     return { error: t("invalidSession") };
   }
 
-  // Check if email is already registered (if provided)
+  // Check if email is already registered in public.users or public.doctores
   if (formData.email) {
     const { createClient: createAdmin } = await import("@supabase/supabase-js");
     const adminClient = createAdmin(
@@ -140,14 +140,21 @@ export async function completeSignupAction(
       process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    const { data: existingEmail } = await adminClient
-      .from("users")
-      .select("id")
-      .eq("email", formData.email)
-      .neq("id", user.id) // Exclude current user in case they already have this email
-      .single();
+    const [{ data: existingUser }, { data: existingDoctor }] = await Promise.all([
+      adminClient
+        .from("users")
+        .select("id")
+        .eq("email", formData.email)
+        .neq("id", user.id)
+        .single(),
+      adminClient
+        .from("doctores")
+        .select("id")
+        .eq("correo", formData.email)
+        .single(),
+    ]);
 
-    if (existingEmail) {
+    if (existingUser || existingDoctor) {
       return { error: t("emailExists") };
     }
   }
