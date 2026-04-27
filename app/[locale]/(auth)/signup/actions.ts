@@ -20,7 +20,7 @@ export async function buscarEmpresaAction(
   const { createClient: createSupabaseClient } = await import("@supabase/supabase-js");
   const supabaseAdmin = createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
   const searchValUpper = codigo.trim().toUpperCase();
@@ -48,7 +48,7 @@ export async function sendSignupOtpAction(
   const { createClient: createSupabaseClient } = await import("@supabase/supabase-js");
   const supabaseAdmin = createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
   // Check if phone number is already registered
@@ -137,7 +137,7 @@ export async function completeSignupAction(
     const { createClient: createAdmin } = await import("@supabase/supabase-js");
     const adminClient = createAdmin(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
     const [{ data: existingUser }, { data: existingDoctor }] = await Promise.all([
@@ -185,7 +185,7 @@ export async function completeSignupAction(
     const { createClient: createAdmin } = await import("@supabase/supabase-js");
     const adminClient = createAdmin(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
     const { error: emailError } = await adminClient.auth.admin.updateUserById(user.id, {
       email: formData.email,
