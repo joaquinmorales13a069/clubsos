@@ -52,10 +52,11 @@ export default async function MiembroDashboardPage() {
         .order("created_at", { ascending: false })
         .limit(3),
 
-      // Last 3 active medical documents
+      // Last 3 active medical documents for this user only
       supabase
         .from("documentos_medicos")
         .select("id, nombre_documento, tipo_documento, file_path, tipo_archivo, fecha_documento, created_at")
+        .eq("usuario_id", user.id)
         .eq("estado_archivo", "activo")
         .order("created_at", { ascending: false })
         .limit(3),

@@ -33,8 +33,8 @@ function canAccessDashboard(path: string, role: string | null, locale: string): 
   const adminBase = `/${locale}${ROLE_ROUTES.admin}`;
   const empresaBase = `/${locale}${ROLE_ROUTES.empresa_admin}`;
 
-  // Each role is strictly locked to its own dashboard section
-  if (role === 'admin') return path.startsWith(adminBase);
+  // Admin can access all dashboard routes (admin management + shared miembro "Mi Perfil" routes)
+  if (role === 'admin') return true;
   if (role === 'empresa_admin') return !path.startsWith(adminBase);
   return !path.startsWith(adminBase) && !path.startsWith(empresaBase);
 }
