@@ -81,13 +81,14 @@ function buildAdminNav(
   const miPerfilItems: NavItemConfig[] = [
     { href: `${base}/citas`,      label: t("nav.citas"),      icon: CalendarDays },
     { href: `${base}/beneficios`, label: t("nav.beneficios"), icon: Gift },
+    { href: `${base}/avisos`,     label: t("nav.avisos"),     icon: Megaphone },
     { href: `${base}/documentos`, label: t("nav.documentos"), icon: FileText },
     { href: `${base}/ajustes`,    label: t("nav.ajustes"),    icon: SlidersHorizontal },
   ];
 
   // Mi Familia only for titulares
   if (tipoCuenta === "titular") {
-    miPerfilItems.splice(3, 0, {
+    miPerfilItems.splice(4, 0, {
       href: `${base}/familia`,
       label: t("nav.familia"),
       icon: Users,
@@ -126,13 +127,14 @@ function buildEmpresaAdminNav(
     { href: `${base}/empresa`, label: t("nav.dashboard"), icon: LayoutDashboard, exact: true },
     { href: `${base}/citas`,      label: t("nav.citas"),      icon: CalendarDays },
     { href: `${base}/beneficios`, label: t("nav.beneficios"), icon: Gift },
+    { href: `${base}/avisos`,     label: t("nav.avisos"),     icon: Megaphone },
     { href: `${base}/documentos`, label: t("nav.documentos"), icon: FileText },
     { href: `${base}/ajustes`,    label: t("nav.ajustes"),    icon: SlidersHorizontal },
   ];
 
   // Mi Familia only visible to titulares (same rule as miembro)
   if (tipoCuenta === "titular") {
-    miPerfilItems.splice(4, 0, {
+    miPerfilItems.splice(5, 0, {
       href: `${base}/familia`,
       label: t("nav.familia"),
       icon: Users,

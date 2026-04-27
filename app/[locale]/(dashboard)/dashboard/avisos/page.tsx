@@ -1,18 +1,14 @@
-import { getTranslations } from "next-intl/server";
-import { Megaphone } from "lucide-react";
-
-// Placeholder — avisos list shown in home cards (Step 5.2); dedicated page if needed later
+import { redirect }   from "next/navigation";
+import { getLocale }  from "next-intl/server";
+import { createClient } from "@/utils/supabase/server";
+import MisAvisos from "@/components/dashboard/miembro/avisos/MisAvisos";
 
 export default async function AvisosPage() {
-  const t = await getTranslations("Dashboard.miembro.avisos");
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-4">
-      <div className="w-16 h-16 rounded-2xl bg-secondary/10 flex items-center justify-center">
-        <Megaphone className="w-8 h-8 text-secondary" />
-      </div>
-      <h1 className="text-2xl font-poppins font-bold text-gray-900">{t("title")}</h1>
-      <p className="text-neutral max-w-sm font-roboto">{t("subtitle")}</p>
-      <span className="text-xs text-neutral/60 bg-gray-100 px-3 py-1 rounded-full">{t("comingSoon")}</span>
-    </div>
-  );
+  const supabase = await createClient();
+  const locale   = await getLocale();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect(`/${locale}/login`);
+
+  return <MisAvisos />;
 }

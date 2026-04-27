@@ -122,7 +122,12 @@
     "topbar": {
       "notifications": "Notificaciones",
       "goToSOS": "Ir a SOS Medical",
-      "refresh": "Actualizar"
+      "refresh": "Actualizar",
+      "avisos": {
+        "titulo": "Avisos",
+        "empty": "Sin avisos activos",
+        "verTodos": "Ver todos los avisos"
+      }
     },
     "sidebar": {
       "nav": {
@@ -326,7 +331,13 @@
       "avisos": {
         "title": "Avisos",
         "subtitle": "Mantente al día con los anuncios de Club SOS Medical.",
-        "comingSoon": "Disponible próximamente"
+        "comingSoon": "Disponible próximamente",
+        "empty": "Sin avisos disponibles",
+        "emptySub": "No hay avisos activos en este momento.",
+        "estadoActiva": "Activo",
+        "estadoExpirada": "Expirado",
+        "pageInfo": "{from}–{to} de {total}",
+        "errorCargar": "Error al cargar los avisos."
       },
       "documentos": {
         "title": "Mis Reportes",
@@ -949,6 +960,77 @@
         "pageInfo": "{from}–{to} de {total} empresas",
         "prevPage": "Anterior",
         "nextPage": "Siguiente"
+      },
+      "sistema": {
+        "titulo": "Ajustes del Sistema",
+        "subtitle": "Perfil de administrador, información del sistema y gestión de avisos.",
+        "perfilTitulo": "Perfil del Administrador",
+        "sistemaTitulo": "Información del Sistema",
+        "sistemaVersion": "Versión",
+        "sistemaDeploy": "Último deploy",
+        "sistemaRegistros": "Registros en base de datos",
+        "kpiEmpresas": "Empresas",
+        "kpiUsuarios": "Usuarios",
+        "kpiCitas": "Citas este mes",
+        "kpiDocumentos": "Documentos activos",
+        "kpiBeneficios": "Beneficios activos",
+        "avisosTitulo": "Gestionar Avisos",
+        "avisos": {
+          "titulo": "Avisos",
+          "subtitle": "Anuncios globales o por empresa visibles para los miembros.",
+          "crearBtn": "Nuevo aviso",
+          "colTitulo": "Título",
+          "colEstado": "Estado",
+          "colFechas": "Vigencia",
+          "colAlcance": "Alcance",
+          "colCreadoPor": "Creado por",
+          "colAcciones": "Acciones",
+          "estadoActiva": "Activo",
+          "estadoExpirada": "Expirado",
+          "alcanceGlobal": "Global",
+          "alcanceEmpresas": "{count} empresa(s)",
+          "editarBtn": "Editar",
+          "eliminarBtn": "Eliminar",
+          "siEliminar": "Sí, eliminar",
+          "cancelar": "Cancelar",
+          "eliminadoOk": "Aviso eliminado.",
+          "errorEliminar": "Error al eliminar. Intenta de nuevo.",
+          "errorCargar": "No se pudieron cargar los avisos.",
+          "empty": "No hay avisos registrados aún.",
+          "pageInfo": "{from}–{to} de {total} avisos",
+          "modal": {
+            "tituloCrear": "Nuevo Aviso",
+            "tituloEditar": "Editar Aviso",
+            "fieldTitulo": "Título",
+            "fieldDescripcion": "Descripción",
+            "fieldEstado": "Estado",
+            "estadoActiva": "Activo",
+            "estadoExpirada": "Expirado",
+            "fieldFechaInicio": "Fecha inicio",
+            "fieldFechaFin": "Fecha fin",
+            "fieldEmpresas": "Empresas (vacío = global)",
+            "sinEmpresas": "No hay empresas activas.",
+            "empresasGlobal": "Global — visible para todos los miembros",
+            "empresasSeleccionadas": "{count} empresa(s) seleccionada(s)",
+            "fieldImagen": "Imagen (opcional)",
+            "subirImagen": "Haz clic para seleccionar una imagen",
+            "subirImagenHint": "JPG, PNG, WEBP, GIF · Máx. 5 MB",
+            "imagenActual": "Imagen actual",
+            "imagenEliminada": "Imagen eliminada",
+            "eliminarImagen": "Eliminar",
+            "deshacer": "Deshacer",
+            "validTituloReq": "El título es requerido.",
+            "validFechas": "La fecha fin debe ser mayor o igual a la fecha inicio.",
+            "validImagenSize": "La imagen no puede superar 5 MB.",
+            "guardarBtn": "Guardar",
+            "guardando": "Guardando...",
+            "cancelarBtn": "Cancelar",
+            "creadoOk": "Aviso creado correctamente.",
+            "editadoOk": "Aviso actualizado correctamente.",
+            "errorImagen": "Error al subir la imagen. Intenta de nuevo.",
+            "errorGuardar": "Error al guardar. Intenta de nuevo."
+          }
+        }
       }
     }
   }

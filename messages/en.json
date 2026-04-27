@@ -122,7 +122,12 @@
     "topbar": {
       "notifications": "Notifications",
       "goToSOS": "Go to SOS Medical",
-      "refresh": "Refresh"
+      "refresh": "Refresh",
+      "avisos": {
+        "titulo": "Announcements",
+        "empty": "No active announcements",
+        "verTodos": "View all announcements"
+      }
     },
     "sidebar": {
       "nav": {
@@ -326,7 +331,13 @@
       "avisos": {
         "title": "Announcements",
         "subtitle": "Stay up to date with Club SOS Medical notices.",
-        "comingSoon": "Coming soon"
+        "comingSoon": "Coming soon",
+        "empty": "No announcements available",
+        "emptySub": "There are no active announcements at this time.",
+        "estadoActiva": "Active",
+        "estadoExpirada": "Expired",
+        "pageInfo": "{from}–{to} of {total}",
+        "errorCargar": "Failed to load announcements."
       },
       "documentos": {
         "title": "My Reports",
@@ -949,6 +960,77 @@
         "pageInfo": "{from}–{to} of {total} companies",
         "prevPage": "Previous",
         "nextPage": "Next"
+      },
+      "sistema": {
+        "titulo": "System Settings",
+        "subtitle": "Admin profile, system information, and notice management.",
+        "perfilTitulo": "Administrator Profile",
+        "sistemaTitulo": "System Information",
+        "sistemaVersion": "Version",
+        "sistemaDeploy": "Last deploy",
+        "sistemaRegistros": "Database records",
+        "kpiEmpresas": "Companies",
+        "kpiUsuarios": "Users",
+        "kpiCitas": "Appointments this month",
+        "kpiDocumentos": "Active documents",
+        "kpiBeneficios": "Active benefits",
+        "avisosTitulo": "Manage Notices",
+        "avisos": {
+          "titulo": "Notices",
+          "subtitle": "Global or company-specific announcements visible to members.",
+          "crearBtn": "New notice",
+          "colTitulo": "Title",
+          "colEstado": "Status",
+          "colFechas": "Validity",
+          "colAlcance": "Scope",
+          "colCreadoPor": "Created by",
+          "colAcciones": "Actions",
+          "estadoActiva": "Active",
+          "estadoExpirada": "Expired",
+          "alcanceGlobal": "Global",
+          "alcanceEmpresas": "{count} company(ies)",
+          "editarBtn": "Edit",
+          "eliminarBtn": "Delete",
+          "siEliminar": "Yes, delete",
+          "cancelar": "Cancel",
+          "eliminadoOk": "Notice deleted.",
+          "errorEliminar": "Failed to delete. Please try again.",
+          "errorCargar": "Could not load notices.",
+          "empty": "No notices registered yet.",
+          "pageInfo": "{from}–{to} of {total} notices",
+          "modal": {
+            "tituloCrear": "New Notice",
+            "tituloEditar": "Edit Notice",
+            "fieldTitulo": "Title",
+            "fieldDescripcion": "Description",
+            "fieldEstado": "Status",
+            "estadoActiva": "Active",
+            "estadoExpirada": "Expired",
+            "fieldFechaInicio": "Start date",
+            "fieldFechaFin": "End date",
+            "fieldEmpresas": "Companies (empty = global)",
+            "sinEmpresas": "No active companies.",
+            "empresasGlobal": "Global — visible to all members",
+            "empresasSeleccionadas": "{count} company(ies) selected",
+            "fieldImagen": "Image (optional)",
+            "subirImagen": "Click to select an image",
+            "subirImagenHint": "JPG, PNG, WEBP, GIF · Max 5 MB",
+            "imagenActual": "Current image",
+            "imagenEliminada": "Image removed",
+            "eliminarImagen": "Remove",
+            "deshacer": "Undo",
+            "validTituloReq": "Title is required.",
+            "validFechas": "End date must be on or after start date.",
+            "validImagenSize": "Image cannot exceed 5 MB.",
+            "guardarBtn": "Save",
+            "guardando": "Saving...",
+            "cancelarBtn": "Cancel",
+            "creadoOk": "Notice created successfully.",
+            "editadoOk": "Notice updated successfully.",
+            "errorImagen": "Failed to upload image. Please try again.",
+            "errorGuardar": "Failed to save. Please try again."
+          }
+        }
       }
     }
   }
