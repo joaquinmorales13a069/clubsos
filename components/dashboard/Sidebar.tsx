@@ -123,8 +123,11 @@ function buildEmpresaAdminNav(
   tipoCuenta?: "titular" | "familiar",
 ): NavGroup[] {
   // "Mi Perfil" — reuses the same miembro routes; RLS policies scope data automatically.
-  const miPerfilItems: NavItemConfig[] = [
+  const dashboardItems: NavItemConfig[] = [
     { href: `${base}/empresa`, label: t("nav.dashboard"), icon: LayoutDashboard, exact: true },
+  ];
+
+  const miPerfilItems: NavItemConfig[] = [
     { href: `${base}/citas`,      label: t("nav.citas"),      icon: CalendarDays },
     { href: `${base}/beneficios`, label: t("nav.beneficios"), icon: Gift },
     { href: `${base}/avisos`,     label: t("nav.avisos"),     icon: Megaphone },
@@ -134,7 +137,7 @@ function buildEmpresaAdminNav(
 
   // Mi Familia only visible to titulares (same rule as miembro)
   if (tipoCuenta === "titular") {
-    miPerfilItems.splice(5, 0, {
+    miPerfilItems.splice(4, 0, {
       href: `${base}/familia`,
       label: t("nav.familia"),
       icon: Users,
@@ -150,6 +153,7 @@ function buildEmpresaAdminNav(
   ];
 
   return [
+    { items: dashboardItems },
     { label: t("groupMiPerfil"),    items: miPerfilItems },
     { label: t("groupAdministrar"), items: administrarItems },
   ];
@@ -160,8 +164,11 @@ function buildMiembroNav(
   t: ReturnType<typeof useTranslations>,
   tipoCuenta?: "titular" | "familiar",
 ): NavGroup[] {
-  const items: NavItemConfig[] = [
+  const dashboardItems: NavItemConfig[] = [
     { href: base,                 label: t("nav.dashboard"),  icon: LayoutDashboard, exact: true },
+  ];
+
+  const items: NavItemConfig[] = [
     { href: `${base}/citas`,      label: t("nav.citas"),      icon: CalendarDays },
     { href: `${base}/beneficios`, label: t("nav.beneficios"), icon: Gift },
     { href: `${base}/avisos`,     label: t("nav.avisos"),     icon: Megaphone },
@@ -170,14 +177,17 @@ function buildMiembroNav(
   ];
 
   if (tipoCuenta === "titular") {
-    items.splice(5, 0, {
+    items.splice(4, 0, {
       href: `${base}/familia`,
       label: t("nav.familia"),
       icon: Users,
     });
   }
 
-  return [{ items }];
+  return [
+    { items: dashboardItems },
+    { label: t("groupMiPerfil"), items }
+  ];
 }
 
 function useNavGroups(
