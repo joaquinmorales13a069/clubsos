@@ -19,13 +19,14 @@ const ESTADO_STYLES: Record<string, { badge: string; label: string }> = {
   confirmado: { badge: "bg-green-100 text-green-700",  label: "statusConfirmado" },
   completado: { badge: "bg-blue-100 text-blue-700",    label: "statusCompletado" },
   cancelado:  { badge: "bg-gray-100 text-gray-500",    label: "statusCancelado"  },
+  rechazado:  { badge: "bg-red-100 text-red-600",      label: "statusRechazado"  },
 };
 
 function formatDateTime(dtStr: string) {
   const dt = new Date(dtStr);
   return {
-    date: dt.toLocaleDateString("es-NI", { weekday: "short", day: "numeric", month: "short", year: "numeric" }),
-    time: dt.toLocaleTimeString("es-NI", { hour: "2-digit", minute: "2-digit" }),
+    date: dt.toLocaleDateString("es-NI", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "America/Managua" }),
+    time: dt.toLocaleTimeString("es-NI", { hour: "2-digit", minute: "2-digit", timeZone: "America/Managua" }),
   };
 }
 

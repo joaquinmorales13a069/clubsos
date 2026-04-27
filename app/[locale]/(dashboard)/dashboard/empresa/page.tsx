@@ -1,25 +1,37 @@
-import { useTranslations } from "next-intl";
-
 /**
- * Dashboard — Empresa Admin view (placeholder)
- * Full implementation comes in Step 6 (feature/dashboard-empresa-admin).
+ * Dashboard — Empresa Admin Inicio (Step 6.2)
+ *
+ * Server Component: fetches the authenticated user's first name,
+ * then renders the EmpresaInicio client component which handles
+ * all section-level data fetching and skeletons independently.
  */
-export default function EmpresaDashboardPage() {
-  return <EmpresaPlaceholder />;
-}
 
-function EmpresaPlaceholder() {
-  const t = useTranslations("Dashboard.empresa");
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-4">
-      <div className="w-16 h-16 rounded-2xl bg-secondary/10 flex items-center justify-center">
-        <span className="text-3xl">🏢</span>
-      </div>
-      <h1 className="text-2xl font-poppins font-bold text-gray-900">{t("title")}</h1>
-      <p className="text-neutral max-w-sm font-roboto">{t("subtitle")}</p>
-      <span className="text-xs text-neutral/60 bg-gray-100 px-3 py-1 rounded-full">
-        {t("comingSoon")}
-      </span>
-    </div>
-  );
+import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
+import { createClient } from "@/utils/supabase/server";
+import EmpresaInicio from "@/components/dashboard/empresa/EmpresaInicio";
+
+export default async function EmpresaDashboardPage() {
+  const supabase = await createClient();
+  const locale   = await getLocale();
+
+  // Defence-in-depth session check (middleware already handles redirect)
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect(`/${locale}/login`);
+
+  // Fetch minimal profile data needed for the greeting
+  const { data: profile } = await supabase
+    .from("users")
+    .select("nombre_completo, rol")
+    .eq("id", user.id)
+    .single();
+
+  // Guard: only empresa_admin should reach this page
+  if (profile?.rol !== "empresa_admin") {
+    redirect(`/${locale}/dashboard`);
+  }
+
+  const firstName = profile?.nombre_completo?.split(" ")[0] ?? "Admin";
+
+  return <EmpresaInicio firstName={firstName} />;
 }

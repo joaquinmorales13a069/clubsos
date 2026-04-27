@@ -38,8 +38,7 @@ export async function buscarEmpresaAction(
 
   return { id: data.id, nombre: data.nombre };
 }
-import { redirect } from "next/navigation";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 
 // ─── Step 4: Send OTP to verify phone during signup ────────────────────────
 
@@ -118,7 +117,7 @@ export interface SignupProfileData {
 
 export async function completeSignupAction(
   formData: SignupProfileData
-): Promise<{ error?: string }> {
+): Promise<{ success?: true; error?: string }> {
   const supabase = await createClient();
 
   // Confirm the user is authenticated (phone was verified in Step 4)
@@ -133,7 +132,7 @@ export async function completeSignupAction(
     return { error: t("invalidSession") };
   }
 
-  // Check if email is already registered (if provided)
+  // Check if email is already registered in public.users or public.doctores
   if (formData.email) {
     const { createClient: createAdmin } = await import("@supabase/supabase-js");
     const adminClient = createAdmin(
@@ -141,14 +140,21 @@ export async function completeSignupAction(
       process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    const { data: existingEmail } = await adminClient
-      .from("users")
-      .select("id")
-      .eq("email", formData.email)
-      .neq("id", user.id) // Exclude current user in case they already have this email
-      .single();
+    const [{ data: existingUser }, { data: existingDoctor }] = await Promise.all([
+      adminClient
+        .from("users")
+        .select("id")
+        .eq("email", formData.email)
+        .neq("id", user.id)
+        .single(),
+      adminClient
+        .from("doctores")
+        .select("id")
+        .eq("correo", formData.email)
+        .single(),
+    ]);
 
-    if (existingEmail) {
+    if (existingUser || existingDoctor) {
       return { error: t("emailExists") };
     }
   }
@@ -202,8 +208,8 @@ export async function completeSignupAction(
       empresa_id: formData.empresaId || null,
       titular_id: formData.titularId || null,
       email: formData.email || null,
-      // Activate the account once profile is complete
-      estado: "activo",
+      // Account starts as pending — activated by empresa_admin (titular) or titular (familiar)
+      estado: "pendiente",
     })
     .eq("id", user.id);
 
@@ -211,7 +217,5 @@ export async function completeSignupAction(
     return { error: t("profileError", { message: profileError.message }) };
   }
 
-  // Redirect to member dashboard on successful registration
-  const locale = await getLocale();
-  redirect(`/${locale}/dashboard`);
+  return { success: true };
 }

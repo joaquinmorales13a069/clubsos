@@ -12,6 +12,7 @@ import { createClient } from "@/utils/supabase/server";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Topbar from "@/components/dashboard/Topbar";
 import LoginSuccessToast from "@/components/dashboard/LoginSuccessToast";
+import PendingActivationScreen from "@/components/dashboard/PendingActivationScreen";
 import type { UserRole } from "@/utils/supabase/middleware";
 
 /** Derive 1-2 letter initials from a full name string. */
@@ -40,17 +41,22 @@ export default async function DashboardLayout({
     redirect(`/${locale}/login`);
   }
 
-  // Fetch full profile for display name, role, and tipo_cuenta
+  // Fetch full profile for display name, role, tipo_cuenta, and activation state
   const { data: profile } = await supabase
     .from("users")
-    .select("nombre_completo, rol, tipo_cuenta")
+    .select("nombre_completo, rol, tipo_cuenta, estado")
     .eq("id", user.id)
     .single();
 
-  const userName = profile?.nombre_completo ?? user.phone ?? "Usuario";
-  const role = (profile?.rol as UserRole) ?? "miembro";
+  const userName   = profile?.nombre_completo ?? user.phone ?? "Usuario";
+  const role       = (profile?.rol as UserRole) ?? "miembro";
   const tipoCuenta = (profile?.tipo_cuenta as "titular" | "familiar") ?? "titular";
   const userInitials = getInitials(userName);
+
+  // Block dashboard access until empresa_admin/titular activates the account
+  if (profile?.estado === "pendiente") {
+    return <PendingActivationScreen tipoCuenta={tipoCuenta} />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

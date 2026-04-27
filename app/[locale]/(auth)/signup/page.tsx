@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useTranslations, useLocale } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,8 +14,10 @@ import { UserCircle, Users, Building2, Search, ShieldCheck, ArrowRight, ArrowLef
 import { sendSignupOtpAction, verifySignupOtpAction, completeSignupAction, buscarEmpresaAction } from "./actions";
 
 export default function SignupPage() {
-  const t = useTranslations("Auth.signup");
+  const t  = useTranslations("Auth.signup");
   const tf = useTranslations("Auth.footer");
+  const router = useRouter();
+  const locale = useLocale();
   const [step, setStep] = useState(1);
   
   // Form State
@@ -108,7 +112,13 @@ export default function SignupPage() {
       email: noEmail ? null : email || null,
     });
     setIsLoading(false);
-    if (result?.error) setServerError(result.error);
+    if (result?.error) {
+      toast.error(result.error);
+      return;
+    }
+    if (result?.success) {
+      router.push(`/${locale}/dashboard`);
+    }
   };
 
   const renderStep1 = () => (
@@ -385,7 +395,7 @@ export default function SignupPage() {
 
           <div className="space-y-2 md:col-span-2">
             <label className="text-sm font-medium text-gray-700">{t("docLabel")}</label>
-            <Input required value={documento} onChange={e => setDocumento(e.target.value)} className="rounded-xl h-11" />
+            <Input required value={documento} onChange={e => setDocumento(e.target.value.replace(/[^a-zA-Z0-9-]/g, ""))} className="rounded-xl h-11" />
           </div>
 
           <div className="col-span-1 md:col-span-2 mt-4 pt-4 border-t border-gray-100">
