@@ -72,19 +72,47 @@ interface SidebarProps {
 
 // ── Nav config builders ──────────────────────────────────────────────────────
 
-function buildAdminNav(base: string, t: ReturnType<typeof useTranslations>): NavGroup[] {
+function buildAdminNav(
+  base: string,
+  t: ReturnType<typeof useTranslations>,
+  tipoCuenta?: "titular" | "familiar",
+): NavGroup[] {
+  // "Mi Perfil" — shared miembro routes; RLS policies scope data automatically
+  const miPerfilItems: NavItemConfig[] = [
+    { href: `${base}/citas`,      label: t("nav.citas"),      icon: CalendarDays },
+    { href: `${base}/beneficios`, label: t("nav.beneficios"), icon: Gift },
+    { href: `${base}/documentos`, label: t("nav.documentos"), icon: FileText },
+    { href: `${base}/ajustes`,    label: t("nav.ajustes"),    icon: SlidersHorizontal },
+  ];
+
+  // Mi Familia only for titulares
+  if (tipoCuenta === "titular") {
+    miPerfilItems.splice(3, 0, {
+      href: `${base}/familia`,
+      label: t("nav.familia"),
+      icon: Users,
+    });
+  }
+
+  // "Administrar" — global admin management sections
+  const administrarItems: NavItemConfig[] = [
+    { href: `${base}/admin/citas`,      label: t("nav.gestionarCitas"),      icon: CalendarCheck },
+    { href: `${base}/admin/beneficios`, label: t("nav.gestionarBeneficios"), icon: Gift },
+    { href: `${base}/admin/documentos`, label: t("nav.gestionarDocumentos"), icon: FileText },
+    { href: `${base}/admin/usuarios`,   label: t("nav.gestionarUsuarios"),   icon: UserCog },
+    { href: `${base}/admin/empresas`,   label: t("nav.gestionarEmpresas"),   icon: Building2 },
+    { href: `${base}/admin/reportes`,   label: t("nav.generarReportes"),     icon: BarChart3 },
+    { href: `${base}/admin/sistema`,    label: t("nav.ajustesSistema"),      icon: Settings },
+  ];
+
   return [
     {
       items: [
-        { href: `${base}/admin`,           label: t("nav.dashboard"),  icon: LayoutDashboard },
-        { href: `${base}/admin/usuarios`,  label: t("nav.usuarios"),   icon: Users },
-        { href: `${base}/admin/empresas`,  label: t("nav.empresas"),   icon: Building2 },
-        { href: `${base}/admin/beneficios`,label: t("nav.beneficios"), icon: Gift },
-        { href: `${base}/admin/avisos`,    label: t("nav.avisos"),     icon: Megaphone },
-        { href: `${base}/admin/reportes`,  label: t("nav.reportes"),   icon: BarChart3 },
-        { href: `${base}/admin/config`,    label: t("nav.config"),     icon: Settings },
+        { href: `${base}/admin`, label: t("nav.dashboard"), icon: LayoutDashboard, exact: true },
       ],
     },
+    { label: t("groupMiPerfil"),         items: miPerfilItems },
+    { label: t("groupAdministrarAdmin"), items: administrarItems },
   ];
 }
 
@@ -158,7 +186,7 @@ function useNavGroups(
 ): NavGroup[] {
   const base = `/${locale}/dashboard`;
 
-  if (role === "admin")         return buildAdminNav(base, t);
+  if (role === "admin")         return buildAdminNav(base, t, tipoCuenta);
   if (role === "empresa_admin") return buildEmpresaAdminNav(base, t, tipoCuenta);
   return buildMiembroNav(base, t, tipoCuenta);
 }

@@ -142,7 +142,12 @@
         "registroCitas": "Appointment Registry",
         "gestionarUsuarios": "Manage Users",
         "ajustesEmpresa": "Company Settings",
-        "generarReportes": "Generate Reports"
+        "generarReportes": "Generate Reports",
+        "gestionarCitas": "Manage Appointments",
+        "gestionarBeneficios": "Manage Benefits",
+        "gestionarDocumentos": "Manage Documents",
+        "gestionarEmpresas": "Manage Companies",
+        "ajustesSistema": "System Settings"
       },
       "groupMiPerfil": "My Profile",
       "groupAdministrar": "Manage Company",
@@ -156,7 +161,8 @@
       "logoutSuccess": "You've been signed out.",
       "footer": {
         "rightsReserved": "All rights reserved."
-      }
+      },
+      "groupAdministrarAdmin": "Administer"
     },
     "miembro": {
       "title": "Member Dashboard",
@@ -621,7 +627,49 @@
     "admin": {
       "title": "Global Admin Dashboard",
       "subtitle": "Full control of the Club SOS Medical ecosystem.",
-      "comingSoon": "Coming in Step 7"
+      "comingSoon": "Coming in Step 7",
+      "inicio": {
+        "greeting": "Hello,",
+        "greetingSub": "Global system control panel",
+        "kpi_empresasActivas": "Active companies",
+        "kpi_usuariosActivos": "Active users",
+        "kpi_citasPendientes": "Pending appointments",
+        "kpi_citasMes": "Appointments this month",
+        "kpi_documentos": "Active documents",
+        "kpi_beneficios": "Active benefits",
+        "alertaCitasPendientes": "There {count} pending appointment(s) awaiting approval in the system",
+        "revisarAhora": "Review",
+        "qa_revisarCitas": "Review appointments",
+        "qa_usuarios": "Users",
+        "qa_empresas": "Companies",
+        "qa_documentos": "Documents",
+        "citasPendientes_titulo": "Latest pending appointments",
+        "citasPendientes_verTodas": "View all",
+        "citasPendientes_empty": "No pending appointments in the system.",
+        "citasPendientes_titular": "Member",
+        "citasPendientes_tercero": "Third party",
+        "citasPendientes_aprobar": "Approve",
+        "citasPendientes_rechazar": "Reject",
+        "empresasRecientes_titulo": "Recent companies",
+        "empresasRecientes_verTodas": "View all",
+        "empresasRecientes_empty": "No companies registered yet.",
+        "empresa_activa": "Active",
+        "empresa_inactiva": "Inactive",
+        "errorKpis": "Could not load indicators.",
+        "errorCitas": "Could not load pending appointments.",
+        "errorEmpresas": "Could not load recent companies.",
+        "graficoCitas": {
+          "titulo": "Appointments by service (global)",
+          "subtitle": "Total appointments scheduled per service type in the selected month.",
+          "mesPrevio": "Previous month",
+          "mesSiguiente": "Next month",
+          "labelCitas": "appointment(s)",
+          "sinServicio": "No service",
+          "empty": "No appointments this month",
+          "emptySub": "No appointments were recorded in this period.",
+          "errorCargar": "Could not load the chart."
+        }
+      }
     }
   }
 }

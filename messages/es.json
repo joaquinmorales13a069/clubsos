@@ -142,7 +142,12 @@
         "registroCitas": "Registro de Citas",
         "gestionarUsuarios": "Gestionar Usuarios",
         "ajustesEmpresa": "Ajustes de Empresa",
-        "generarReportes": "Generar Reportes"
+        "generarReportes": "Generar Reportes",
+        "gestionarCitas": "Gestionar Citas",
+        "gestionarBeneficios": "Gestionar Beneficios",
+        "gestionarDocumentos": "Gestionar Documentos",
+        "gestionarEmpresas": "Gestionar Empresas",
+        "ajustesSistema": "Ajustes del Sistema"
       },
       "groupMiPerfil": "Mi Perfil",
       "groupAdministrar": "Administrar Empresa",
@@ -156,7 +161,8 @@
       "logoutSuccess": "Sesión cerrada correctamente.",
       "footer": {
         "rightsReserved": "Todos los derechos reservados."
-      }
+      },
+      "groupAdministrarAdmin": "Administrar"
     },
     "miembro": {
       "title": "Panel de Miembro",
@@ -621,7 +627,49 @@
     "admin": {
       "title": "Panel de Admin Global",
       "subtitle": "Control total del ecosistema Club SOS Medical.",
-      "comingSoon": "Próximamente en el Paso 7"
+      "comingSoon": "Próximamente en el Paso 7",
+      "inicio": {
+        "greeting": "Hola,",
+        "greetingSub": "Panel de control global del sistema",
+        "kpi_empresasActivas": "Empresas activas",
+        "kpi_usuariosActivos": "Usuarios activos",
+        "kpi_citasPendientes": "Citas pendientes",
+        "kpi_citasMes": "Citas este mes",
+        "kpi_documentos": "Documentos activos",
+        "kpi_beneficios": "Beneficios activos",
+        "alertaCitasPendientes": "Hay {count} cita(s) pendientes de aprobación en el sistema",
+        "revisarAhora": "Revisar",
+        "qa_revisarCitas": "Revisar citas",
+        "qa_usuarios": "Usuarios",
+        "qa_empresas": "Empresas",
+        "qa_documentos": "Documentos",
+        "citasPendientes_titulo": "Últimas citas pendientes",
+        "citasPendientes_verTodas": "Ver todas",
+        "citasPendientes_empty": "No hay citas pendientes en el sistema.",
+        "citasPendientes_titular": "Titular",
+        "citasPendientes_tercero": "Tercero",
+        "citasPendientes_aprobar": "Aprobar",
+        "citasPendientes_rechazar": "Rechazar",
+        "empresasRecientes_titulo": "Empresas recientes",
+        "empresasRecientes_verTodas": "Ver todas",
+        "empresasRecientes_empty": "No hay empresas registradas aún.",
+        "empresa_activa": "Activa",
+        "empresa_inactiva": "Inactiva",
+        "errorKpis": "No se pudieron cargar los indicadores.",
+        "errorCitas": "No se pudieron cargar las citas pendientes.",
+        "errorEmpresas": "No se pudieron cargar las empresas recientes.",
+        "graficoCitas": {
+          "titulo": "Citas por servicio (global)",
+          "subtitle": "Cantidad total de citas agendadas por tipo de servicio en el mes seleccionado.",
+          "mesPrevio": "Mes anterior",
+          "mesSiguiente": "Mes siguiente",
+          "labelCitas": "cita(s)",
+          "sinServicio": "Sin servicio",
+          "empty": "Sin citas este mes",
+          "emptySub": "No se registraron citas en este período.",
+          "errorCargar": "No se pudo cargar el gráfico."
+        }
+      }
     }
   }
 }
