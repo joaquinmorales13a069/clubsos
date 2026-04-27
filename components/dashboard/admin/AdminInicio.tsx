@@ -36,7 +36,12 @@ import AdminInicioCitasPendientes, {
 import AdminInicioEmpresasRecientes, {
   type EmpresaRecienteRow,
 } from "./AdminInicioEmpresasRecientes";
-import AdminInicioCitasPorServicio from "./AdminInicioCitasPorServicio";
+import dynamic from "next/dynamic";
+
+const AdminInicioCitasPorServicio = dynamic(
+  () => import("./AdminInicioCitasPorServicio"),
+  { ssr: false, loading: () => <div className="h-[180px] bg-gray-100 rounded-2xl animate-pulse" /> }
+);
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
