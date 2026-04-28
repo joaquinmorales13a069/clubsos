@@ -260,7 +260,7 @@ function EditarUsuarioAdminModal({ usuario, empresas, onClose, onSaved }: EditMo
               <label className={labelCls}>{t("fieldDocumento")}</label>
               <input
                 value={documento}
-                onChange={(e) => setDocumento(e.target.value)}
+                onChange={(e) => setDocumento(e.target.value.replace(/[^a-zA-Z0-9]/g, ""))}
                 className={inputCls}
               />
             </div>

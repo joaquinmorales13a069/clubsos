@@ -665,7 +665,17 @@
         "colTitular": "Titular",
         "colCitasPropias": "Citas propias",
         "colCitasFamiliares": "Citas de familiares",
-        "colTotal": "Total"
+        "colTotal": "Total",
+        "sectionContratos": "Utilización de Contratos",
+        "sectionContratosSubtitle": "Citas realizadas bajo contratos de servicio en el período seleccionado.",
+        "period_10d": "Últimos 10 días",
+        "period_15d": "Últimos 15 días",
+        "period_1m": "Último mes",
+        "fieldFechaInicio": "Fecha de inicio",
+        "modeContrato": "Por contrato-servicio",
+        "colContrato": "Contrato",
+        "colCuotaTitular": "Cuota / titular",
+        "colCitasUsadas": "Citas realizadas"
       }
     },
     "admin": {

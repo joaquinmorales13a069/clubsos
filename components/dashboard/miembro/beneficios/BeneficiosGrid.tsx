@@ -127,7 +127,7 @@ export default function BeneficiosGrid({ initialData, initialCount }: Beneficios
           <p className="text-sm font-roboto text-neutral max-w-xs">{t("emptySub")}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {beneficios.map((b) => (
             <BeneficioCard key={b.id} beneficio={b} />
           ))}

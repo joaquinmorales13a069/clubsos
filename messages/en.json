@@ -665,7 +665,17 @@
         "colTitular": "Primary member",
         "colCitasPropias": "Own appointments",
         "colCitasFamiliares": "Family appointments",
-        "colTotal": "Total"
+        "colTotal": "Total",
+        "sectionContratos": "Contract Utilization",
+        "sectionContratosSubtitle": "Appointments made under service contracts in the selected period.",
+        "period_10d": "Last 10 days",
+        "period_15d": "Last 15 days",
+        "period_1m": "Last month",
+        "fieldFechaInicio": "Start date",
+        "modeContrato": "By contract-service",
+        "colContrato": "Contract",
+        "colCuotaTitular": "Quota / member",
+        "colCitasUsadas": "Appointments made"
       }
     },
     "admin": {

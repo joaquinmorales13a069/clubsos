@@ -34,6 +34,7 @@ import {
   AlertCircle,
   LayoutList,
   UserCheck,
+  ListChecks,
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
@@ -615,6 +616,394 @@ function ReporteCitas() {
   );
 }
 
+// ── Report 3: Utilización de Contratos ───────────────────────────────────────
+
+type ContratoPeriodKey = "10d" | "15d" | "1m" | "custom";
+
+function getContratoRange(
+  period: ContratoPeriodKey,
+  startDate: string,
+  endDate: string,
+): DateRange {
+  const now = new Date();
+  if (period === "custom") {
+    if (!startDate || !endDate) return null;
+    return {
+      start: new Date(startDate).toISOString(),
+      end:   new Date(`${endDate}T23:59:59`).toISOString(),
+    };
+  }
+  if (!startDate) return null;
+  const start = new Date(startDate);
+  const end   = new Date(start);
+  if (period === "10d")     end.setDate(end.getDate() + 10);
+  else if (period === "15d") end.setDate(end.getDate() + 15);
+  else                       end.setMonth(end.getMonth() + 1);
+  return { start: start.toISOString(), end: (end > now ? now : end).toISOString() };
+}
+
+type CsRawRow = {
+  id:                string;
+  contrato_id:       string;
+  cuota_por_titular: number;
+  ea_service_id:     string;
+};
+
+type CitaContratoRaw = {
+  id:                   string;
+  contrato_servicio_id: string | null;
+  paciente: {
+    id:              string;
+    nombre_completo: string | null;
+    tipo_cuenta:     string;
+    titular_id:      string | null;
+  } | null;
+};
+
+type ContratoServicioRow = {
+  csId:           string;
+  contratoNombre: string;
+  servicioNombre: string;
+  cuotaTitular:   number;
+  citasUsadas:    number;
+};
+
+type TitularContratoRow = {
+  titularId:      string;
+  titularNombre:  string;
+  contratoNombre: string;
+  servicioNombre: string;
+  propias:        number;
+  familiares:     number;
+};
+
+type ContratoMode = "contrato" | "titular";
+
+function ReporteContratos() {
+  const t = useTranslations("Dashboard.empresa.reportes");
+
+  const defaultStart = format(new Date(Date.now() - 10 * 24 * 3600 * 1000), "yyyy-MM-dd");
+
+  const [period,    setPeriod]    = useState<ContratoPeriodKey>("10d");
+  const [startDate, setStartDate] = useState(defaultStart);
+  const [endDate,   setEndDate]   = useState(format(new Date(), "yyyy-MM-dd"));
+  const [mode,      setMode]      = useState<ContratoMode>("contrato");
+
+  const [csRows,      setCsRows]      = useState<ContratoServicioRow[]>([]);
+  const [titularRows, setTitularRows] = useState<TitularContratoRow[]>([]);
+  const [loading,     setLoading]     = useState(false);
+  const [error,       setError]       = useState(false);
+  const [exporting,   setExporting]   = useState(false);
+
+  const range = getContratoRange(period, startDate, endDate);
+
+  const fetchData = useCallback(async (r: DateRange) => {
+    if (!r) return;
+    setLoading(true);
+    setError(false);
+
+    const supabase = createClient();
+
+    const [csResult, citasResult] = await Promise.all([
+      supabase.from("contrato_servicios").select("id, contrato_id, cuota_por_titular, ea_service_id"),
+      supabase
+        .from("citas")
+        .select("id, contrato_servicio_id, paciente:users!paciente_id(id, nombre_completo, tipo_cuenta, titular_id)")
+        .not("contrato_servicio_id", "is", null)
+        .gte("fecha_hora_cita", r.start)
+        .lte("fecha_hora_cita", r.end),
+    ]);
+
+    if (csResult.error || citasResult.error) {
+      setError(true);
+      setLoading(false);
+      return;
+    }
+
+    const css   = (csResult.data ?? []) as CsRawRow[];
+    const citas = (citasResult.data ?? []) as unknown as CitaContratoRaw[];
+
+    const contratoIds = [...new Set(css.map((c) => c.contrato_id).filter(Boolean))];
+    const serviceIds  = [...new Set(css.map((c) => c.ea_service_id).filter(Boolean))];
+
+    if (contratoIds.length === 0) {
+      setCsRows([]);
+      setTitularRows([]);
+      setLoading(false);
+      return;
+    }
+
+    const [contratosRes, serviciosRes] = await Promise.all([
+      supabase.from("contratos").select("id, nombre").in("id", contratoIds),
+      supabase.from("servicios").select("ea_service_id, nombre").in("ea_service_id", serviceIds),
+    ]);
+
+    const contratoMap = new Map((contratosRes.data ?? []).map((c) => [c.id,          c.nombre as string]));
+    const servicioMap = new Map((serviciosRes.data ?? []).map((s) => [s.ea_service_id, s.nombre as string]));
+    const csMap       = new Map(css.map((cs) => [cs.id, cs]));
+
+    // ── Aggregate: por contrato-servicio ─────────────────────────────────
+    const csCountMap = new Map<string, number>();
+    for (const cita of citas) {
+      if (!cita.contrato_servicio_id) continue;
+      csCountMap.set(cita.contrato_servicio_id, (csCountMap.get(cita.contrato_servicio_id) ?? 0) + 1);
+    }
+
+    setCsRows(
+      css
+        .map((cs) => ({
+          csId:           cs.id,
+          contratoNombre: contratoMap.get(cs.contrato_id) ?? "—",
+          servicioNombre: servicioMap.get(cs.ea_service_id) ?? "—",
+          cuotaTitular:   cs.cuota_por_titular,
+          citasUsadas:    csCountMap.get(cs.id) ?? 0,
+        }))
+        .filter((r) => r.citasUsadas > 0)
+        .sort((a, b) => b.citasUsadas - a.citasUsadas),
+    );
+
+    // ── Aggregate: por titular ────────────────────────────────────────────
+    const titMap = new Map<string, TitularContratoRow>();
+
+    for (const cita of citas) {
+      if (!cita.contrato_servicio_id || !cita.paciente) continue;
+      const cs = csMap.get(cita.contrato_servicio_id);
+      if (!cs) continue;
+
+      const p              = cita.paciente;
+      const contratoNombre = contratoMap.get(cs.contrato_id) ?? "—";
+      const servicioNombre = servicioMap.get(cs.ea_service_id) ?? "—";
+      const titId          = p.tipo_cuenta === "titular" ? p.id : (p.titular_id ?? null);
+      if (!titId) continue;
+
+      const key   = `${titId}::${cita.contrato_servicio_id}`;
+      const entry = titMap.get(key) ?? {
+        titularId:     titId,
+        titularNombre: p.tipo_cuenta === "titular" ? (p.nombre_completo ?? "—") : "—",
+        contratoNombre,
+        servicioNombre,
+        propias:    0,
+        familiares: 0,
+      };
+
+      if (p.tipo_cuenta === "titular") {
+        entry.titularNombre = p.nombre_completo ?? entry.titularNombre;
+        entry.propias++;
+      } else {
+        entry.familiares++;
+      }
+      titMap.set(key, entry);
+    }
+
+    // Backfill titular names that came from familiar citas
+    const missingIds = [...titMap.values()]
+      .filter((r) => r.titularNombre === "—")
+      .map((r) => r.titularId);
+
+    if (missingIds.length > 0) {
+      const { data: titularNames } = await supabase
+        .from("users")
+        .select("id, nombre_completo")
+        .in("id", missingIds);
+      const nameMap = new Map((titularNames ?? []).map((u) => [u.id, u.nombre_completo as string]));
+      for (const row of titMap.values()) {
+        if (row.titularNombre === "—") row.titularNombre = nameMap.get(row.titularId) ?? "—";
+      }
+    }
+
+    setTitularRows(
+      [...titMap.values()].sort((a, b) => (b.propias + b.familiares) - (a.propias + a.familiares)),
+    );
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchData(getContratoRange(period, startDate, endDate));
+  }, [period, startDate, endDate, fetchData]);
+
+  function handlePeriodChip(p: ContratoPeriodKey) {
+    setPeriod(p);
+    if (p !== "custom") {
+      const d = new Date();
+      if (p === "10d") d.setDate(d.getDate() - 10);
+      else if (p === "15d") d.setDate(d.getDate() - 15);
+      else d.setMonth(d.getMonth() - 1);
+      setStartDate(format(d, "yyyy-MM-dd"));
+      setEndDate(format(new Date(), "yyyy-MM-dd"));
+    }
+  }
+
+  async function handleExport(fmt: "xlsx" | "csv") {
+    if (!range) return;
+    setExporting(true);
+    try {
+      let ws: XLSX.WorkSheet;
+      let filename: string;
+
+      if (mode === "contrato") {
+        const rows = csRows.map((r) => ({
+          [t("colContrato")]:    r.contratoNombre,
+          [t("colServicio")]:    r.servicioNombre,
+          [t("colCuotaTitular")]: r.cuotaTitular,
+          [t("colCitasUsadas")]: r.citasUsadas,
+        }));
+        ws       = XLSX.utils.json_to_sheet(rows);
+        filename = `reporte_contratos_servicio_${format(new Date(), "yyyyMMdd_HHmm")}`;
+      } else {
+        const rows = titularRows.map((r) => ({
+          [t("colTitular")]:          r.titularNombre,
+          [t("colContrato")]:          r.contratoNombre,
+          [t("colServicio")]:          r.servicioNombre,
+          [t("colCitasPropias")]:      r.propias,
+          [t("colCitasFamiliares")]:   r.familiares,
+          [t("colTotal")]:             r.propias + r.familiares,
+        }));
+        ws       = XLSX.utils.json_to_sheet(rows);
+        filename = `reporte_contratos_titular_${format(new Date(), "yyyyMMdd_HHmm")}`;
+      }
+
+      downloadFile(ws, filename, fmt);
+      toast.success(t("successExport"));
+    } catch {
+      toast.error(t("errorExport"));
+    }
+    setExporting(false);
+  }
+
+  const count     = mode === "contrato" ? csRows.length : titularRows.length;
+  const canExport = !!range && !loading && !error && count > 0;
+
+  const CHIPS: ContratoPeriodKey[] = ["10d", "15d", "1m", "custom"];
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="flex items-start gap-3 px-5 py-4 border-b border-gray-50">
+        <div className="mt-0.5 p-1.5 rounded-lg bg-secondary/5">
+          <ListChecks className="w-4 h-4 text-secondary" />
+        </div>
+        <div>
+          <h3 className="font-poppins font-semibold text-sm text-gray-900">
+            {t("sectionContratos")}
+          </h3>
+          <p className="text-xs font-roboto text-neutral/60 mt-0.5">
+            {t("sectionContratosSubtitle")}
+          </p>
+        </div>
+      </div>
+
+      <div className="p-5 space-y-5">
+        {/* Period chips + date inputs */}
+        <div className="space-y-3">
+          <div className="flex flex-wrap gap-2">
+            {CHIPS.map((key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => handlePeriodChip(key)}
+                className={cn(
+                  "px-3 py-1.5 rounded-xl border text-xs font-semibold font-roboto transition-all",
+                  period === key
+                    ? "bg-secondary text-white border-secondary shadow-sm"
+                    : "bg-white text-gray-600 border-gray-200 hover:border-secondary/40",
+                )}
+              >
+                {t(`period_${key}` as Parameters<typeof t>[0])}
+              </button>
+            ))}
+          </div>
+
+          {period !== "custom" && (
+            <div className="space-y-1">
+              <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                {t("fieldFechaInicio")}
+              </label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="px-3 py-2 rounded-xl border border-gray-200 text-sm font-roboto text-gray-800
+                           focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition"
+              />
+            </div>
+          )}
+
+          {period === "custom" && (
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1 space-y-1">
+                <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                  {t("fieldDesde")}
+                </label>
+                <input
+                  type="date"
+                  value={startDate}
+                  max={endDate || undefined}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-roboto text-gray-800
+                             focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition"
+                />
+              </div>
+              <div className="flex-1 space-y-1">
+                <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                  {t("fieldHasta")}
+                </label>
+                <input
+                  type="date"
+                  value={endDate}
+                  min={startDate || undefined}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm font-roboto text-gray-800
+                             focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Mode toggle */}
+        <div className="space-y-1.5">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+            {t("labelAgrupar")}
+          </p>
+          <div className="flex rounded-xl border border-gray-200 overflow-hidden w-fit">
+            <button
+              type="button"
+              onClick={() => setMode("contrato")}
+              className={cn(
+                "flex items-center gap-1.5 px-4 py-2 text-xs font-semibold font-roboto transition-colors",
+                mode === "contrato"
+                  ? "bg-secondary text-white"
+                  : "bg-white text-gray-500 hover:bg-gray-50",
+              )}
+            >
+              <LayoutList className="w-3.5 h-3.5" />
+              {t("modeContrato")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("titular")}
+              className={cn(
+                "flex items-center gap-1.5 px-4 py-2 text-xs font-semibold font-roboto border-l border-gray-200 transition-colors",
+                mode === "titular"
+                  ? "bg-secondary text-white"
+                  : "bg-white text-gray-500 hover:bg-gray-50",
+              )}
+            >
+              <UserCheck className="w-3.5 h-3.5" />
+              {t("modeTitular")}
+            </button>
+          </div>
+        </div>
+
+        {/* Count + export */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <CountBadge loading={loading} error={error} count={count} t={t} />
+          <ExportButtons onExport={handleExport} exporting={exporting} disabled={!canExport} t={t} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main page component ───────────────────────────────────────────────────────
 
 export default function EmpresaReportes() {
@@ -634,6 +1023,7 @@ export default function EmpresaReportes() {
       {/* Report cards */}
       <ReporteUsuarios />
       <ReporteCitas />
+      <ReporteContratos />
     </div>
   );
 }
