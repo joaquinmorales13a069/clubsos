@@ -1,10 +1,13 @@
 providers = ["node"]
 
 [phases.setup]
-nixPkgs = ["nodejs_20", "nodePackages_latest.pnpm"]
+nixPkgs = ["nodejs_20"]
+
+[variables]
+COREPACK_INTEGRITY_KEYS = "0"
 
 [phases.install]
-cmds = ["pnpm install --frozen-lockfile"]
+cmds = ["corepack enable pnpm", "pnpm install --frozen-lockfile"]
 
 [phases.build]
 cmds = ["pnpm build"]
