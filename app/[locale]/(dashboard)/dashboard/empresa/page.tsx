@@ -22,7 +22,7 @@ export default async function EmpresaDashboardPage() {
   // Fetch minimal profile data needed for the greeting
   const { data: profile } = await supabase
     .from("users")
-    .select("nombre_completo, rol")
+    .select("nombre_completo, rol, empresa_id")
     .eq("id", user.id)
     .single();
 
@@ -31,7 +31,8 @@ export default async function EmpresaDashboardPage() {
     redirect(`/${locale}/dashboard`);
   }
 
-  const firstName = profile?.nombre_completo?.split(" ")[0] ?? "Admin";
+  const firstName  = profile?.nombre_completo?.split(" ")[0] ?? "Admin";
+  const empresaId  = profile?.empresa_id ?? null;
 
-  return <EmpresaInicio firstName={firstName} />;
+  return <EmpresaInicio firstName={firstName} empresaId={empresaId} />;
 }
