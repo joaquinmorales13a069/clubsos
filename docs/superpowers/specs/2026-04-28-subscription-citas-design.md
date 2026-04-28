@@ -42,6 +42,9 @@ OR admin rejects → `rechazado`
 
 ## 2. Database Schema
 
+> **Migration policy:** All schema changes must be written as `supabase/migrations/YYYYMMDDHHMMSS_<description>.sql` files and applied via `supabase db push`. Never apply SQL ad-hoc from the dashboard.
+
+
 ### New tables
 
 ```sql
