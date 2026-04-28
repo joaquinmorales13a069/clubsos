@@ -1,6 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
+// ── EA helpers ────────────────────────────────────────────────────────────────
+
+const EA_RAW_URL = process.env.NEXT_PUBLIC_EA_API_URL ?? "";
+const EA_KEY     = process.env.EA_API_KEY ?? "";
+
+function eaBase(): string {
+  return EA_RAW_URL.replace(/\/+$/, "").replace(/\/api\/v1$/, "");
+}
+
+const NI_OFFSET_MS = -6 * 60 * 60 * 1000;
+function toEaDatetime(d: Date): string {
+  const ni  = new Date(d.getTime() + NI_OFFSET_MS);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${ni.getUTCFullYear()}-${pad(ni.getUTCMonth()+1)}-${pad(ni.getUTCDate())} ${pad(ni.getUTCHours())}:${pad(ni.getUTCMinutes())}:${pad(ni.getUTCSeconds())}`;
+}
+
 // ── WhatsApp helpers ──────────────────────────────────────────────────────────
 
 function toE164(phone: string): string {
@@ -139,7 +155,73 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       notas: body.notas ?? null,
     }).eq("cita_id", cita_id);
 
-    const { error } = await supabase.from("citas").update({ estado_sync: "confirmado" }).eq("id", cita_id);
+    // Fetch cita data needed for EA sync before updating estado_sync.
+    const { data: citaData } = await supabase
+      .from("citas")
+      .select(`
+        id, ea_appointment_id, ea_service_id, ea_provider_id,
+        fecha_hora_cita, para_titular,
+        paciente_nombre, paciente_telefono, paciente_correo, paciente_cedula, motivo_cita,
+        paciente:users!paciente_id(ea_customer_id),
+        servicio:servicios!citas_ea_service_id_fkey(duracion)
+      `)
+      .eq("id", cita_id)
+      .single();
+
+    let eaAppointmentId: string | null = (citaData?.ea_appointment_id as string | null) ?? null;
+
+    if (citaData && EA_RAW_URL && EA_KEY) {
+      type CitaData = typeof citaData & {
+        ea_service_id: number | null; ea_provider_id: number | null;
+        para_titular: boolean; paciente_nombre: string | null;
+        paciente_telefono: string | null; motivo_cita: string | null;
+        paciente: { ea_customer_id: number | null } | null;
+        servicio: { duracion: number | null } | null;
+      };
+      const c = citaData as unknown as CitaData;
+      const customerId = c.paciente?.ea_customer_id ?? null;
+
+      if (c.ea_service_id && c.ea_provider_id && customerId) {
+        try {
+          const start = new Date(c.fecha_hora_cita);
+          const end   = new Date(start.getTime() + (c.servicio?.duracion ?? 30) * 60_000);
+          let notes: string | undefined;
+          if (!c.para_titular) {
+            const parts = ["[Paciente tercero]"];
+            if (c.paciente_nombre)   parts.push(`Nombre: ${c.paciente_nombre}`);
+            if (c.paciente_telefono) parts.push(`Teléfono: ${c.paciente_telefono}`);
+            if (c.motivo_cita)       parts.push(`Motivo: ${c.motivo_cita}`);
+            notes = parts.join("\n");
+          } else if (c.motivo_cita) {
+            notes = c.motivo_cita;
+          }
+          const payload: Record<string, unknown> = {
+            book: toEaDatetime(new Date()), start: toEaDatetime(start), end: toEaDatetime(end),
+            serviceId: c.ea_service_id, providerId: c.ea_provider_id, customerId: Number(customerId),
+          };
+          if (notes) payload.notes = notes;
+          const eaRes = await fetch(`${eaBase()}/api/v1/appointments`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${EA_KEY}` },
+            body: JSON.stringify(payload),
+          });
+          if (eaRes.ok) {
+            const d = await eaRes.json() as { id?: number };
+            if (d.id) eaAppointmentId = String(d.id);
+          } else {
+            console.error(`[pago/verify] EA HTTP ${eaRes.status}:`, await eaRes.text().catch(() => ""));
+          }
+        } catch (err) { console.error("[pago/verify] EA error:", err); }
+      } else {
+        if (!customerId) console.warn("[pago/verify] Paciente has no ea_customer_id — DB-only.");
+      }
+    }
+
+    const { error } = await supabase.from("citas").update({
+      estado_sync: "confirmado",
+      ea_appointment_id: eaAppointmentId,
+    }).eq("id", cita_id);
+
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ ok: true });
   }
