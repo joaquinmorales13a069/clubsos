@@ -11,12 +11,11 @@
 import { redirect }                 from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { createClient }             from "@/utils/supabase/server";
-import AjustesForm                  from "@/components/dashboard/miembro/ajustes/AjustesForm";
 import AvisosAdmin                  from "@/components/dashboard/admin/AvisosAdmin";
 import AdminDatosBancarios          from "@/components/dashboard/admin/AdminDatosBancarios";
+import AdminNotificacionesCitas     from "@/components/dashboard/admin/AdminNotificacionesCitas";
 import {
   Settings,
-  User,
   Megaphone,
   Server,
   Building2,
@@ -24,6 +23,7 @@ import {
   CalendarDays,
   FileText,
   Gift,
+  Bell,
 } from "lucide-react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -51,11 +51,7 @@ export default async function AdminSistemaPage() {
 
   // Fetch all data in parallel
   const [profileResult, kpisResult, empresasResult] = await Promise.all([
-    supabase
-      .from("users")
-      .select("id, nombre_completo, documento_identidad, rol, tipo_cuenta, fecha_nacimiento, username, telefono, email")
-      .eq("id", user.id)
-      .single(),
+    supabase.from("users").select("rol").eq("id", user.id).single(),
     supabase.rpc("get_admin_kpis"),
     supabase
       .from("empresas")
@@ -67,7 +63,6 @@ export default async function AdminSistemaPage() {
   // Guard: only global admin
   if (profileResult.data?.rol !== "admin") redirect(`/${locale}/dashboard`);
 
-  const profile = profileResult.data;
   const kpis    = (kpisResult.data ?? {}) as AdminKpis;
   const empresas = (empresasResult.data ?? []) as { id: string; nombre: string }[];
 
@@ -85,29 +80,6 @@ export default async function AdminSistemaPage() {
         <div>
           <h1 className="text-xl font-poppins font-bold text-gray-900">{t("titulo")}</h1>
           <p className="text-sm font-roboto text-neutral">{t("subtitle")}</p>
-        </div>
-      </div>
-
-      {/* ── Card A — Perfil del administrador ─────────────────────────────── */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
-          <User className="w-4.5 h-4.5 text-secondary" />
-          <h2 className="text-base font-poppins font-semibold text-gray-900">{t("perfilTitulo")}</h2>
-        </div>
-        <div className="px-6 py-5">
-          <AjustesForm
-            profile={{
-              id:                  user.id,
-              nombre_completo:     profile?.nombre_completo     ?? null,
-              documento_identidad: profile?.documento_identidad ?? null,
-              rol:                 profile?.rol                 ?? "admin",
-              tipo_cuenta:         profile?.tipo_cuenta         ?? "titular",
-              fecha_nacimiento:    profile?.fecha_nacimiento    ?? null,
-              username:            profile?.username            ?? null,
-              telefono:            profile?.telefono            ?? null,
-              email:               user.email                  ?? null,
-            }}
-          />
         </div>
       </div>
 
@@ -169,6 +141,17 @@ export default async function AdminSistemaPage() {
 
       {/* ── Card D — Datos bancarios ──────────────────────────────────────── */}
       <AdminDatosBancarios />
+
+      {/* ── Card E — Notificaciones internas de citas ─────────────────────── */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100">
+          <Bell className="w-4.5 h-4.5 text-secondary" />
+          <h2 className="text-base font-poppins font-semibold text-gray-900">{t("notifTitulo")}</h2>
+        </div>
+        <div className="px-6 py-5">
+          <AdminNotificacionesCitas />
+        </div>
+      </div>
     </div>
   );
 }

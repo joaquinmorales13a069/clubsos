@@ -1070,6 +1070,7 @@
         "kpiDocumentos": "Active documents",
         "kpiBeneficios": "Active benefits",
         "avisosTitulo": "Manage Notices",
+        "notifTitulo": "Internal Appointment Notifications",
         "avisos": {
           "titulo": "Notices",
           "subtitle": "Global or company-specific announcements visible to members.",

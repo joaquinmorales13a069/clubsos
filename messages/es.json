@@ -1070,6 +1070,7 @@
         "kpiDocumentos": "Documentos activos",
         "kpiBeneficios": "Beneficios activos",
         "avisosTitulo": "Gestionar Avisos",
+        "notifTitulo": "Notificaciones internas de citas",
         "avisos": {
           "titulo": "Avisos",
           "subtitle": "Anuncios globales o por empresa visibles para los miembros.",

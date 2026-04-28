@@ -126,10 +126,10 @@ export default function MisAvisos() {
                 <img
                   src={aviso.aviso_image_url}
                   alt={aviso.titulo}
-                  className="w-full h-40 object-cover"
+                  className="w-full aspect-square object-cover"
                 />
               ) : (
-                <div className="w-full h-40 bg-rose-50 flex items-center justify-center">
+                <div className="w-full aspect-square bg-rose-50 flex items-center justify-center">
                   <ImageIcon className="w-10 h-10 text-rose-200" />
                 </div>
               )}
