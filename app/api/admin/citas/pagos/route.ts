@@ -19,5 +19,12 @@ export async function GET() {
     .order("created_at", { ascending: true });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ citas: data });
+
+  // PostgREST returns `pago` as an array (one-to-many). Normalize to single object.
+  const citas = (data ?? []).map((c) => ({
+    ...c,
+    pago: Array.isArray(c.pago) ? (c.pago[0] ?? null) : c.pago,
+  }));
+
+  return NextResponse.json({ citas });
 }
