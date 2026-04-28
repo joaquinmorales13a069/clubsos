@@ -76,7 +76,7 @@ export async function crearCita(input: CrearCitaInput) {
       ea_customer_id:    input.eaCustomerId,
       ea_service_id:     input.eaServiceId,
       ea_provider_id:    input.eaProviderId,
-      fecha_hora_cita:   input.fechaHoraCita,
+      fecha_hora_cita:   input.fechaHoraCita + "-06:00",
       servicio_asociado: input.servicioAsociado,
       para_titular:      input.paraTitular,
       paciente_nombre:   input.pacienteNombre,
