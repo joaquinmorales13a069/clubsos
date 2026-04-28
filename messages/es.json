@@ -256,6 +256,8 @@
           "stepFecha": "Fecha",
           "stepHorario": "Horario",
           "stepPaciente": "Paciente",
+          "stepPago": "Pago",
+          "stepTransferencia": "Transferencia",
           "stepConfirmar": "Confirmar",
           "ubicacion": {
             "title": "¿Dónde deseas tu cita?",

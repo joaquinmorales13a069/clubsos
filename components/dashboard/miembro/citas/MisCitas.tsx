@@ -116,7 +116,7 @@ export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) 
           )}
           {wizard.step === "paciente" && (
             <PasoPaciente
-              userProfile={userProfile ?? { id: "", rol: "miembro", empresa_id: null, ea_customer_id: null, nombre_completo: null, telefono: null, documento_identidad: null }}
+              userProfile={userProfile ?? { id: "", rol: "miembro", empresa_id: null, titular_id: null, ea_customer_id: null, nombre_completo: null, telefono: null, documento_identidad: null }}
               onSelect={patchAndAdvance}
               onBack={goBack}
             />

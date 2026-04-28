@@ -256,6 +256,8 @@
           "stepFecha": "Date",
           "stepHorario": "Time",
           "stepPaciente": "Patient",
+          "stepPago": "Payment",
+          "stepTransferencia": "Transfer",
           "stepConfirmar": "Confirm",
           "ubicacion": {
             "title": "Where do you want your appointment?",
