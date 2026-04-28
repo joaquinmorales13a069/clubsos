@@ -253,7 +253,7 @@ export default function AjustesForm({ profile }: AjustesFormProps) {
             <input
               type="text"
               value={documento}
-              onChange={(e) => setDocumento(e.target.value.replace(/[^a-zA-Z0-9-]/g, ""))}
+              onChange={(e) => setDocumento(e.target.value.replace(/[^a-zA-Z0-9]/g, ""))}
               className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm font-roboto text-gray-800
                          focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition"
             />

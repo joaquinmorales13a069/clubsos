@@ -85,7 +85,7 @@ export default function BeneficioCard({ beneficio }: BeneficioCardProps) {
       </div>
 
       {/* Body */}
-      <div className="p-4 flex flex-col flex-1 gap-2">
+      <div className="p-3 flex flex-col flex-1 gap-1.5">
         <h3 className="font-poppins font-semibold text-gray-900 text-sm leading-snug line-clamp-2">
           {beneficio.titulo}
         </h3>

@@ -279,7 +279,7 @@ export default function EditarUsuarioModal({ open, user, onClose, onSaved }: Pro
             <InputField
               label={t("fieldDocumento")}
               value={documento}
-              onChange={(v) => setDocumento(v.replace(/[^a-zA-Z0-9-]/g, ""))}
+              onChange={(v) => setDocumento(v.replace(/[^a-zA-Z0-9]/g, ""))}
               icon={FileText}
             />
 
