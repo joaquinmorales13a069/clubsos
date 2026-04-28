@@ -1071,6 +1071,27 @@
         "kpiBeneficios": "Active benefits",
         "avisosTitulo": "Manage Notices",
         "notifTitulo": "Internal Appointment Notifications",
+        "datosBancarios": {
+          "titulo": "Bank Details",
+          "subtitle": "These details are shown to members who choose bank transfer as payment method.",
+          "labelNombreTitular": "Account holder name",
+          "labelBanco": "Bank",
+          "labelNumeroCuenta": "Account number",
+          "labelIban": "IBAN",
+          "guardar": "Save",
+          "toastExito": "Bank details saved",
+          "toastError": "Failed to save"
+        },
+        "notifCitas": {
+          "subtitle": "A WhatsApp notification will be sent to this number every time a new appointment is booked.",
+          "labelNombre": "Full name",
+          "placeholderNombre": "E.g. SOSMedical Reception",
+          "labelTelefono": "Phone number",
+          "guardar": "Save",
+          "toastExito": "Internal notifications saved",
+          "toastError": "Failed to save",
+          "toastTelefonoInvalido": "Invalid phone number"
+        },
         "avisos": {
           "titulo": "Notices",
           "subtitle": "Global or company-specific announcements visible to members.",

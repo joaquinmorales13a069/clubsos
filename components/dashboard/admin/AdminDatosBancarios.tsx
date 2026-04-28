@@ -3,11 +3,14 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { createClient } from "@/utils/supabase/client";
 
 type DatosForm = { banco: string; numero_cuenta: string; iban: string; nombre_titular: string };
 
 export default function AdminDatosBancarios() {
+  const t = useTranslations("Dashboard.admin.sistema.datosBancarios");
+
   const [form, setForm]       = useState<DatosForm>({ banco: "", numero_cuenta: "", iban: "", nombre_titular: "" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
@@ -31,10 +34,17 @@ export default function AdminDatosBancarios() {
     const { error } = await supabase
       .from("configuracion_sistema")
       .upsert({ clave: "datos_bancarios", valor: form, updated_at: new Date().toISOString() });
-    if (error) toast.error("Error al guardar");
-    else toast.success("Datos bancarios guardados");
+    if (error) toast.error(t("toastError"));
+    else toast.success(t("toastExito"));
     setSaving(false);
   }
+
+  const FIELD_LABELS: Record<keyof DatosForm, string> = {
+    nombre_titular: t("labelNombreTitular"),
+    banco:          t("labelBanco"),
+    numero_cuenta:  t("labelNumeroCuenta"),
+    iban:           t("labelIban"),
+  };
 
   if (loading) {
     return (
@@ -46,18 +56,12 @@ export default function AdminDatosBancarios() {
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-5 space-y-4">
-      <h3 className="text-base font-poppins font-semibold text-gray-900">Datos bancarios</h3>
-      <p className="text-sm text-neutral">
-        Estos datos se muestran a los miembros que eligen transferencia bancaria.
-      </p>
+      <h3 className="text-base font-poppins font-semibold text-gray-900">{t("titulo")}</h3>
+      <p className="text-sm text-neutral">{t("subtitle")}</p>
       <div className="space-y-3">
         {(["nombre_titular", "banco", "numero_cuenta", "iban"] as const).map((field) => (
           <div key={field}>
-            <label className="text-xs font-medium text-gray-600 capitalize">
-              {field === "numero_cuenta" ? "Número de cuenta"
-                : field === "nombre_titular" ? "Nombre del titular"
-                : field.toUpperCase()}
-            </label>
+            <label className="text-xs font-medium text-gray-600">{FIELD_LABELS[field]}</label>
             <input
               value={form[field]}
               onChange={(e) => setForm((f) => ({ ...f, [field]: e.target.value }))}
@@ -71,7 +75,7 @@ export default function AdminDatosBancarios() {
         disabled={saving}
         className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white text-sm font-semibold disabled:opacity-50"
       >
-        {saving && <Loader2 className="h-4 w-4 animate-spin" />} Guardar
+        {saving && <Loader2 className="h-4 w-4 animate-spin" />} {t("guardar")}
       </button>
     </div>
   );
