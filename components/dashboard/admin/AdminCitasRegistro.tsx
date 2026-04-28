@@ -75,23 +75,29 @@ function formatNiCompact(isoStr: string): string {
   return `${date} · ${time}`;
 }
 
-type FilterKey = "todas" | "pendiente" | "confirmado" | "completado" | "cancelado" | "rechazado";
+type FilterKey = "todas" | "pendiente" | "pendiente_empresa" | "pendiente_pago" | "pendiente_admin" | "confirmado" | "completado" | "cancelado" | "rechazado";
 
 const FILTER_CONFIG: Array<{ key: FilterKey; i18n: string; badge: string }> = [
-  { key: "todas",      i18n: "filterTodas",      badge: "bg-gray-100 text-gray-600" },
-  { key: "pendiente",  i18n: "filterPendientes",  badge: "bg-amber-100 text-amber-700" },
-  { key: "confirmado", i18n: "filterAprobadas",   badge: "bg-emerald-100 text-emerald-700" },
-  { key: "completado", i18n: "filterCompletadas", badge: "bg-blue-100 text-blue-700" },
-  { key: "cancelado",  i18n: "filterCanceladas",  badge: "bg-gray-100 text-gray-500" },
-  { key: "rechazado",  i18n: "filterRechazadas",  badge: "bg-red-100 text-red-600" },
+  { key: "todas",             i18n: "filterTodas",            badge: "bg-gray-100 text-gray-600" },
+  { key: "pendiente",         i18n: "filterPendientes",        badge: "bg-amber-100 text-amber-700" },
+  { key: "pendiente_empresa", i18n: "filterPendienteEmpresa",  badge: "bg-orange-100 text-orange-700" },
+  { key: "pendiente_pago",    i18n: "filterPendientePago",     badge: "bg-yellow-100 text-yellow-700" },
+  { key: "pendiente_admin",   i18n: "filterPendienteAdmin",    badge: "bg-purple-100 text-purple-700" },
+  { key: "confirmado",        i18n: "filterAprobadas",         badge: "bg-emerald-100 text-emerald-700" },
+  { key: "completado",        i18n: "filterCompletadas",       badge: "bg-blue-100 text-blue-700" },
+  { key: "cancelado",         i18n: "filterCanceladas",        badge: "bg-gray-100 text-gray-500" },
+  { key: "rechazado",         i18n: "filterRechazadas",        badge: "bg-red-100 text-red-600" },
 ];
 
 const STATUS_BADGE: Record<string, { i18n: string; cls: string }> = {
-  pendiente:  { i18n: "statusPendiente",  cls: "bg-amber-100 text-amber-700" },
-  confirmado: { i18n: "statusConfirmado", cls: "bg-emerald-100 text-emerald-700" },
-  completado: { i18n: "statusCompletado", cls: "bg-blue-100 text-blue-700" },
-  cancelado:  { i18n: "statusCancelado",  cls: "bg-gray-100 text-gray-500" },
-  rechazado:  { i18n: "statusRechazado",  cls: "bg-red-100 text-red-600" },
+  pendiente:          { i18n: "statusPendiente",         cls: "bg-amber-100 text-amber-700" },
+  pendiente_empresa:  { i18n: "statusPendienteEmpresa",  cls: "bg-orange-100 text-orange-700" },
+  pendiente_pago:     { i18n: "statusPendientePago",     cls: "bg-yellow-100 text-yellow-700" },
+  pendiente_admin:    { i18n: "statusPendienteAdmin",    cls: "bg-purple-100 text-purple-700" },
+  confirmado:         { i18n: "statusConfirmado",        cls: "bg-emerald-100 text-emerald-700" },
+  completado:         { i18n: "statusCompletado",        cls: "bg-blue-100 text-blue-700" },
+  cancelado:          { i18n: "statusCancelado",         cls: "bg-gray-100 text-gray-500" },
+  rechazado:          { i18n: "statusRechazado",         cls: "bg-red-100 text-red-600" },
 };
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
