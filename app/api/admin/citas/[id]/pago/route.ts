@@ -73,7 +73,7 @@ async function sendPagoLinkWhatsApp(
         to: toE164(phone),
         type: "template",
         template: {
-          name: "cita_realizar_pago_link_de_pago",
+          name: "cita_realizar_pago_link_poket",
           language: { code: "es" },
           components: [
             {
