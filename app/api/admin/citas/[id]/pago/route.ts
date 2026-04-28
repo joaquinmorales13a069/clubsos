@@ -37,6 +37,15 @@ function formatFechaHoraNicaragua(isoUtc: string): string {
   return `${dd}-${mm}-${yyyy} a las ${String(h).padStart(2, "0")}:${min} ${ampm}`;
 }
 
+// Base URL configured in the Meta template's "Website URL" field.
+// {{1}} must be only the suffix after this base.
+const PAYMENT_URL_BASE = process.env.WHATSAPP_PAYMENT_URL_BASE ?? "https://pagoconpoket.com/";
+
+function extractPaymentSuffix(fullUrl: string): string {
+  const base = PAYMENT_URL_BASE.endsWith("/") ? PAYMENT_URL_BASE : `${PAYMENT_URL_BASE}/`;
+  return fullUrl.startsWith(base) ? fullUrl.slice(base.length) : fullUrl;
+}
+
 async function sendPagoLinkWhatsApp(
   phone: string,
   nombrePaciente: string,
@@ -64,7 +73,7 @@ async function sendPagoLinkWhatsApp(
         to: toE164(phone),
         type: "template",
         template: {
-          name: "cita_realizar_pago_link_de_pago",
+          name: "cita_realizar_pago_link_poket",
           language: { code: "es" },
           components: [
             {
@@ -79,7 +88,7 @@ async function sendPagoLinkWhatsApp(
               type: "button",
               sub_type: "url",
               index: "0",
-              parameters: [{ type: "text", text: linkPago }],
+              parameters: [{ type: "text", text: extractPaymentSuffix(linkPago) }],
             },
           ],
         },
