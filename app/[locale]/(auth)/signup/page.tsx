@@ -12,6 +12,7 @@ import "react-phone-number-input/style.css";
 import Image from "next/image";
 import { UserCircle, Users, Building2, Search, ShieldCheck, ArrowRight, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { sendSignupOtpAction, verifySignupOtpAction, completeSignupAction, buscarEmpresaAction } from "./actions";
+import HelpModal from "@/components/auth/HelpModal";
 
 export default function SignupPage() {
   const t  = useTranslations("Auth.signup");
@@ -501,9 +502,9 @@ export default function SignupPage() {
       <footer className="mt-10 pt-6 border-t border-gray-100 text-center space-y-2">
         <p className="text-xs text-gray-400">© {new Date().getFullYear()} {tf("copyright")}</p>
         <div className="flex items-center justify-center gap-4 text-xs text-gray-400">
-          <a href="#" className="hover:text-gray-600 transition-colors">{tf("terms")}</a>
-          <a href="#" className="hover:text-gray-600 transition-colors">{tf("privacy")}</a>
-          <a href="#" className="hover:text-gray-600 transition-colors">{tf("help")}</a>
+          <Link href="/terminos" className="hover:text-gray-600 transition-colors">{tf("terms")}</Link>
+          <Link href="/privacidad" className="hover:text-gray-600 transition-colors">{tf("privacy")}</Link>
+          <HelpModal>{tf("help")}</HelpModal>
         </div>
       </footer>
     </div>

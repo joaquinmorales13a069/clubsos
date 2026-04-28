@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import PhoneInput, { isPossiblePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { sendOtpAction, verifyOtpAction, loginWithPasswordAction } from "./actions";
+import HelpModal from "@/components/auth/HelpModal";
 
 export default function LoginPage() {
   const t = useTranslations("Auth.login");
@@ -251,9 +252,9 @@ export default function LoginPage() {
       <footer className="mt-10 pt-6 border-t border-gray-100 text-center space-y-2">
         <p className="text-xs text-gray-400">© {new Date().getFullYear()} {tf("copyright")}</p>
         <div className="flex items-center justify-center gap-4 text-xs text-gray-400">
-          <a href="#" className="hover:text-gray-600 transition-colors">{tf("terms")}</a>
-          <a href="#" className="hover:text-gray-600 transition-colors">{tf("privacy")}</a>
-          <a href="#" className="hover:text-gray-600 transition-colors">{tf("help")}</a>
+          <Link href="/terminos" className="hover:text-gray-600 transition-colors">{tf("terms")}</Link>
+          <Link href="/privacidad" className="hover:text-gray-600 transition-colors">{tf("privacy")}</Link>
+          <HelpModal>{tf("help")}</HelpModal>
         </div>
       </footer>
     </div>
