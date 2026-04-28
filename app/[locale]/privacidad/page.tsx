@@ -2,6 +2,7 @@ import { getTranslations, getLocale } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default async function PrivacidadPage() {
   const t  = await getTranslations("Legal.privacy");
@@ -31,14 +32,17 @@ export default async function PrivacidadPage() {
             <ArrowLeft className="w-4 h-4" />
             {tl("backLink")}
           </Link>
-          <Image
-            src="/logo-SOSMedical.webp"
-            alt="SOS Medical"
-            width={120}
-            height={30}
-            className="object-contain h-8"
-            style={{ width: "auto" }}
-          />
+          <div className="flex items-center gap-3">
+            <Image
+              src="/logo-SOSMedical.webp"
+              alt="SOS Medical"
+              width={120}
+              height={30}
+              className="object-contain h-8"
+              style={{ width: "auto" }}
+            />
+            <LanguageSwitcher />
+          </div>
         </div>
       </header>
 
