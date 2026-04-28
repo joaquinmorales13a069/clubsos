@@ -36,6 +36,7 @@ import EmpresaInicioCitasPendientes, {
 import EmpresaInicioMiembrosRecientes, {
   type MiembroRecienteRow,
 } from "./EmpresaInicioMiembrosRecientes";
+import EmpresaUsoContratos from "./EmpresaUsoContratos";
 import dynamic from "next/dynamic";
 
 const EmpresaInicioCitasPorServicio = dynamic(
@@ -133,6 +134,8 @@ export default function EmpresaInicio({ firstName }: Props) {
   const ajustesHref   = `${empresaBase}/ajustes`;
 
   // ── State per section ────────────────────────────────────────────────────
+  const [empresaId, setEmpresaId] = useState<string>("");
+
   const [kpis,        setKpis]        = useState<EmpresaKpis | null>(null);
   const [kpisLoading, setKpisLoading] = useState(true);
   const [kpisError,   setKpisError]   = useState(false);
@@ -152,6 +155,15 @@ export default function EmpresaInicio({ firstName }: Props) {
   // ── Parallel fetches on mount ────────────────────────────────────────────
   useEffect(() => {
     const supabase = createClient();
+
+    // 0. Fetch empresa_id for the current empresa_admin
+    supabase
+      .from("users")
+      .select("empresa_id")
+      .single()
+      .then(({ data }) => {
+        if (data?.empresa_id) setEmpresaId(data.empresa_id as string);
+      });
 
     // 1. KPIs via RPC
     supabase.rpc("get_empresa_kpis").then(({ data, error }) => {
@@ -319,6 +331,16 @@ export default function EmpresaInicio({ firstName }: Props) {
 
       {/* A'. Citas por servicio bar chart — full-width, below KPI cards */}
       <EmpresaInicioCitasPorServicio />
+
+      {/* A''. Uso de Contratos KPI section */}
+      {empresaId && (
+        <div className="rounded-2xl border border-gray-200 bg-white p-4">
+          <h3 className="text-sm font-poppins font-semibold text-gray-900 mb-3">
+            Uso de Contratos
+          </h3>
+          <EmpresaUsoContratos empresaId={empresaId} />
+        </div>
+      )}
 
       {/* B. Alert banner — only when there are pending citas */}
       {!kpisLoading && !kpisError && citasPendientesCount > 0 && (
