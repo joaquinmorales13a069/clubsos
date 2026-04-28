@@ -6,6 +6,8 @@ import { Stethoscope, Loader2, Clock, DollarSign } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import type { WizardState } from "../types";
 
+type ContratoServicioRow = { id: string };
+
 interface Servicio {
   id: string;
   ea_service_id: number;
@@ -40,19 +42,22 @@ async function checkCoverage(
 
   if (!cs) return { contrato_servicio_id: null, cuota_disponible: null };
 
+  // Supabase returns nested joins as unknown type — safely extract id
+  const csId = (cs as unknown as ContratoServicioRow).id;
+
   const { data: quota } = await supabase.rpc("check_cuota_disponible", {
-    p_contrato_servicio_id: (cs as any).id,
+    p_contrato_servicio_id: csId,
     p_titular_ref_id: titularRefId,
   });
 
   return {
-    contrato_servicio_id: (cs as any).id,
+    contrato_servicio_id: csId,
     cuota_disponible: typeof quota === "number" ? quota : null,
   };
 }
 
 export default function PasoServicio({ categoriaId, empresaId, titularRefId, onSelect, onBack }: PasoServicioProps) {
-  const t = useTranslations("Dashboard.miembro.citas.wizard");
+  const t  = useTranslations("Dashboard.miembro.citas.wizard");
   const ts = useTranslations("Dashboard.miembro.citas.wizard.servicio");
   const [servicios, setServicios] = useState<Servicio[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -148,7 +153,7 @@ export default function PasoServicio({ categoriaId, empresaId, titularRefId, onS
                 {checking === s.id && (
                   <div className="flex items-center gap-1 text-xs text-neutral mt-1">
                     <Loader2 className="h-3 w-3 animate-spin" />
-                    <span>Verificando cobertura…</span>
+                    <span>{ts("checking_coverage")}</span>
                   </div>
                 )}
               </div>

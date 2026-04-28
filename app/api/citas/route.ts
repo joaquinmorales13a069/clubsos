@@ -90,11 +90,15 @@ export async function POST(req: NextRequest) {
   }
 
   if (body.metodo_pago) {
-    await supabase.from("pagos").insert({
+    const { error: pagoError } = await supabase.from("pagos").insert({
       cita_id: cita.id,
       metodo:  body.metodo_pago,
       monto:   body.monto ?? null,
     });
+    if (pagoError) {
+      console.error("[POST /api/citas] pagos insert failed:", pagoError);
+      return NextResponse.json({ error: "Error al registrar el pago" }, { status: 500 });
+    }
   }
 
   return NextResponse.json({ ok: true, cita }, { status: 201 });
