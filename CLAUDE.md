@@ -1,4 +1,77 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 @AGENTS.md
+
+## Commands
+
+```bash
+pnpm dev       # start dev server (localhost:3000)
+pnpm build     # production build
+pnpm lint      # eslint check
+```
+
+No test suite exists yet. Type-check with `pnpm build` (tsc runs during build).
+
+## Architecture
+
+**Stack**: Next.js 16.2.4 App Router · React 19 · TypeScript · Tailwind CSS v4 · Supabase · shadcn/ui · next-intl
+
+### Route Structure
+
+All routes live under `app/[locale]/` (locale-prefixed URLs: `/es/...` default, `/en/...`).
+
+```
+app/[locale]/
+  (auth)/login        — public login
+  (auth)/signup       — public signup
+  (dashboard)/        — protected; DashboardLayout enforces auth + role
+    dashboard/        — member home
+    dashboard/admin/  — global admin routes (beneficios, citas, documentos, empresas, reportes, sistema, usuarios)
+    dashboard/empresa/ (empresa_admin routes)
+    dashboard/avisos|beneficios|citas|documentos|ajustes|familia  — member routes
+app/api/admin/        — server-side admin API routes
+app/api/ea/           — empresa_admin API routes
+```
+
+### Role System
+
+Three roles defined in `utils/supabase/middleware.ts`: `admin`, `empresa_admin`, `miembro`. Each dashboard page guards its own role via a server-side check against `public.users.rol`; failing redirects to `/{locale}/dashboard`.
+
+`(dashboard)/layout.tsx` is the auth gate: fetches the session and profile, blocks `pendiente` accounts with `PendingActivationScreen`.
+
+### Supabase Clients
+
+- `utils/supabase/client.ts` — browser client (`createBrowserClient`)
+- `utils/supabase/server.ts` — server/RSC client (`createServerClient`)
+- `utils/supabase/middleware.ts` — session refresh + role fetch for Next.js middleware
+
+Always use the **server client** in Server Components and Route Handlers. Use the browser client in Client Components.
+
+### i18n
+
+`next-intl` with locales `['es', 'en']`, default `es`. Config in `i18n/routing.ts` and `i18n/request.ts`. Translations in `messages/es.json` and `messages/en.json`.
+
+**Hardcoded strings are forbidden.** Every user-facing string must use `useTranslations` (client) or `getTranslations` (server), and keys must be added to both JSON files simultaneously.
+
+### Component Organisation
+
+`components/dashboard/` is split by role:
+- `admin/` — AdminXxx components
+- `empresa/` — EmpresaXxx components  
+- `miembro/` — member-facing cards/actions
+- Shared layout: `Sidebar.tsx`, `Topbar.tsx`
+
+### Database Migrations
+
+All schema changes go in `supabase/migrations/` as `YYYYMMDDHHMMSS_short_description.sql`. Never apply SQL ad-hoc from the Supabase dashboard as a substitute for a migration file.
+
+## Key Constraints
+
+- **Toasts**: use `sonner` (`toast.success/error/info`) only. The `<Toaster>` is mounted in `app/[locale]/layout.tsx`. Never use inline JSX success/error messages.
+- **Design tokens**: primary `#CD2129` (red), secondary `#2266A7` (blue), neutral `#616161`. Fonts: Poppins (headers) / Roboto (body). Rounded corners `rounded-xl`/`rounded-2xl`. Glassmorphism for modals/sidebars.
+- **Mobile-first**: all UI uses Tailwind breakpoints (`sm:`, `md:`, `lg:`).
 
 <!-- autoskills:start -->
 

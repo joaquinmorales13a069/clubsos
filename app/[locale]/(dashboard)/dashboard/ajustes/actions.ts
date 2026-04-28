@@ -16,7 +16,7 @@ export async function updateEmailAction(
   const supabase    = await createClient();
   const adminClient = createAdmin(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
   );
 
   const { data: { user } } = await supabase.auth.getUser();

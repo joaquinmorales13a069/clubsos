@@ -23,12 +23,14 @@ export default async function DocumentosPage() {
       "id, nombre_documento, tipo_documento, file_path, tipo_archivo, fecha_documento, created_at, subido_por_user:users!subido_por(nombre_completo)",
       { count: "exact" },
     )
+    .eq("usuario_id", user.id)
     .eq("estado_archivo", "activo")
     .order("created_at", { ascending: false })
     .range(0, PAGE_SIZE - 1);
 
   return (
     <MisDocumentos
+      userId={user.id}
       initialData={(data as unknown as Parameters<typeof MisDocumentos>[0]["initialData"]) ?? []}
       initialCount={count ?? 0}
     />

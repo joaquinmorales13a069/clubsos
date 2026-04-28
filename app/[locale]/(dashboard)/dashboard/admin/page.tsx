@@ -1,25 +1,34 @@
-import { useTranslations } from "next-intl";
-
 /**
- * Dashboard — Global Admin view (placeholder)
- * Full implementation comes in Step 7 (feature/dashboard-global-admin).
+ * Dashboard — Global Admin Inicio (Step 7.2)
+ *
+ * Server Component: verifies admin role, then renders AdminInicio
+ * which handles all section-level data fetching and skeletons.
  */
-export default function AdminDashboardPage() {
-  return <AdminPlaceholder />;
-}
 
-function AdminPlaceholder() {
-  const t = useTranslations("Dashboard.admin");
-  return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-4">
-      <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-        <span className="text-3xl">⚙️</span>
-      </div>
-      <h1 className="text-2xl font-poppins font-bold text-gray-900">{t("title")}</h1>
-      <p className="text-neutral max-w-sm font-roboto">{t("subtitle")}</p>
-      <span className="text-xs text-neutral/60 bg-gray-100 px-3 py-1 rounded-full">
-        {t("comingSoon")}
-      </span>
-    </div>
-  );
+import { redirect } from "next/navigation";
+import { getLocale } from "next-intl/server";
+import { createClient } from "@/utils/supabase/server";
+import AdminInicio from "@/components/dashboard/admin/AdminInicio";
+
+export default async function AdminDashboardPage() {
+  const supabase = await createClient();
+  const locale   = await getLocale();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect(`/${locale}/login`);
+
+  const { data: profile } = await supabase
+    .from("users")
+    .select("nombre_completo, rol")
+    .eq("id", user.id)
+    .single();
+
+  // Guard: only global admin reaches this page
+  if (profile?.rol !== "admin") {
+    redirect(`/${locale}/dashboard`);
+  }
+
+  const firstName = profile?.nombre_completo?.split(" ")[0] ?? "Admin";
+
+  return <AdminInicio firstName={firstName} />;
 }

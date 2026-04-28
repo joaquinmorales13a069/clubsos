@@ -26,11 +26,12 @@ type FilterType =
   | "otro";
 
 interface MisDocumentosProps {
+  userId:       string;
   initialData:  DocumentoRow[];
   initialCount: number;
 }
 
-export default function MisDocumentos({ initialData, initialCount }: MisDocumentosProps) {
+export default function MisDocumentos({ userId, initialData, initialCount }: MisDocumentosProps) {
   const t = useTranslations("Dashboard.miembro.documentos");
 
   const [filter, setFilter]         = useState<FilterType>("all");
@@ -53,6 +54,7 @@ export default function MisDocumentos({ initialData, initialCount }: MisDocument
       .select("id, nombre_documento, tipo_documento, file_path, tipo_archivo, fecha_documento, created_at, subido_por_user:users!subido_por(nombre_completo)", {
         count: "exact",
       })
+      .eq("usuario_id", userId)
       .eq("estado_archivo", "activo")
       .order("created_at", { ascending: false })
       .range(offset, offset + PAGE_SIZE - 1);
@@ -66,7 +68,7 @@ export default function MisDocumentos({ initialData, initialCount }: MisDocument
     setDocumentos((data as unknown as DocumentoRow[]) ?? []);
     setTotalCount(count ?? 0);
     setLoading(false);
-  }, []);
+  }, [userId]);
 
   // Skip first mount — SSR data already loaded
   useEffect(() => {
