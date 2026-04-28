@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
   const citaTyped = cita as unknown as CitaRow;
 
   // ── 5. Guard: must still be pending ───────────────────────────────────────
-  if (citaTyped.estado_sync !== "pendiente") {
+  if (citaTyped.estado_sync !== "pendiente_empresa") {
     return NextResponse.json(
       { error: `Cita already in state: ${citaTyped.estado_sync}` },
       { status: 409 },
