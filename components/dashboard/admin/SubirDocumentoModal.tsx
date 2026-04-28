@@ -120,7 +120,7 @@ export default function SubirDocumentoModal({ open, uploadedBy, onClose, onSucce
     if (searchCedula.trim()) query = query.eq("documento_identidad", searchCedula.trim());
 
     const { data } = await query;
-    setSearchResults((data ?? []) as MiembroResult[]);
+    setSearchResults((data ?? []) as unknown as MiembroResult[]);
     setSearchDone(true);
     setSearching(false);
   };

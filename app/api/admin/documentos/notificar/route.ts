@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Documento not found" }, { status: 404 });
   }
 
-  const usuario = doc.usuario as { nombre_completo: string | null; telefono: string | null };
+  const usuario = doc.usuario as unknown as { nombre_completo: string | null; telefono: string | null };
 
   // 5. Skip if patient has no phone number
   if (!usuario?.telefono) {
