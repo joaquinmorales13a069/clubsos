@@ -646,7 +646,7 @@ type CsRawRow = {
   id:                string;
   contrato_id:       string;
   cuota_por_titular: number;
-  ea_service_id:     string;
+  servicio_id:       string;
 };
 
 type CitaContratoRaw = {
@@ -705,7 +705,7 @@ function ReporteContratos() {
     const supabase = createClient();
 
     const [csResult, citasResult] = await Promise.all([
-      supabase.from("contrato_servicios").select("id, contrato_id, cuota_por_titular, ea_service_id"),
+      supabase.from("contrato_servicios").select("id, contrato_id, cuota_por_titular, servicio_id"),
       supabase
         .from("citas")
         .select("id, contrato_servicio_id, paciente:users!paciente_id(id, nombre_completo, tipo_cuenta, titular_id)")
@@ -724,7 +724,7 @@ function ReporteContratos() {
     const citas = (citasResult.data ?? []) as unknown as CitaContratoRaw[];
 
     const contratoIds = [...new Set(css.map((c) => c.contrato_id).filter(Boolean))];
-    const serviceIds  = [...new Set(css.map((c) => c.ea_service_id).filter(Boolean))];
+    const serviceIds  = [...new Set(css.map((c) => c.servicio_id).filter(Boolean))];
 
     if (contratoIds.length === 0) {
       setCsRows([]);
@@ -735,11 +735,11 @@ function ReporteContratos() {
 
     const [contratosRes, serviciosRes] = await Promise.all([
       supabase.from("contratos").select("id, nombre").in("id", contratoIds),
-      supabase.from("servicios").select("ea_service_id, nombre").in("ea_service_id", serviceIds),
+      supabase.from("servicios").select("id, nombre").in("id", serviceIds),
     ]);
 
-    const contratoMap = new Map((contratosRes.data ?? []).map((c) => [c.id,          c.nombre as string]));
-    const servicioMap = new Map((serviciosRes.data ?? []).map((s) => [s.ea_service_id, s.nombre as string]));
+    const contratoMap = new Map((contratosRes.data ?? []).map((c) => [c.id, c.nombre as string]));
+    const servicioMap = new Map((serviciosRes.data ?? []).map((s) => [s.id, s.nombre as string]));
     const csMap       = new Map(css.map((cs) => [cs.id, cs]));
 
     // ── Aggregate: por contrato-servicio ─────────────────────────────────
@@ -754,7 +754,7 @@ function ReporteContratos() {
         .map((cs) => ({
           csId:           cs.id,
           contratoNombre: contratoMap.get(cs.contrato_id) ?? "—",
-          servicioNombre: servicioMap.get(cs.ea_service_id) ?? "—",
+          servicioNombre: servicioMap.get(cs.servicio_id) ?? "—",
           cuotaTitular:   cs.cuota_por_titular,
           citasUsadas:    csCountMap.get(cs.id) ?? 0,
         }))
@@ -772,7 +772,7 @@ function ReporteContratos() {
 
       const p              = cita.paciente;
       const contratoNombre = contratoMap.get(cs.contrato_id) ?? "—";
-      const servicioNombre = servicioMap.get(cs.ea_service_id) ?? "—";
+      const servicioNombre = servicioMap.get(cs.servicio_id) ?? "—";
       const titId          = p.tipo_cuenta === "titular" ? p.id : (p.titular_id ?? null);
       if (!titId) continue;
 
