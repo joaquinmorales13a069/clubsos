@@ -43,7 +43,16 @@
       "copyright": "Club SOS Medical. Todos los derechos reservados.",
       "terms": "Términos",
       "privacy": "Privacidad",
-      "help": "Ayuda"
+      "help": "Ayuda",
+      "helpModal": {
+        "title": "Centro de Ayuda",
+        "desc": "Si necesitas asistencia, comunícate con nuestro equipo de soporte a través de cualquiera de los siguientes canales:",
+        "emailLabel": "Correo electrónico",
+        "emailValue": "desarrollo@sosmedical.com.ni",
+        "whatsappLabel": "WhatsApp",
+        "whatsappValue": "+505 8100 1226",
+        "close": "Cerrar"
+      }
     },
     "signup": {
       "step1Title": "Tipo de Cuenta",
@@ -106,7 +115,8 @@
       "credentialsError": "Error al configurar credenciales: {message}",
       "emailError": "Error al guardar email: {message}",
       "emailExists": "Este correo electrónico ya está registrado con otra cuenta. Por favor, usa uno diferente.",
-      "profileError": "Error al guardar perfil: {message}"
+      "profileError": "Error al guardar perfil: {message}",
+      "captchaError": "Verificación de seguridad fallida. Por favor, inténtalo de nuevo."
     }
   },
   "Dashboard": {
@@ -1167,6 +1177,46 @@
           }
         }
       }
+    }
+  },
+  "Legal": {
+    "backLink": "Volver",
+    "lastUpdated": "Última actualización: abril de 2026",
+    "terms": {
+      "title": "Términos y Condiciones",
+      "subtitle": "Por favor, lee estos términos detenidamente antes de utilizar la plataforma.",
+      "s1Title": "1. Aceptación de los Términos",
+      "s1Body": "Al registrarte y utilizar ClubSOS, aceptas quedar vinculado por estos Términos y Condiciones. Si no estás de acuerdo con alguno de ellos, debes abstenerte de utilizar la plataforma.",
+      "s2Title": "2. Descripción del Servicio",
+      "s2Body": "ClubSOS es una plataforma digital de membresía médica operada por SOS Medical que permite a los usuarios gestionar citas, documentos médicos y beneficios asociados a su empresa afiliada. El acceso a la plataforma está condicionado a que el usuario pertenezca a una empresa registrada y su cuenta se encuentre activa.",
+      "s3Title": "3. Cuenta y Responsabilidades del Usuario",
+      "s3Body": "El usuario es responsable de mantener la confidencialidad de sus credenciales de acceso. Queda prohibido compartir tu cuenta con terceros, utilizar la plataforma para fines ilícitos o suplantar la identidad de otra persona. SOS Medical se reserva el derecho de suspender cuentas que incumplan estas condiciones.",
+      "s4Title": "4. Limitaciones del Servicio",
+      "s4Body": "ClubSOS facilita la gestión de citas médicas pero no presta servicios médicos directos. La plataforma no debe utilizarse en situaciones de emergencia médica; en ese caso, comunícate con los servicios de emergencias locales. SOS Medical no garantiza la disponibilidad ininterrumpida del servicio y puede realizar mantenimientos programados.",
+      "s5Title": "5. Propiedad Intelectual",
+      "s5Body": "Todos los contenidos, marcas, logotipos y elementos de la plataforma son propiedad de SOS Medical o de sus licenciantes. Está prohibida su reproducción, distribución o uso no autorizado.",
+      "s6Title": "6. Modificaciones",
+      "s6Body": "SOS Medical puede modificar estos términos en cualquier momento. Te notificaremos a través de la plataforma ante cambios significativos. El uso continuado de ClubSOS tras la publicación de los cambios implica la aceptación de los nuevos términos.",
+      "s7Title": "7. Contacto",
+      "s7Body": "Para consultas relacionadas con estos términos, escríbenos a desarrollo@sosmedical.com.ni o comunícate por WhatsApp al +505 8100 1226."
+    },
+    "privacy": {
+      "title": "Política de Privacidad",
+      "subtitle": "Tu privacidad es importante para nosotros. Esta política explica cómo recopilamos y usamos tu información.",
+      "s1Title": "1. Responsable del Tratamiento",
+      "s1Body": "SOS Medical, con sede en Nicaragua, es el responsable del tratamiento de los datos personales que recopilas al usar ClubSOS. Puedes contactarnos en desarrollo@sosmedical.com.ni.",
+      "s2Title": "2. Datos que Recopilamos",
+      "s2Body": "Recopilamos los datos que proporcionas al registrarte (nombre completo, número de teléfono, correo electrónico, número de cédula) y los que se generan al usar la plataforma (historial de citas, documentos médicos subidos, interacciones con beneficios). No recopilamos datos de pago directamente.",
+      "s3Title": "3. Uso de la Información",
+      "s3Body": "Utilizamos tus datos para gestionar tu membresía, procesar citas médicas, enviarte notificaciones relevantes por WhatsApp y generar reportes agregados para tu empresa afiliada. No utilizamos tus datos con fines publicitarios de terceros.",
+      "s4Title": "4. Compartición de Datos",
+      "s4Body": "Tus datos pueden ser accedidos por el administrador de tu empresa afiliada (empresa_admin) únicamente para la gestión de la membresía corporativa. Los datos de citas se comparten con los proveedores de servicios médicos contratados. No vendemos tu información a terceros.",
+      "s5Title": "5. Seguridad",
+      "s5Body": "Implementamos medidas de seguridad técnicas y organizativas para proteger tu información, incluyendo cifrado en tránsito y control de acceso basado en roles. Sin embargo, ningún sistema es completamente infalible.",
+      "s6Title": "6. Tus Derechos",
+      "s6Body": "Tienes derecho a acceder, corregir o solicitar la eliminación de tus datos personales. Para ejercer estos derechos, contáctanos en desarrollo@sosmedical.com.ni. Atenderemos tu solicitud en un plazo máximo de 30 días.",
+      "s7Title": "7. Retención de Datos",
+      "s7Body": "Conservamos tus datos mientras tu membresía esté activa y por el período que exija la legislación nicaragüense aplicable. Tras la baja, los datos se anonimizarán o eliminarán según corresponda."
     }
   }
 }

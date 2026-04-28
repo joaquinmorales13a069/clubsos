@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import PhoneInput, { isPossiblePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { sendOtpAction, verifyOtpAction, loginWithPasswordAction } from "./actions";
+import HelpModal from "@/components/auth/HelpModal";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 export default function LoginPage() {
   const t = useTranslations("Auth.login");
@@ -22,6 +24,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const [captchaTokenPassword, setCaptchaTokenPassword] = useState<string | null>(null);
   // Loading and server-side error states
   const [isLoading, setIsLoading] = useState(false);
 
@@ -34,7 +38,7 @@ export default function LoginPage() {
     }
     setPhoneError(false);
     setIsLoading(true);
-    const result = await sendOtpAction(phone);
+    const result = await sendOtpAction(phone, captchaToken!);
     setIsLoading(false);
     if (result.redirectToSignup) {
       router.push("/signup");
@@ -61,7 +65,7 @@ export default function LoginPage() {
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    const result = await loginWithPasswordAction(username, password);
+    const result = await loginWithPasswordAction(username, password, captchaTokenPassword!);
     setIsLoading(false);
     if (result?.error) toast.error(result.error);
   };
@@ -115,9 +119,18 @@ export default function LoginPage() {
                   </p>
                 )}
               </div>
+              <div className="flex justify-center">
+                <Turnstile
+                  siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                  onSuccess={(token) => setCaptchaToken(token)}
+                  onExpire={() => setCaptchaToken(null)}
+                  onError={() => setCaptchaToken(null)}
+                  options={{ theme: "light", language: "es" }}
+                />
+              </div>
               <Button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || !captchaToken}
                 className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl h-11"
               >
                 {isLoading ? "Enviando..." : t("receiveOtpBtn")}
@@ -210,9 +223,18 @@ export default function LoginPage() {
                 className="rounded-xl h-11"
               />
             </div>
+            <div className="flex justify-center">
+              <Turnstile
+                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                onSuccess={(token) => setCaptchaTokenPassword(token)}
+                onExpire={() => setCaptchaTokenPassword(null)}
+                onError={() => setCaptchaTokenPassword(null)}
+                options={{ theme: "light", language: "es" }}
+              />
+            </div>
             <Button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || !captchaTokenPassword}
               className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl h-11"
             >
               {isLoading ? "Ingresando..." : t("loginBtn")}
@@ -251,9 +273,9 @@ export default function LoginPage() {
       <footer className="mt-10 pt-6 border-t border-gray-100 text-center space-y-2">
         <p className="text-xs text-gray-400">© {new Date().getFullYear()} {tf("copyright")}</p>
         <div className="flex items-center justify-center gap-4 text-xs text-gray-400">
-          <a href="#" className="hover:text-gray-600 transition-colors">{tf("terms")}</a>
-          <a href="#" className="hover:text-gray-600 transition-colors">{tf("privacy")}</a>
-          <a href="#" className="hover:text-gray-600 transition-colors">{tf("help")}</a>
+          <Link href="/terminos" className="hover:text-gray-600 transition-colors">{tf("terms")}</Link>
+          <Link href="/privacidad" className="hover:text-gray-600 transition-colors">{tf("privacy")}</Link>
+          <HelpModal>{tf("help")}</HelpModal>
         </div>
       </footer>
     </div>

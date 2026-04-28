@@ -11,6 +11,26 @@
 
 import { createClient } from "@/utils/supabase/server";
 
+async function verifyTurnstile(token: string): Promise<boolean> {
+  try {
+    const res = await fetch(
+      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          secret:   process.env.TURNSTILE_SECRET_KEY!,
+          response: token,
+        }),
+      }
+    );
+    const data = await res.json() as { success: boolean };
+    return data.success;
+  } catch {
+    return false;
+  }
+}
+
 // ─── Step 2: Buscar empresa por código ─────────────────────────────────────
 
 export async function buscarEmpresaAction(
@@ -43,8 +63,14 @@ import { getTranslations } from "next-intl/server";
 // ─── Step 4: Send OTP to verify phone during signup ────────────────────────
 
 export async function sendSignupOtpAction(
-  phone: string
+  phone: string,
+  captchaToken: string,
 ): Promise<{ error?: string }> {
+  const valid = await verifyTurnstile(captchaToken);
+  if (!valid) {
+    const t = await getTranslations("Auth.errors");
+    return { error: t("captchaError") };
+  }
   const { createClient: createSupabaseClient } = await import("@supabase/supabase-js");
   const supabaseAdmin = createSupabaseClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

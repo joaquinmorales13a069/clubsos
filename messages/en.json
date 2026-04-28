@@ -41,7 +41,16 @@
       "copyright": "Club SOS Medical. All rights reserved.",
       "terms": "Terms",
       "privacy": "Privacy",
-      "help": "Help"
+      "help": "Help",
+      "helpModal": {
+        "title": "Help Center",
+        "desc": "If you need assistance, please reach out to our support team through any of the following channels:",
+        "emailLabel": "Email",
+        "emailValue": "desarrollo@sosmedical.com.ni",
+        "whatsappLabel": "WhatsApp",
+        "whatsappValue": "+505 8100 1226",
+        "close": "Close"
+      }
     },
     "signup": {
       "step1Title": "Account Type",
@@ -106,7 +115,8 @@
       "credentialsError": "Error setting credentials: {message}",
       "emailError": "Error saving email: {message}",
       "emailExists": "This email is already registered with another account. Please use a different one.",
-      "profileError": "Error saving profile: {message}"
+      "profileError": "Error saving profile: {message}",
+      "captchaError": "Security check failed. Please try again."
     }
   },
   "Dashboard": {
@@ -1167,6 +1177,46 @@
           }
         }
       }
+    }
+  },
+  "Legal": {
+    "backLink": "Go back",
+    "lastUpdated": "Last updated: April 2026",
+    "terms": {
+      "title": "Terms and Conditions",
+      "subtitle": "Please read these terms carefully before using the platform.",
+      "s1Title": "1. Acceptance of Terms",
+      "s1Body": "By registering and using ClubSOS, you agree to be bound by these Terms and Conditions. If you disagree with any of them, you must refrain from using the platform.",
+      "s2Title": "2. Description of Service",
+      "s2Body": "ClubSOS is a digital medical membership platform operated by SOS Medical that allows users to manage appointments, medical documents and benefits associated with their affiliated company. Access to the platform is conditioned on the user belonging to a registered company with an active account.",
+      "s3Title": "3. Account and User Responsibilities",
+      "s3Body": "The user is responsible for maintaining the confidentiality of their access credentials. It is prohibited to share your account with third parties, use the platform for unlawful purposes, or impersonate another person. SOS Medical reserves the right to suspend accounts that violate these conditions.",
+      "s4Title": "4. Service Limitations",
+      "s4Body": "ClubSOS facilitates the management of medical appointments but does not provide direct medical services. The platform should not be used in medical emergencies; in that case, contact local emergency services. SOS Medical does not guarantee uninterrupted service availability and may carry out scheduled maintenance.",
+      "s5Title": "5. Intellectual Property",
+      "s5Body": "All content, trademarks, logos and elements of the platform are the property of SOS Medical or its licensors. Unauthorized reproduction, distribution or use is prohibited.",
+      "s6Title": "6. Modifications",
+      "s6Body": "SOS Medical may modify these terms at any time. We will notify you through the platform of significant changes. Continued use of ClubSOS after changes are published implies acceptance of the new terms.",
+      "s7Title": "7. Contact",
+      "s7Body": "For inquiries related to these terms, write to us at desarrollo@sosmedical.com.ni or contact us via WhatsApp at +505 8100 1226."
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "subtitle": "Your privacy matters to us. This policy explains how we collect and use your information.",
+      "s1Title": "1. Data Controller",
+      "s1Body": "SOS Medical, based in Nicaragua, is the data controller for the personal data you provide when using ClubSOS. You can contact us at desarrollo@sosmedical.com.ni.",
+      "s2Title": "2. Data We Collect",
+      "s2Body": "We collect the data you provide when registering (full name, phone number, email address, national ID) and data generated through platform use (appointment history, uploaded medical documents, benefit interactions). We do not collect payment data directly.",
+      "s3Title": "3. Use of Information",
+      "s3Body": "We use your data to manage your membership, process medical appointments, send relevant WhatsApp notifications and generate aggregated reports for your affiliated company. We do not use your data for third-party advertising purposes.",
+      "s4Title": "4. Data Sharing",
+      "s4Body": "Your data may be accessed by your affiliated company's administrator (empresa_admin) solely for corporate membership management. Appointment data is shared with contracted medical service providers. We do not sell your information to third parties.",
+      "s5Title": "5. Security",
+      "s5Body": "We implement technical and organizational security measures to protect your information, including encryption in transit and role-based access control. However, no system is completely infallible.",
+      "s6Title": "6. Your Rights",
+      "s6Body": "You have the right to access, correct or request deletion of your personal data. To exercise these rights, contact us at desarrollo@sosmedical.com.ni. We will respond to your request within 30 days.",
+      "s7Title": "7. Data Retention",
+      "s7Body": "We retain your data while your membership is active and for the period required by applicable Nicaraguan law. After cancellation, data will be anonymized or deleted as appropriate."
     }
   }
 }

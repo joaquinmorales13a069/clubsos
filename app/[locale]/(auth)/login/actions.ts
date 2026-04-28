@@ -13,6 +13,26 @@ import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { getLocale } from "next-intl/server";
 
+async function verifyTurnstile(token: string): Promise<boolean> {
+  try {
+    const res = await fetch(
+      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          secret:   process.env.TURNSTILE_SECRET_KEY!,
+          response: token,
+        }),
+      }
+    );
+    const data = await res.json() as { success: boolean };
+    return data.success;
+  } catch {
+    return false;
+  }
+}
+
 /** Marks the session so the dashboard can show a welcome toast. */
 async function markJustLoggedIn() {
   const cookieStore = await cookies();
@@ -22,8 +42,12 @@ async function markJustLoggedIn() {
 // ─── OTP: Send WhatsApp verification code ──────────────────────────────────
 
 export async function sendOtpAction(
-  phone: string
+  phone: string,
+  captchaToken: string,
 ): Promise<{ error?: string; redirectToSignup?: boolean }> {
+  const valid = await verifyTurnstile(captchaToken);
+  if (!valid) return { error: "Verificación de seguridad fallida. Por favor, inténtalo de nuevo." };
+
   const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithOtp({
@@ -85,8 +109,11 @@ export async function verifyOtpAction(
 
 export async function loginWithPasswordAction(
   username: string,
-  password: string
+  password: string,
+  captchaToken: string,
 ): Promise<{ error?: string }> {
+  const valid = await verifyTurnstile(captchaToken);
+  if (!valid) return { error: "Verificación de seguridad fallida. Por favor, inténtalo de nuevo." };
   // Admin client bypasses RLS — required because user is not authenticated yet
   const { createClient: createSupabaseClient } = await import("@supabase/supabase-js");
   const supabaseAdmin = createSupabaseClient(
