@@ -13,6 +13,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { createClient }             from "@/utils/supabase/server";
 import AjustesForm                  from "@/components/dashboard/miembro/ajustes/AjustesForm";
 import AvisosAdmin                  from "@/components/dashboard/admin/AvisosAdmin";
+import AdminDatosBancarios          from "@/components/dashboard/admin/AdminDatosBancarios";
 import {
   Settings,
   User,
@@ -165,6 +166,9 @@ export default async function AdminSistemaPage() {
           <AvisosAdmin userId={user.id} empresas={empresas} />
         </div>
       </div>
+
+      {/* ── Card D — Datos bancarios ──────────────────────────────────────── */}
+      <AdminDatosBancarios />
     </div>
   );
 }

@@ -36,6 +36,7 @@ import EmpresaInicioCitasPendientes, {
 import EmpresaInicioMiembrosRecientes, {
   type MiembroRecienteRow,
 } from "./EmpresaInicioMiembrosRecientes";
+import EmpresaUsoContratos from "./EmpresaUsoContratos";
 import dynamic from "next/dynamic";
 
 const EmpresaInicioCitasPorServicio = dynamic(
@@ -133,6 +134,8 @@ export default function EmpresaInicio({ firstName }: Props) {
   const ajustesHref   = `${empresaBase}/ajustes`;
 
   // ── State per section ────────────────────────────────────────────────────
+  const [empresaId, setEmpresaId] = useState<string>("");
+
   const [kpis,        setKpis]        = useState<EmpresaKpis | null>(null);
   const [kpisLoading, setKpisLoading] = useState(true);
   const [kpisError,   setKpisError]   = useState(false);
@@ -153,6 +156,15 @@ export default function EmpresaInicio({ firstName }: Props) {
   useEffect(() => {
     const supabase = createClient();
 
+    // 0. Fetch empresa_id for the current empresa_admin
+    supabase
+      .from("users")
+      .select("empresa_id")
+      .single()
+      .then(({ data }) => {
+        if (data?.empresa_id) setEmpresaId(data.empresa_id as string);
+      });
+
     // 1. KPIs via RPC
     supabase.rpc("get_empresa_kpis").then(({ data, error }) => {
       if (error || !data) {
@@ -171,7 +183,7 @@ export default function EmpresaInicio({ firstName }: Props) {
         paciente:users!paciente_id(nombre_completo),
         servicio:servicios!citas_ea_service_id_fkey(nombre)
       `)
-      .eq("estado_sync", "pendiente")
+      .eq("estado_sync", "pendiente_empresa")
       .order("created_at", { ascending: false })
       .limit(5)
       .then(({ data, error }) => {
@@ -233,28 +245,31 @@ export default function EmpresaInicio({ firstName }: Props) {
   // ── Reject action ────────────────────────────────────────────────────────
   const handleRechazar = async (citaId: string) => {
     setRechazandoIds((prev) => new Set(prev).add(citaId));
-    const supabase = createClient();
+    try {
+      const res = await fetch(`/api/ea/citas/${citaId}/rechazar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
 
-    const { error } = await supabase
-      .from("citas")
-      .update({ estado_sync: "rechazado" })
-      .eq("id", citaId);
-
-    if (!error) {
-      setCitas((prev) => prev.filter((c) => c.id !== citaId));
-      setKpis((prev) =>
-        prev ? { ...prev, citas_pendientes: Math.max(0, prev.citas_pendientes - 1) } : prev,
-      );
-      toast.success(tCitas("rechazada"));
-    } else {
+      if (res.ok) {
+        setCitas((prev) => prev.filter((c) => c.id !== citaId));
+        setKpis((prev) =>
+          prev ? { ...prev, citas_pendientes: Math.max(0, prev.citas_pendientes - 1) } : prev,
+        );
+        toast.success(tCitas("rechazada"));
+      } else {
+        toast.error(tCitas("error_rechazar"));
+      }
+    } catch {
       toast.error(tCitas("error_rechazar"));
+    } finally {
+      setRechazandoIds((prev) => {
+        const next = new Set(prev);
+        next.delete(citaId);
+        return next;
+      });
     }
-
-    setRechazandoIds((prev) => {
-      const next = new Set(prev);
-      next.delete(citaId);
-      return next;
-    });
   };
 
   // ── KPI cards config ─────────────────────────────────────────────────────
@@ -316,6 +331,16 @@ export default function EmpresaInicio({ firstName }: Props) {
 
       {/* A'. Citas por servicio bar chart — full-width, below KPI cards */}
       <EmpresaInicioCitasPorServicio />
+
+      {/* A''. Uso de Contratos KPI section */}
+      {empresaId && (
+        <div className="rounded-2xl border border-gray-200 bg-white p-4">
+          <h3 className="text-sm font-poppins font-semibold text-gray-900 mb-3">
+            Uso de Contratos
+          </h3>
+          <EmpresaUsoContratos empresaId={empresaId} />
+        </div>
+      )}
 
       {/* B. Alert banner — only when there are pending citas */}
       {!kpisLoading && !kpisError && citasPendientesCount > 0 && (

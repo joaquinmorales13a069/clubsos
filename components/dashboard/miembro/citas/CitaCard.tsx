@@ -6,21 +6,13 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { CalendarDays, Clock, X, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { cancelarCita } from "@/app/[locale]/(dashboard)/dashboard/citas/actions";
-import type { CitaRow } from "./types";
+import CitaEstadoBadge from "./CitaEstadoBadge";
+import type { CitaEstado, CitaRow } from "./types";
 
 interface CitaCardProps {
   cita: CitaRow;
 }
-
-const ESTADO_STYLES: Record<string, { badge: string; label: string }> = {
-  pendiente:  { badge: "bg-amber-100 text-amber-700",  label: "statusPendiente"  },
-  confirmado: { badge: "bg-green-100 text-green-700",  label: "statusConfirmado" },
-  completado: { badge: "bg-blue-100 text-blue-700",    label: "statusCompletado" },
-  cancelado:  { badge: "bg-gray-100 text-gray-500",    label: "statusCancelado"  },
-  rechazado:  { badge: "bg-red-100 text-red-600",      label: "statusRechazado"  },
-};
 
 function formatDateTime(dtStr: string) {
   const dt = new Date(dtStr);
@@ -35,7 +27,6 @@ const CANCELABLE = new Set(["pendiente", "confirmado"]);
 export default function CitaCard({ cita }: CitaCardProps) {
   const t = useTranslations("Dashboard.miembro.citas");
   const [cancelling, setCancelling] = useState(false);
-  const style = ESTADO_STYLES[cita.estado_sync] ?? ESTADO_STYLES.cancelado;
   const { date, time } = formatDateTime(cita.fecha_hora_cita);
 
   async function handleCancel() {
@@ -62,9 +53,7 @@ export default function CitaCard({ cita }: CitaCardProps) {
             <span className="text-sm font-roboto">{time}</span>
           </div>
         </div>
-        <span className={cn("shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full", style.badge)}>
-          {t(style.label)}
-        </span>
+        <CitaEstadoBadge estado={cita.estado_sync as CitaEstado} />
       </div>
 
       {/* Service */}

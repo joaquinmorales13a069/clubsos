@@ -256,6 +256,8 @@
           "stepFecha": "Date",
           "stepHorario": "Time",
           "stepPaciente": "Patient",
+          "stepPago": "Payment",
+          "stepTransferencia": "Transfer",
           "stepConfirmar": "Confirm",
           "ubicacion": {
             "title": "Where do you want your appointment?",
@@ -271,7 +273,11 @@
             "loading": "Loading services...",
             "noServices": "No services available at this location",
             "duration": "min",
-            "price": "C$"
+            "price": "C$",
+            "checking_coverage": "Checking coverage…",
+            "covered": "Covered by contract",
+            "quota_remaining": "{count} appointment(s) available this period",
+            "quota_exhausted": "Quota exhausted — payment required"
           },
           "doctor": {
             "title": "Select your doctor",
@@ -309,6 +315,32 @@
             "loading": "Scheduling...",
             "success": "Appointment scheduled successfully!",
             "error": "Error scheduling appointment. Please try again."
+          },
+          "pago": {
+            "title": "Payment method",
+            "subtitle": "This service requires payment. Select how you'd like to pay.",
+            "link": "Payment link",
+            "link_desc": "You'll receive a payment link via WhatsApp or email.",
+            "transferencia": "Bank transfer",
+            "transferencia_desc": "Transfer the amount and submit your reference number.",
+            "clinica": "Pay at clinic",
+            "clinica_desc": "Pay directly when you arrive for your appointment.",
+            "back": "Back",
+            "continue": "Continue"
+          },
+          "transferencia": {
+            "title": "Transfer receipt",
+            "subtitle": "Transfer to the following account and submit your reference number.",
+            "bank_details": "Bank details",
+            "banco": "Bank",
+            "cuenta": "Account number",
+            "referencia_label": "Reference number",
+            "referencia_placeholder": "E.g. TRF-20260428-001",
+            "submit": "Submit reference",
+            "success_toast": "We'll verify your transfer.",
+            "error_toast": "Error submitting reference.",
+            "done_title": "Reference submitted!",
+            "done_subtitle": "We'll verify your transfer soon."
           }
         }
       },

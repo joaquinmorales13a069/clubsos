@@ -256,6 +256,8 @@
           "stepFecha": "Fecha",
           "stepHorario": "Horario",
           "stepPaciente": "Paciente",
+          "stepPago": "Pago",
+          "stepTransferencia": "Transferencia",
           "stepConfirmar": "Confirmar",
           "ubicacion": {
             "title": "¿Dónde deseas tu cita?",
@@ -271,7 +273,11 @@
             "loading": "Cargando servicios...",
             "noServices": "No hay servicios disponibles en esta ubicación",
             "duration": "min",
-            "price": "C$"
+            "price": "C$",
+            "checking_coverage": "Verificando cobertura…",
+            "covered": "Cubierto por contrato",
+            "quota_remaining": "{count} cita(s) disponible(s) este período",
+            "quota_exhausted": "Cuota agotada — se requiere pago"
           },
           "doctor": {
             "title": "Selecciona tu doctor",
@@ -309,6 +315,32 @@
             "loading": "Agendando...",
             "success": "¡Cita agendada exitosamente!",
             "error": "Error al agendar. Por favor intenta de nuevo."
+          },
+          "pago": {
+            "title": "Método de pago",
+            "subtitle": "Este servicio requiere pago. Selecciona cómo deseas pagarlo.",
+            "link": "Link de pago",
+            "link_desc": "Recibirás un enlace de pago por WhatsApp o correo.",
+            "transferencia": "Transferencia bancaria",
+            "transferencia_desc": "Realiza la transferencia y envía el número de referencia.",
+            "clinica": "Pago en clínica",
+            "clinica_desc": "Paga directamente al llegar a tu cita.",
+            "back": "Atrás",
+            "continue": "Continuar"
+          },
+          "transferencia": {
+            "title": "Comprobante de transferencia",
+            "subtitle": "Realiza la transferencia a la siguiente cuenta y envía el número de referencia.",
+            "bank_details": "Datos bancarios",
+            "banco": "Banco",
+            "cuenta": "Número de cuenta",
+            "referencia_label": "Número de referencia",
+            "referencia_placeholder": "Ej: TRF-20260428-001",
+            "submit": "Enviar referencia",
+            "success_toast": "Referencia enviada. Verificaremos tu transferencia.",
+            "error_toast": "Error al enviar la referencia.",
+            "done_title": "¡Referencia enviada!",
+            "done_subtitle": "Verificaremos tu transferencia pronto."
           }
         }
       },

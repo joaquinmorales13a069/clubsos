@@ -13,6 +13,7 @@ import ProximaCitaCard from "@/components/dashboard/miembro/ProximaCitaCard";
 import RecentBeneficiosCard from "@/components/dashboard/miembro/RecentBeneficiosCard";
 import RecentDocumentosCard from "@/components/dashboard/miembro/RecentDocumentosCard";
 import RecentAvisosCard from "@/components/dashboard/miembro/RecentAvisosCard";
+import MisServiciosCubiertos from "@/components/dashboard/miembro/MisServiciosCubiertos";
 
 export default async function MiembroDashboardPage() {
   const supabase = await createClient();
@@ -104,6 +105,9 @@ export default async function MiembroDashboardPage() {
 
       {/* Quick action shortcuts */}
       <QuickActions locale={locale} />
+
+      {/* Covered services KPI — client component, renders nothing if no contract rows */}
+      <MisServiciosCubiertos userId={user.id} />
 
       {/* 2×2 info cards grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

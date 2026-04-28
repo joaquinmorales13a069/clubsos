@@ -15,13 +15,15 @@ export default function WizardProgressBar({ currentStep }: WizardProgressBarProp
   const currentIdx = WIZARD_STEPS.indexOf(currentStep);
 
   const stepLabels: Record<WizardStep, string> = {
-    ubicacion: t("stepUbicacion"),
-    servicio:  t("stepServicio"),
-    doctor:    t("stepDoctor"),
-    fecha:     t("stepFecha"),
-    horario:   t("stepHorario"),
-    paciente:  t("stepPaciente"),
-    confirmar: t("stepConfirmar"),
+    ubicacion:    t("stepUbicacion"),
+    servicio:     t("stepServicio"),
+    doctor:       t("stepDoctor"),
+    fecha:        t("stepFecha"),
+    horario:      t("stepHorario"),
+    paciente:     t("stepPaciente"),
+    pago:         t("stepPago"),
+    transferencia: t("stepTransferencia"),
+    confirmar:    t("stepConfirmar"),
   };
 
   return (

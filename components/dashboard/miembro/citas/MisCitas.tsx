@@ -7,23 +7,27 @@
  *   - "wizard": 7-step scheduling flow
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { CalendarDays, Plus } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
 import WizardProgressBar from "./WizardProgressBar";
 import CitaCard from "./CitaCard";
-import PasoUbicacion from "./steps/PasoUbicacion";
-import PasoServicio  from "./steps/PasoServicio";
-import PasoDoctor    from "./steps/PasoDoctor";
-import PasoFecha     from "./steps/PasoFecha";
-import PasoHorario   from "./steps/PasoHorario";
-import PasoPaciente  from "./steps/PasoPaciente";
-import PasoConfirmar from "./steps/PasoConfirmar";
+import PasoUbicacion    from "./steps/PasoUbicacion";
+import PasoServicio     from "./steps/PasoServicio";
+import PasoDoctor       from "./steps/PasoDoctor";
+import PasoFecha        from "./steps/PasoFecha";
+import PasoHorario      from "./steps/PasoHorario";
+import PasoPaciente     from "./steps/PasoPaciente";
+import PasoPago         from "./steps/PasoPago";
+import PasoTransferencia from "./steps/PasoTransferencia";
+import PasoConfirmar    from "./steps/PasoConfirmar";
 import {
   INITIAL_WIZARD,
   WIZARD_STEPS,
   type CitaRow,
   type WizardState,
+  type WizardStep,
   type WizardUserProfile,
 } from "./types";
 
@@ -39,6 +43,24 @@ export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) 
   const t = useTranslations("Dashboard.miembro.citas");
   const [view, setView]     = useState<View>("list");
   const [wizard, setWizard] = useState<WizardState>(INITIAL_WIZARD);
+  const [datosBancarios, setDatosBancarios] = useState<{ banco: string; numero_cuenta: string; iban: string } | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("configuracion_sistema")
+      .select("valor")
+      .eq("clave", "datos_bancarios")
+      .single()
+      .then(({ data }) => {
+        if (data?.valor) setDatosBancarios(data.valor as { banco: string; numero_cuenta: string; iban: string });
+      });
+  }, []);
+
+  /** Returns the next step after "paciente", depending on whether payment is required */
+  function nextStepAfterPaciente(w: WizardState): WizardStep {
+    return w.requires_payment ? "pago" : "confirmar";
+  }
 
   /** Merge a partial patch into wizard state AND advance to next step */
   function patchAndAdvance(patch: Partial<WizardState>) {
@@ -91,6 +113,8 @@ export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) 
           {wizard.step === "servicio" && wizard.categoriaId !== null && (
             <PasoServicio
               categoriaId={wizard.categoriaId}
+              empresaId={userProfile?.empresa_id ?? null}
+              titularRefId={userProfile?.titular_id ?? userProfile?.id ?? ""}
               onSelect={patchAndAdvance}
               onBack={goBack}
             />
@@ -116,16 +140,37 @@ export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) 
           )}
           {wizard.step === "paciente" && (
             <PasoPaciente
-              userProfile={userProfile ?? { id: "", rol: "miembro", empresa_id: null, ea_customer_id: null, nombre_completo: null, telefono: null, documento_identidad: null }}
-              onSelect={patchAndAdvance}
+              userProfile={userProfile ?? { id: "", rol: "miembro", empresa_id: null, titular_id: null, ea_customer_id: null, nombre_completo: null, telefono: null, documento_identidad: null }}
+              onSelect={(patch) =>
+                setWizard((w) => {
+                  const merged = { ...w, ...patch };
+                  return { ...merged, step: nextStepAfterPaciente(merged) };
+                })
+              }
               onBack={goBack}
+            />
+          )}
+          {wizard.step === "pago" && (
+            <PasoPago
+              onSelect={(patch) => setWizard((w) => ({ ...w, ...patch, step: "confirmar" }))}
+              onBack={() => setWizard((w) => ({ ...w, step: "paciente" }))}
             />
           )}
           {wizard.step === "confirmar" && userProfile && (
             <PasoConfirmar
               wizard={wizard}
               userProfile={userProfile}
-              onBack={goBack}
+              onBack={() => setWizard((w) => ({ ...w, step: w.requires_payment ? "pago" : "paciente" }))}
+              onSuccess={exitWizard}
+              onTransferenciaRequired={(citaId) =>
+                setWizard((w) => ({ ...w, cita_id: citaId, step: "transferencia" }))
+              }
+            />
+          )}
+          {wizard.step === "transferencia" && wizard.cita_id && (
+            <PasoTransferencia
+              citaId={wizard.cita_id}
+              datosBancarios={datosBancarios}
               onSuccess={exitWizard}
             />
           )}

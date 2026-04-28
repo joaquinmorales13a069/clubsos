@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { MapPin, Stethoscope, User, CalendarDays, Clock, AlertCircle, Loader2 } from "lucide-react";
-import { crearCita } from "@/app/[locale]/(dashboard)/dashboard/citas/actions";
 import type { WizardState, WizardUserProfile } from "../types";
 
 interface PasoConfirmarProps {
@@ -12,6 +11,7 @@ interface PasoConfirmarProps {
   userProfile: WizardUserProfile;
   onBack: () => void;
   onSuccess: () => void;
+  onTransferenciaRequired: (citaId: string) => void;
 }
 
 /** Format "YYYY-MM-DD" to readable date */
@@ -39,7 +39,7 @@ const SUMMARY_ITEMS = [
   { icon: User,         key: "paciente",   getValue: (w: WizardState) => w.paraTitular ? "Para mí" : w.pacienteNombre },
 ] as const;
 
-export default function PasoConfirmar({ wizard, userProfile, onBack, onSuccess }: PasoConfirmarProps) {
+export default function PasoConfirmar({ wizard, userProfile, onBack, onSuccess, onTransferenciaRequired }: PasoConfirmarProps) {
   const t  = useTranslations("Dashboard.miembro.citas.wizard");
   const tc = useTranslations("Dashboard.miembro.citas.wizard.confirmar");
   const [loading, setLoading] = useState(false);
@@ -48,28 +48,44 @@ export default function PasoConfirmar({ wizard, userProfile, onBack, onSuccess }
     if (!wizard.fecha || !wizard.hora || !wizard.eaServiceId || !wizard.eaProviderId) return;
     setLoading(true);
 
-    const result = await crearCita({
-      empresaId:        userProfile.empresa_id,
-      eaCustomerId:     userProfile.ea_customer_id,
-      eaServiceId:      wizard.eaServiceId,
-      eaProviderId:     wizard.eaProviderId,
-      fechaHoraCita:    `${wizard.fecha}T${wizard.hora}:00-06:00`,
-      servicioAsociado: wizard.servicioNombre,
-      paraTitular:      wizard.paraTitular,
-      pacienteNombre:   wizard.paraTitular ? null : wizard.pacienteNombre,
-      pacienteTelefono: wizard.paraTitular ? null : wizard.pacienteTelefono || null,
-      pacienteCorreo:   wizard.paraTitular ? null : wizard.pacienteCorreo  || null,
-      pacienteCedula:   wizard.paraTitular ? null : wizard.pacienteCedula  || null,
-      motivoCita:       null,
-    });
+    try {
+      const body = {
+        ea_service_id:     wizard.eaServiceId,
+        ea_provider_id:    wizard.eaProviderId,
+        fecha_hora_cita:   `${wizard.fecha}T${wizard.hora}:00`,
+        servicio_asociado: wizard.servicioNombre,
+        para_titular:      wizard.paraTitular,
+        paciente_nombre:   wizard.paraTitular ? null : wizard.pacienteNombre,
+        paciente_telefono: wizard.paraTitular ? null : wizard.pacienteTelefono,
+        paciente_correo:   wizard.paraTitular ? null : wizard.pacienteCorreo,
+        paciente_cedula:   wizard.paraTitular ? null : wizard.pacienteCedula,
+        ...(wizard.contrato_servicio_id ? { contrato_servicio_id: wizard.contrato_servicio_id } : {}),
+        ...(wizard.metodo_pago ? { metodo_pago: wizard.metodo_pago } : {}),
+      };
 
-    setLoading(false);
+      const res = await fetch("/api/citas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
 
-    if (result.error) {
-      toast.error(tc("error"));
-    } else {
+      if (!res.ok) {
+        const err = await res.json() as { error?: string };
+        throw new Error(err.error ?? "Error al crear la cita");
+      }
+
+      const { cita } = await res.json() as { cita: { id: string; estado_sync: string } };
       toast.success(tc("success"));
-      onSuccess();
+
+      if (wizard.metodo_pago === "transferencia") {
+        onTransferenciaRequired(cita.id);
+      } else {
+        onSuccess();
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : tc("error"));
+    } finally {
+      setLoading(false);
     }
   }
 
