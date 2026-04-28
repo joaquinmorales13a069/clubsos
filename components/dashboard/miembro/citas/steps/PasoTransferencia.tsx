@@ -6,9 +6,10 @@ import { toast } from "sonner";
 import { Loader2, CheckCircle2 } from "lucide-react";
 
 interface DatosBancarios {
-  banco:         string;
-  numero_cuenta: string;
-  iban:          string;
+  banco:           string;
+  numero_cuenta:   string;
+  iban:            string;
+  nombre_titular?: string;
 }
 
 interface PasoTransferenciaProps {
@@ -63,6 +64,9 @@ export default function PasoTransferencia({ citaId, datosBancarios, onSuccess }:
       {datosBancarios && (
         <div className="rounded-xl bg-blue-50 border border-blue-200 p-4 space-y-1 text-sm">
           <p className="font-semibold text-blue-800">{t("bank_details")}</p>
+          {datosBancarios.nombre_titular && (
+            <p className="text-blue-700">{t("titular")}: <span className="font-medium">{datosBancarios.nombre_titular}</span></p>
+          )}
           <p className="text-blue-700">{t("banco")}: <span className="font-medium">{datosBancarios.banco}</span></p>
           <p className="text-blue-700">{t("cuenta")}: <span className="font-medium">{datosBancarios.numero_cuenta}</span></p>
           <p className="text-blue-700">IBAN: <span className="font-medium">{datosBancarios.iban}</span></p>

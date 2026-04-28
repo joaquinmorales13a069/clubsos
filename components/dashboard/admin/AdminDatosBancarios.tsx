@@ -5,10 +5,10 @@ import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 
-type DatosForm = { banco: string; numero_cuenta: string; iban: string };
+type DatosForm = { banco: string; numero_cuenta: string; iban: string; nombre_titular: string };
 
 export default function AdminDatosBancarios() {
-  const [form, setForm]       = useState<DatosForm>({ banco: "", numero_cuenta: "", iban: "" });
+  const [form, setForm]       = useState<DatosForm>({ banco: "", numero_cuenta: "", iban: "", nombre_titular: "" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
 
@@ -51,10 +51,12 @@ export default function AdminDatosBancarios() {
         Estos datos se muestran a los miembros que eligen transferencia bancaria.
       </p>
       <div className="space-y-3">
-        {(["banco", "numero_cuenta", "iban"] as const).map((field) => (
+        {(["nombre_titular", "banco", "numero_cuenta", "iban"] as const).map((field) => (
           <div key={field}>
             <label className="text-xs font-medium text-gray-600 capitalize">
-              {field === "numero_cuenta" ? "Número de cuenta" : field.toUpperCase()}
+              {field === "numero_cuenta" ? "Número de cuenta"
+                : field === "nombre_titular" ? "Nombre del titular"
+                : field.toUpperCase()}
             </label>
             <input
               value={form[field]}

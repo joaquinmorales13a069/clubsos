@@ -332,6 +332,7 @@
             "title": "Comprobante de transferencia",
             "subtitle": "Realiza la transferencia a la siguiente cuenta y envía el número de referencia.",
             "bank_details": "Datos bancarios",
+            "titular": "Titular",
             "banco": "Banco",
             "cuenta": "Número de cuenta",
             "referencia_label": "Número de referencia",

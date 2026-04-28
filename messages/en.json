@@ -332,6 +332,7 @@
             "title": "Transfer receipt",
             "subtitle": "Transfer to the following account and submit your reference number.",
             "bank_details": "Bank details",
+            "titular": "Account holder",
             "banco": "Bank",
             "cuenta": "Account number",
             "referencia_label": "Reference number",
