@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       empresa_id:           profile.empresa_id,
       ea_service_id:        body.ea_service_id,
       ea_provider_id:       body.ea_provider_id,
-      fecha_hora_cita:      body.fecha_hora_cita,
+      fecha_hora_cita:      body.fecha_hora_cita + "-06:00",
       servicio_asociado:    body.servicio_asociado ?? null,
       estado_sync,
       para_titular:         body.para_titular,
