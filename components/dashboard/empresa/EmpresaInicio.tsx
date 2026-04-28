@@ -57,6 +57,7 @@ type EmpresaKpis = {
 interface Props {
   /** First name for greeting */
   firstName: string;
+  empresaId: string | null;
 }
 
 // ── KPI Skeleton ─────────────────────────────────────────────────────────────
@@ -122,7 +123,7 @@ function KpiCard({ label, value, icon, accent, href, badge }: KpiCardProps) {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
-export default function EmpresaInicio({ firstName }: Props) {
+export default function EmpresaInicio({ firstName, empresaId }: Props) {
   const t      = useTranslations("Dashboard.empresa.inicio");
   const tCitas = useTranslations("Dashboard.empresa.citas");
   const locale = useLocale();
@@ -134,7 +135,6 @@ export default function EmpresaInicio({ firstName }: Props) {
   const ajustesHref   = `${empresaBase}/ajustes`;
 
   // ── State per section ────────────────────────────────────────────────────
-  const [empresaId, setEmpresaId] = useState<string>("");
 
   const [kpis,        setKpis]        = useState<EmpresaKpis | null>(null);
   const [kpisLoading, setKpisLoading] = useState(true);
@@ -155,15 +155,6 @@ export default function EmpresaInicio({ firstName }: Props) {
   // ── Parallel fetches on mount ────────────────────────────────────────────
   useEffect(() => {
     const supabase = createClient();
-
-    // 0. Fetch empresa_id for the current empresa_admin
-    supabase
-      .from("users")
-      .select("empresa_id")
-      .single()
-      .then(({ data }) => {
-        if (data?.empresa_id) setEmpresaId(data.empresa_id as string);
-      });
 
     // 1. KPIs via RPC
     supabase.rpc("get_empresa_kpis").then(({ data, error }) => {
