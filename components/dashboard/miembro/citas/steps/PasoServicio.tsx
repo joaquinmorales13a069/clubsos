@@ -16,16 +16,47 @@ interface Servicio {
 }
 
 interface PasoServicioProps {
-  categoriaId: number;
+  categoriaId:  number;
+  empresaId:    string | null;
+  titularRefId: string;
   onSelect: (patch: Partial<WizardState>) => void;
   onBack: () => void;
 }
 
-export default function PasoServicio({ categoriaId, onSelect, onBack }: PasoServicioProps) {
+async function checkCoverage(
+  servicioId: string,
+  empresaId: string,
+  titularRefId: string,
+): Promise<{ contrato_servicio_id: string | null; cuota_disponible: number | null }> {
+  const supabase = createClient();
+  const { data: cs } = await supabase
+    .from("contrato_servicios")
+    .select("id, contrato:contratos!inner(empresa_id, activo)")
+    .eq("servicio_id", servicioId)
+    .eq("contrato.empresa_id", empresaId)
+    .eq("contrato.activo", true)
+    .limit(1)
+    .single();
+
+  if (!cs) return { contrato_servicio_id: null, cuota_disponible: null };
+
+  const { data: quota } = await supabase.rpc("check_cuota_disponible", {
+    p_contrato_servicio_id: (cs as any).id,
+    p_titular_ref_id: titularRefId,
+  });
+
+  return {
+    contrato_servicio_id: (cs as any).id,
+    cuota_disponible: typeof quota === "number" ? quota : null,
+  };
+}
+
+export default function PasoServicio({ categoriaId, empresaId, titularRefId, onSelect, onBack }: PasoServicioProps) {
   const t = useTranslations("Dashboard.miembro.citas.wizard");
   const ts = useTranslations("Dashboard.miembro.citas.wizard.servicio");
   const [servicios, setServicios] = useState<Servicio[]>([]);
   const [loading, setLoading]     = useState(true);
+  const [checking, setChecking]   = useState<string | null>(null);
 
   useEffect(() => {
     const supabase = createClient();
@@ -39,6 +70,31 @@ export default function PasoServicio({ categoriaId, onSelect, onBack }: PasoServ
         setLoading(false);
       });
   }, [categoriaId]);
+
+  async function handleSelect(s: Servicio) {
+    setChecking(s.id);
+    let contrato_servicio_id: string | null = null;
+    let cuota_disponible: number | null = null;
+    let requires_payment = true;
+
+    if (empresaId) {
+      const result = await checkCoverage(s.id, empresaId, titularRefId);
+      contrato_servicio_id = result.contrato_servicio_id;
+      cuota_disponible     = result.cuota_disponible;
+      requires_payment     = !contrato_servicio_id || cuota_disponible === null || cuota_disponible <= 0;
+    }
+
+    onSelect({
+      eaServiceId:          s.ea_service_id,
+      servicioId:           s.id,
+      servicioNombre:       s.nombre,
+      servicioDuracion:     s.duracion ?? 30,
+      contrato_servicio_id,
+      cuota_disponible,
+      requires_payment,
+    });
+    setChecking(null);
+  }
 
   return (
     <div className="space-y-4">
@@ -63,9 +119,11 @@ export default function PasoServicio({ categoriaId, onSelect, onBack }: PasoServ
             <button
               key={s.id}
               type="button"
-              onClick={() => onSelect({ eaServiceId: s.ea_service_id, servicioNombre: s.nombre, servicioDuracion: s.duracion ?? 30 })}
+              disabled={checking !== null}
+              onClick={() => handleSelect(s)}
               className="flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-4 text-left
-                         shadow-sm transition-all hover:border-secondary/40 hover:shadow-md"
+                         shadow-sm transition-all hover:border-secondary/40 hover:shadow-md
+                         disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary/10 text-secondary">
                 <Stethoscope className="w-5 h-5" />
@@ -87,6 +145,12 @@ export default function PasoServicio({ categoriaId, onSelect, onBack }: PasoServ
                     </span>
                   )}
                 </div>
+                {checking === s.id && (
+                  <div className="flex items-center gap-1 text-xs text-neutral mt-1">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    <span>Verificando cobertura…</span>
+                  </div>
+                )}
               </div>
             </button>
           ))}

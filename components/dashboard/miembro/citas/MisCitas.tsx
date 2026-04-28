@@ -91,6 +91,8 @@ export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) 
           {wizard.step === "servicio" && wizard.categoriaId !== null && (
             <PasoServicio
               categoriaId={wizard.categoriaId}
+              empresaId={userProfile?.empresa_id ?? null}
+              titularRefId={userProfile?.titular_id ?? userProfile?.id ?? ""}
               onSelect={patchAndAdvance}
               onBack={goBack}
             />
