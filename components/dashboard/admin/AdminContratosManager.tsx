@@ -117,21 +117,20 @@ export default function AdminContratosManager({ empresaId }: Props) {
         <div className="space-y-2">
           {contratos.map(c => (
             <div key={c.id} className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-              <button
-                onClick={() => setExpandedId(id => id === c.id ? null : c.id)}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50"
-              >
-                <div>
+              <div className="w-full flex items-center justify-between p-4 hover:bg-gray-50">
+                <button
+                  onClick={() => setExpandedId(id => id === c.id ? null : c.id)}
+                  className="flex-1 text-left min-w-0"
+                >
                   <p className="font-semibold text-sm text-gray-900">{c.nombre}</p>
                   <p className="text-xs text-neutral mt-0.5">
                     {c.empresa?.nombre} · {c.tipo_reset} · {c.contrato_servicios.length} servicio(s)
                     {!c.activo && <span className="ml-2 text-red-500">Inactivo</span>}
                   </p>
-                </div>
-                <div className="flex items-center gap-2">
+                </button>
+                <div className="flex items-center gap-2 shrink-0">
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    onClick={() => {
                       setEditing(c);
                       setForm({ nombre: c.nombre, empresa_id: c.empresa_id, fecha_inicio: c.fecha_inicio, fecha_fin: c.fecha_fin ?? "", tipo_reset: c.tipo_reset, dia_reset: c.dia_reset });
                       setShowModal(true);
@@ -141,14 +140,19 @@ export default function AdminContratosManager({ empresaId }: Props) {
                     <Pencil className="h-3.5 w-3.5 text-neutral" />
                   </button>
                   <button
-                    onClick={(e) => { e.stopPropagation(); void deleteContrato(c.id); }}
+                    onClick={() => void deleteContrato(c.id)}
                     className="p-1.5 rounded-lg hover:bg-red-50"
                   >
                     <Trash2 className="h-3.5 w-3.5 text-red-500" />
                   </button>
-                  <ChevronDown className={cn("h-4 w-4 text-neutral transition-transform", expandedId === c.id && "rotate-180")} />
+                  <button
+                    onClick={() => setExpandedId(id => id === c.id ? null : c.id)}
+                    className="p-1"
+                  >
+                    <ChevronDown className={cn("h-4 w-4 text-neutral transition-transform", expandedId === c.id && "rotate-180")} />
+                  </button>
                 </div>
-              </button>
+              </div>
 
               {expandedId === c.id && (
                 <AddServicioRow
