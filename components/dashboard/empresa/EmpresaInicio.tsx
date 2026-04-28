@@ -171,7 +171,7 @@ export default function EmpresaInicio({ firstName }: Props) {
         paciente:users!paciente_id(nombre_completo),
         servicio:servicios!citas_ea_service_id_fkey(nombre)
       `)
-      .eq("estado_sync", "pendiente")
+      .eq("estado_sync", "pendiente_empresa")
       .order("created_at", { ascending: false })
       .limit(5)
       .then(({ data, error }) => {
@@ -233,28 +233,31 @@ export default function EmpresaInicio({ firstName }: Props) {
   // ── Reject action ────────────────────────────────────────────────────────
   const handleRechazar = async (citaId: string) => {
     setRechazandoIds((prev) => new Set(prev).add(citaId));
-    const supabase = createClient();
+    try {
+      const res = await fetch(`/api/ea/citas/${citaId}/rechazar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
 
-    const { error } = await supabase
-      .from("citas")
-      .update({ estado_sync: "rechazado" })
-      .eq("id", citaId);
-
-    if (!error) {
-      setCitas((prev) => prev.filter((c) => c.id !== citaId));
-      setKpis((prev) =>
-        prev ? { ...prev, citas_pendientes: Math.max(0, prev.citas_pendientes - 1) } : prev,
-      );
-      toast.success(tCitas("rechazada"));
-    } else {
+      if (res.ok) {
+        setCitas((prev) => prev.filter((c) => c.id !== citaId));
+        setKpis((prev) =>
+          prev ? { ...prev, citas_pendientes: Math.max(0, prev.citas_pendientes - 1) } : prev,
+        );
+        toast.success(tCitas("rechazada"));
+      } else {
+        toast.error(tCitas("error_rechazar"));
+      }
+    } catch {
       toast.error(tCitas("error_rechazar"));
+    } finally {
+      setRechazandoIds((prev) => {
+        const next = new Set(prev);
+        next.delete(citaId);
+        return next;
+      });
     }
-
-    setRechazandoIds((prev) => {
-      const next = new Set(prev);
-      next.delete(citaId);
-      return next;
-    });
   };
 
   // ── KPI cards config ─────────────────────────────────────────────────────
