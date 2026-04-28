@@ -218,7 +218,37 @@ Notifications use the existing announcements/notification system or WhatsApp via
 
 ---
 
-## 7. Out of Scope
+## 7. Contract Allowance KPIs (Inicio Dashboards)
+
+### empresa_admin — Inicio
+
+A "Uso de Contratos" section added to the existing KPIs area. Shows company-wide usage per servicio for the selected contract.
+
+- **Contract tabs** — one tab per active contract (e.g. "Plan Salud Básico", "Plan Especialidades")
+- **Summary strip** — total citas used / available / quota for selected contract
+- **Per-servicio rows** — each row shows: servicio name, `used / total` count, progress bar (green <50%, yellow 50–80%, red >80%), available count, cuota_por_titular reminder
+- **Reset countdown** — "Reseteo el X · N días restantes"
+
+Data source: aggregate `COUNT(citas)` grouped by `contrato_servicio_id` for current period, joined to `contrato_servicios` for quota totals. `cuota_por_titular × titulares_count` = total cuota for empresa.
+
+New RPC: `get_empresa_contrato_usage(p_empresa_id)` → returns per-contrato, per-servicio usage for current period.
+
+### miembro — Inicio
+
+A "Mis Servicios Cubiertos" section added to the existing KPIs area. Shows the member's titular-group quota per servicio across all active contracts their empresa has.
+
+- **Family note** — "Cuota compartida entre tú y N familiares registrados" (shown only if titular has familiares)
+- **Per-servicio rows** — same bar + color coding as empresa_admin view, scoped to this titular's group
+- **Exhausted state** — when quota = 0, bar turns red and shows "Pago requerido para siguiente cita"
+- **Reset countdown** — same as above
+
+Data source: reuses `check_cuota_disponible` per `contrato_servicio`, called for each servicio covered by empresa's active contracts.
+
+New RPC: `get_miembro_contrato_usage(p_user_id)` → resolves titular_ref_id, returns per-servicio used/total/remaining for current period across all active contracts.
+
+---
+
+## 8. Out of Scope
 
 - Online payment gateway integration (Stripe, etc.) — link_pago is manual.
 - Member-facing contract details page (future).
