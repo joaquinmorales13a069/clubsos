@@ -201,6 +201,13 @@ export default function AdminCitasRegistro() {
 
   useEffect(() => { fetchCitas(); }, [fetchCitas]);
 
+  // Re-fetch when another section on this page mutates a cita
+  useEffect(() => {
+    const handler = () => { void fetchCitas(); };
+    window.addEventListener("citas:mutated", handler);
+    return () => window.removeEventListener("citas:mutated", handler);
+  }, [fetchCitas]);
+
   // Reset to page 0 on filter/empresa changes
   const handleFilterChange = (key: FilterKey) => { setFilter(key); setPage(0); };
   const handleEmpresaChange = (id: string)    => { setEmpresaFilter(id); setPage(0); };
@@ -238,6 +245,7 @@ export default function AdminCitasRegistro() {
           setSelectedCita((prev) => prev ? { ...prev, estado_sync: "confirmado" } : prev);
         }
         toast.success(tGlobal("aprobada"));
+        window.dispatchEvent(new CustomEvent("citas:mutated"));
       } else {
         toast.error(tGlobal("error_aprobar"));
       }
@@ -264,6 +272,7 @@ export default function AdminCitasRegistro() {
         setSelectedCita((prev) => prev ? { ...prev, estado_sync: "rechazado" } : prev);
       }
       toast.success(tGlobal("rechazada"));
+      window.dispatchEvent(new CustomEvent("citas:mutated"));
     } else {
       toast.error(tGlobal("error_rechazar"));
     }

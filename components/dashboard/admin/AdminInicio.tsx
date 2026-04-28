@@ -164,7 +164,7 @@ export default function AdminInicio({ firstName }: Props) {
         servicio:servicios!citas_ea_service_id_fkey(nombre),
         empresa:empresas!empresa_id(nombre)
       `)
-      .eq("estado_sync", "pendiente")
+      .in("estado_sync", ["pendiente", "pendiente_empresa", "pendiente_pago", "pendiente_admin"])
       .order("created_at", { ascending: false })
       .limit(5)
       .then(({ data, error }) => {
