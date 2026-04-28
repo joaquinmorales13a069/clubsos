@@ -57,7 +57,7 @@ export default function BeneficioCard({ beneficio }: BeneficioCardProps) {
   return (
     <article className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
       {/* Image / placeholder */}
-      <div className="relative h-36 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+      <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
         {beneficio.beneficio_image_url ? (
           <Image
             src={beneficio.beneficio_image_url}
