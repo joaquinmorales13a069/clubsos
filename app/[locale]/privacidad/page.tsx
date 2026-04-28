@@ -15,7 +15,7 @@ export default async function PrivacidadPage() {
     { title: t("s3Title"), body: t("s3Body") },
     { title: t("s4Title"), body: t("s4Body") },
     { title: t("s5Title"), body: t("s5Body") },
-    { title: t("s6Title"), body: t("s6Body") },
+    { title: t("s6Title"), body: t("s6Body"), id: "eliminacion-de-datos" },
     { title: t("s7Title"), body: t("s7Body") },
   ];
 
@@ -71,6 +71,7 @@ export default async function PrivacidadPage() {
           {sections.map((s) => (
             <div
               key={s.title}
+              id={s.id}
               className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6"
             >
               <h2 className="font-poppins font-semibold text-sm text-gray-900 mb-2">
