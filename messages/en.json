@@ -115,7 +115,8 @@
       "credentialsError": "Error setting credentials: {message}",
       "emailError": "Error saving email: {message}",
       "emailExists": "This email is already registered with another account. Please use a different one.",
-      "profileError": "Error saving profile: {message}"
+      "profileError": "Error saving profile: {message}",
+      "captchaError": "Security check failed. Please try again."
     }
   },
   "Dashboard": {

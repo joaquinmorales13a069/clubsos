@@ -13,6 +13,7 @@ import Image from "next/image";
 import { UserCircle, Users, Building2, Search, ShieldCheck, ArrowRight, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { sendSignupOtpAction, verifySignupOtpAction, completeSignupAction, buscarEmpresaAction } from "./actions";
 import HelpModal from "@/components/auth/HelpModal";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 export default function SignupPage() {
   const t  = useTranslations("Auth.signup");
@@ -33,6 +34,7 @@ export default function SignupPage() {
   const [phone, setPhone] = useState<string>();
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState("");
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   
   // Signup step tracking
   const [isLoading, setIsLoading] = useState(false);
@@ -78,7 +80,7 @@ export default function SignupPage() {
     }
     setServerError(null);
     setIsLoading(true);
-    const result = await sendSignupOtpAction(phone);
+    const result = await sendSignupOtpAction(phone, captchaToken!);
     setIsLoading(false);
     if (result.error) { setServerError(result.error); return; }
     setOtpSent(true);
@@ -320,11 +322,20 @@ export default function SignupPage() {
             </div>
           </div>
           
-          <div className="flex justify-between pt-4">
+          <div className="flex justify-center">
+            <Turnstile
+              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+              onSuccess={(token) => setCaptchaToken(token)}
+              onExpire={() => setCaptchaToken(null)}
+              onError={() => setCaptchaToken(null)}
+              options={{ theme: "light", language: "es" }}
+            />
+          </div>
+          <div className="flex justify-between pt-2">
             <Button type="button" variant="ghost" onClick={() => tipoCuenta === "titular" ? setStep(2) : setStep(3)} className="rounded-xl text-gray-500">
               <ArrowLeft className="mr-2 h-4 w-4" /> {t("backBtn")}
             </Button>
-            <Button type="submit" disabled={!phone || isLoading} className="bg-primary hover:bg-primary/90 text-white rounded-xl">
+            <Button type="submit" disabled={!phone || !captchaToken || isLoading} className="bg-primary hover:bg-primary/90 text-white rounded-xl">
               {isLoading ? "Enviando..." : t("sendOtpBtn")}
             </Button>
           </div>

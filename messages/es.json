@@ -115,7 +115,8 @@
       "credentialsError": "Error al configurar credenciales: {message}",
       "emailError": "Error al guardar email: {message}",
       "emailExists": "Este correo electrónico ya está registrado con otra cuenta. Por favor, usa uno diferente.",
-      "profileError": "Error al guardar perfil: {message}"
+      "profileError": "Error al guardar perfil: {message}",
+      "captchaError": "Verificación de seguridad fallida. Por favor, inténtalo de nuevo."
     }
   },
   "Dashboard": {
