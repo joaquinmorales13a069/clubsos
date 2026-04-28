@@ -37,6 +37,12 @@ export default function AdminCitasPendientesAdmin() {
 
   useEffect(() => { void loadCitas(); }, [loadCitas]);
 
+  useEffect(() => {
+    const handler = () => { void loadCitas(); };
+    window.addEventListener("citas:mutated", handler);
+    return () => window.removeEventListener("citas:mutated", handler);
+  }, [loadCitas]);
+
   async function aprobar(citaId: string) {
     setActing(a => ({ ...a, [citaId]: true }));
     try {
@@ -48,6 +54,7 @@ export default function AdminCitasPendientesAdmin() {
       if (!res.ok) throw new Error(((await res.json()) as { error?: string }).error ?? "Error");
       toast.success("Cita aprobada");
       await loadCitas();
+      window.dispatchEvent(new CustomEvent("citas:mutated"));
     } catch (err) { toast.error(err instanceof Error ? err.message : "Error"); }
     finally { setActing(a => ({ ...a, [citaId]: false })); }
   }
@@ -64,6 +71,7 @@ export default function AdminCitasPendientesAdmin() {
       if (!res.ok) throw new Error(((await res.json()) as { error?: string }).error ?? "Error");
       toast.success("Cita rechazada");
       await loadCitas();
+      window.dispatchEvent(new CustomEvent("citas:mutated"));
     } catch (err) { toast.error(err instanceof Error ? err.message : "Error"); }
     finally { setActing(a => ({ ...a, [citaId]: false })); }
   }

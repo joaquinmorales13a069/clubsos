@@ -52,6 +52,7 @@ export default function AdminPagoVerificacion() {
       if (!res.ok) throw new Error(((await res.json()) as { error?: string }).error ?? "Error");
       toast.success(action === "paste_link" ? "Link enviado" : "Pago verificado");
       await loadQueue();
+      window.dispatchEvent(new CustomEvent("citas:mutated"));
     } catch (err) { toast.error(err instanceof Error ? err.message : "Error"); }
     finally { setActing(a => ({ ...a, [citaId]: false })); }
   }
@@ -68,6 +69,7 @@ export default function AdminPagoVerificacion() {
       if (!res.ok) throw new Error(((await res.json()) as { error?: string }).error ?? "Error");
       toast.success("Cita rechazada");
       await loadQueue();
+      window.dispatchEvent(new CustomEvent("citas:mutated"));
     } catch (err) { toast.error(err instanceof Error ? err.message : "Error"); }
     finally { setActing(a => ({ ...a, [citaId]: false })); }
   }
