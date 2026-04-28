@@ -12,7 +12,7 @@ export async function GET() {
     .from("citas")
     .select(`
       id, estado_sync, fecha_hora_cita, servicio_asociado, created_at,
-      user:users!paciente_id(nombre_completo, telefono, correo),
+      user:users!paciente_id(nombre_completo, telefono),
       pago:pagos(id, metodo, estado, monto, link_url, referencia, notas)
     `)
     .in("estado_sync", ["pendiente_pago", "pendiente_admin"])
