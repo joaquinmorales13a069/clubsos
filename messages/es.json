@@ -273,7 +273,11 @@
             "loading": "Cargando servicios...",
             "noServices": "No hay servicios disponibles en esta ubicación",
             "duration": "min",
-            "price": "C$"
+            "price": "C$",
+            "checking_coverage": "Verificando cobertura…",
+            "covered": "Cubierto por contrato",
+            "quota_remaining": "{count} cita(s) disponible(s) este período",
+            "quota_exhausted": "Cuota agotada — se requiere pago"
           },
           "doctor": {
             "title": "Selecciona tu doctor",

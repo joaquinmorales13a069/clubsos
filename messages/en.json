@@ -273,7 +273,11 @@
             "loading": "Loading services...",
             "noServices": "No services available at this location",
             "duration": "min",
-            "price": "C$"
+            "price": "C$",
+            "checking_coverage": "Checking coverage…",
+            "covered": "Covered by contract",
+            "quota_remaining": "{count} appointment(s) available this period",
+            "quota_exhausted": "Quota exhausted — payment required"
           },
           "doctor": {
             "title": "Select your doctor",
