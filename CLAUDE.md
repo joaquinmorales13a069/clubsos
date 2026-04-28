@@ -7,12 +7,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-pnpm dev       # start dev server (localhost:3000)
-pnpm build     # production build
-pnpm lint      # eslint check
+pnpm dev           # start dev server (localhost:3000)
+pnpm build         # production build (also type-checks via tsc)
+pnpm lint          # eslint check
+supabase db push   # apply pending migrations to the remote Supabase project
 ```
 
-No test suite exists yet. Type-check with `pnpm build` (tsc runs during build).
+No test suite exists yet. Type-check with `pnpm build`.
+
+## Environment Variables
+
+Required in `.env.local`:
+
+```
+NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY
+
+NEXT_PUBLIC_EA_API_URL     # Easy Appointment base URL (e.g. https://…/index.php/api/v1/)
+EA_API_KEY                 # EA Bearer token
+
+WHATSAPP_PHONE_NUMBER_ID
+WHATSAPP_API_TOKEN
+WHATSAPP_PAYMENT_URL_BASE  # Base URL for payment links sent via WhatsApp
+```
 
 ## Architecture
 
@@ -29,10 +47,21 @@ app/[locale]/
   (dashboard)/        — protected; DashboardLayout enforces auth + role
     dashboard/        — member home
     dashboard/admin/  — global admin routes (beneficios, citas, documentos, empresas, reportes, sistema, usuarios)
-    dashboard/empresa/ (empresa_admin routes)
+    dashboard/empresa/ — empresa_admin routes (citas, usuarios, ajustes, reportes)
     dashboard/avisos|beneficios|citas|documentos|ajustes|familia  — member routes
-app/api/admin/        — server-side admin API routes
-app/api/ea/           — empresa_admin API routes
+app/api/admin/        — server-side admin API routes (auth-guarded: admin only)
+app/api/ea/           — empresa_admin API routes (auth-guarded: empresa_admin only)
+app/api/citas/        — member-facing appointment routes (auth-guarded: authenticated user)
+```
+
+### API Route Auth Pattern
+
+Every Route Handler calls `assertAdmin(supabase)` / role check before any data access:
+
+```ts
+const { data: { user } } = await supabase.auth.getUser();
+const { data } = await supabase.from("users").select("rol").eq("id", user.id).single();
+if (data?.rol !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 ```
 
 ### Role System
@@ -65,7 +94,29 @@ Always use the **server client** in Server Components and Route Handlers. Use th
 
 ### Database Migrations
 
-All schema changes go in `supabase/migrations/` as `YYYYMMDDHHMMSS_short_description.sql`. Never apply SQL ad-hoc from the Supabase dashboard as a substitute for a migration file.
+All schema changes go in `supabase/migrations/` as `YYYYMMDDHHMMSS_short_description.sql`. Never apply SQL ad-hoc from the Supabase dashboard as a substitute for a migration file. Apply with `supabase db push`.
+
+### Citas (Appointments) State Machine
+
+`citas.estado_sync` follows this flow:
+
+```
+pendiente → pendiente_admin → confirmado → completado
+                           ↘ rechazado
+           ↘ cancelado
+```
+
+- Members create citas (`pendiente`), optionally pay (`pendiente_admin`)
+- Admin approves (→ `confirmado`, synced to EA) or rejects (→ `rechazado`)
+- `para_titular: boolean` — if false, cita is for a family member; extra fields (`paciente_nombre`, `paciente_telefono`, `paciente_cedula`) are stored on the cita row
+
+### External Integrations
+
+**Easy Appointment (EA)**: Third-party booking system at `NEXT_PUBLIC_EA_API_URL`. Admin approval (`/api/admin/citas/[id]/aprobar`) creates the appointment in EA via its REST API. All datetimes are converted to Nicaragua timezone (UTC-6). EA IDs are stored back on `citas.ea_appointment_id` / `users.ea_customer_id`.
+
+**WhatsApp Cloud API**: Used to notify members of appointment status changes. Outbound messages use `WHATSAPP_PHONE_NUMBER_ID` + `WHATSAPP_API_TOKEN`.
+
+**Reporting RPCs**: Admin reports call Postgres RPC functions (defined in migrations) rather than complex client-side joins.
 
 ## Key Constraints
 
