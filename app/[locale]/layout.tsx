@@ -9,8 +9,12 @@ const roboto = Roboto({ subsets: ["latin"], weight: ["400", "500", "700"], varia
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-poppins" });
 
 export const metadata: Metadata = {
-  title: "Club SOS Medical",
+  title: "ClubSOS | SOS Medical",
   description: "Tu plataforma médica de confianza",
+  icons: {
+    icon: "/icon-clubSOS.png",
+    apple: "/icon-clubSOS.png",
+  },
 };
 
 export default async function RootLayout({

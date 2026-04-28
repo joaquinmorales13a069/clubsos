@@ -232,7 +232,8 @@ function SidebarContent({
             alt="SOS Medical"
             width={160}
             height={40}
-            className="object-contain h-10 w-auto"
+            className="object-contain h-10"
+            style={{ width: "auto" }}
           />
         </Link>
       </div>
