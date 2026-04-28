@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { BarChart3, Loader2, AlertCircle, RefreshCw, Filter } from "lucide-react";
+import { BarChart3, Loader2, AlertCircle, RefreshCw, Filter, Info } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import AdminReportesCitas,      { type CitasReportData }      from "./AdminReportesCitas";
 import AdminReportesUsuarios,   { type UsuariosReportData }   from "./AdminReportesUsuarios";
@@ -221,6 +221,14 @@ export default function AdminReportes() {
             {label}
           </button>
         ))}
+      </div>
+
+      {/* Tab description */}
+      <div className="flex items-start gap-2 px-1">
+        <Info className="w-3.5 h-3.5 text-secondary/70 mt-0.5 shrink-0" />
+        <p className="text-xs font-roboto text-neutral/70 leading-relaxed">
+          {t(`desc_${activeTab}` as Parameters<typeof t>[0])}
+        </p>
       </div>
 
       {/* Filter panel */}

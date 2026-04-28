@@ -35,6 +35,7 @@ import {
   LayoutList,
   UserCheck,
   ListChecks,
+  Info,
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
@@ -359,6 +360,14 @@ function ReporteUsuarios() {
         </div>
       </div>
 
+      {/* Description banner */}
+      <div className="flex items-start gap-2 px-5 pt-4 pb-0">
+        <Info className="w-3.5 h-3.5 text-secondary/70 mt-0.5 shrink-0" />
+        <p className="text-xs font-roboto text-neutral/70 leading-relaxed">
+          {t("sectionUsuariosDesc")}
+        </p>
+      </div>
+
       {/* Body */}
       <div className="p-5 space-y-5">
         <PeriodPicker
@@ -552,6 +561,14 @@ function ReporteCitas() {
             {t("sectionCitasSubtitle")}
           </p>
         </div>
+      </div>
+
+      {/* Description banner */}
+      <div className="flex items-start gap-2 px-5 pt-4 pb-0">
+        <Info className="w-3.5 h-3.5 text-secondary/70 mt-0.5 shrink-0" />
+        <p className="text-xs font-roboto text-neutral/70 leading-relaxed">
+          {t("sectionCitasDesc")}
+        </p>
       </div>
 
       {/* Body */}
@@ -889,6 +906,14 @@ function ReporteContratos() {
             {t("sectionContratosSubtitle")}
           </p>
         </div>
+      </div>
+
+      {/* Description banner */}
+      <div className="flex items-start gap-2 px-5 pt-4 pb-0">
+        <Info className="w-3.5 h-3.5 text-secondary/70 mt-0.5 shrink-0" />
+        <p className="text-xs font-roboto text-neutral/70 leading-relaxed">
+          {t("sectionContratosDesc")}
+        </p>
       </div>
 
       <div className="p-5 space-y-5">

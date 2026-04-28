@@ -675,7 +675,10 @@
         "modeContrato": "By contract-service",
         "colContrato": "Contract",
         "colCuotaTitular": "Quota / member",
-        "colCitasUsadas": "Appointments made"
+        "colCitasUsadas": "Appointments made",
+        "sectionUsuariosDesc": "Includes name, email, phone, role, account type, status and registration date. Use the period filter to narrow the registration date range.",
+        "sectionCitasDesc": "Grouped by service (total appointments per consultation type) or by primary member (own appointments plus family appointments). The filter applies to the appointment date, not the creation date.",
+        "sectionContratosDesc": "Only includes appointments linked to a service contract. Groups by contract-service (configured quota vs. appointments used) or by primary member. Select the start date for the period to analyze."
       }
     },
     "admin": {
@@ -1064,7 +1067,12 @@
         "tabla_citas_mes": "Appointments this month",
         "tabla_documentos": "Documents",
         "tabla_auto_confirma": "Auto-confirm",
-        "top_10_note": "Showing top 10 companies by member count."
+        "top_10_note": "Showing top 10 companies by member count.",
+        "desc_citas": "Platform-wide appointment analytics: totals, confirmed, cancelled and approval rate. Charts by month, status, service and doctor. Filter by company and date range.",
+        "desc_usuarios": "Registered user summary: active, inactive and pending activation. Distribution by account type and company. Monthly new registration trend.",
+        "desc_empresas": "Global overview of affiliated companies: active, inactive and with appointment auto-confirm. Comparison table with total members, appointments and documents per company. No additional filters.",
+        "desc_documentos": "Medical documents uploaded to the platform: totals and distribution by type (lab, radiology, prescription, other). Filter by company and upload date range.",
+        "desc_beneficios": "Benefits and promotions published on the platform: active vs. expired, distribution by type and company reach. No additional filters available."
       },
       "sistema": {
         "titulo": "System Settings",

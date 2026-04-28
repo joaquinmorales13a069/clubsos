@@ -675,7 +675,10 @@
         "modeContrato": "Por contrato-servicio",
         "colContrato": "Contrato",
         "colCuotaTitular": "Cuota / titular",
-        "colCitasUsadas": "Citas realizadas"
+        "colCitasUsadas": "Citas realizadas",
+        "sectionUsuariosDesc": "Incluye nombre, correo, teléfono, rol, tipo de cuenta, estado y fecha de registro. Usa el filtro de período para acotar el rango de fechas de registro.",
+        "sectionCitasDesc": "Agrupadas por servicio (total de citas por tipo de consulta) o por titular (citas propias más citas de familiares). El filtro aplica sobre la fecha de la cita, no la fecha de creación.",
+        "sectionContratosDesc": "Solo incluye citas vinculadas a un contrato de servicio. Agrupa por contrato-servicio (cuota configurada vs. citas realizadas) o por titular. Selecciona la fecha de inicio del período a analizar."
       }
     },
     "admin": {
@@ -1064,7 +1067,12 @@
         "tabla_citas_mes": "Citas este mes",
         "tabla_documentos": "Documentos",
         "tabla_auto_confirma": "Auto-confirma",
-        "top_10_note": "Mostrando top 10 empresas por cantidad de miembros."
+        "top_10_note": "Mostrando top 10 empresas por cantidad de miembros.",
+        "desc_citas": "Analítica de citas de toda la plataforma: totales, confirmadas, canceladas y tasa de aprobación. Gráficos por mes, estado, servicio y doctor. Puedes filtrar por empresa y rango de fechas.",
+        "desc_usuarios": "Resumen de usuarios registrados: activos, inactivos y pendientes de activación. Distribución por tipo de cuenta y empresa. Tendencia de nuevos registros por mes.",
+        "desc_empresas": "Panorama global de empresas afiliadas: activas, inactivas y con auto-confirmación de citas. Tabla comparativa con total de miembros, citas y documentos por empresa. No admite filtros adicionales.",
+        "desc_documentos": "Documentos médicos subidos a la plataforma: totales y distribución por tipo (laboratorio, radiología, receta, otro). Puedes filtrar por empresa y rango de fechas de subida.",
+        "desc_beneficios": "Beneficios y promociones publicados en la plataforma: activos vs. expirados, distribución por tipo y alcance por empresa. No admite filtros adicionales."
       },
       "sistema": {
         "titulo": "Ajustes del Sistema",
