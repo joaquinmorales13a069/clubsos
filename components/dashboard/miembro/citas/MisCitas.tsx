@@ -8,6 +8,7 @@
  */
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { CalendarDays, Plus } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
@@ -41,6 +42,7 @@ type View = "list" | "wizard";
 
 export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) {
   const t = useTranslations("Dashboard.miembro.citas");
+  const router = useRouter();
   const [view, setView]     = useState<View>("list");
   const [wizard, setWizard] = useState<WizardState>(INITIAL_WIZARD);
   const [datosBancarios, setDatosBancarios] = useState<{ banco: string; numero_cuenta: string; iban: string } | null>(null);
@@ -81,10 +83,11 @@ export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) 
     });
   }
 
-  /** Reset wizard and return to list */
+  /** Reset wizard and return to list — refreshes server data so new cita appears immediately */
   function exitWizard() {
     setWizard(INITIAL_WIZARD);
     setView("list");
+    router.refresh();
   }
 
   // ── Wizard view ─────────────────────────────────────────────────────────────

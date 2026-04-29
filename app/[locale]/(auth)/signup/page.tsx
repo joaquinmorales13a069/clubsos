@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import PhoneInput, { isPossiblePhoneNumber } from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import Image from "next/image";
-import { UserCircle, Users, Building2, Search, ShieldCheck, ArrowRight, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { UserCircle, Users, Building2, Search, ShieldCheck, ArrowRight, ArrowLeft, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { sendSignupOtpAction, verifySignupOtpAction, completeSignupAction, buscarEmpresaAction } from "./actions";
 import HelpModal from "@/components/auth/HelpModal";
 import { Turnstile } from "@marsidev/react-turnstile";
@@ -45,6 +45,7 @@ export default function SignupPage() {
   const [documento, setDocumento] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [noEmail, setNoEmail] = useState(false);
 
@@ -422,7 +423,18 @@ export default function SignupPage() {
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">{t("passwordLabel")}</label>
-                <Input required type="password" value={password} onChange={e => setPassword(e.target.value)} className="rounded-xl h-11" />
+                <div className="relative">
+                  <Input required type={showPassword ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} className="rounded-xl h-11 pr-10" />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(v => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    tabIndex={-1}
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">{t("emailLabel")}</label>

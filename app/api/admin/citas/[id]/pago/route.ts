@@ -41,9 +41,19 @@ function formatFechaHoraNicaragua(isoUtc: string): string {
 // {{1}} must be only the suffix after this base.
 const PAYMENT_URL_BASE = process.env.WHATSAPP_PAYMENT_URL_BASE ?? "https://pagoconpoket.com/";
 
-function extractPaymentSuffix(fullUrl: string): string {
-  const base = PAYMENT_URL_BASE.endsWith("/") ? PAYMENT_URL_BASE : `${PAYMENT_URL_BASE}/`;
-  return fullUrl.startsWith(base) ? fullUrl.slice(base.length) : fullUrl;
+function extractPaymentSuffix(rawUrl: string): string {
+  const fullUrl = rawUrl.trim();
+  const base    = PAYMENT_URL_BASE.endsWith("/") ? PAYMENT_URL_BASE : `${PAYMENT_URL_BASE}/`;
+  if (fullUrl.startsWith(base)) return fullUrl.slice(base.length);
+  // Fallback: URL-object comparison handles protocol/case/port normalization
+  try {
+    const baseObj = new URL(base);
+    const fullObj = new URL(fullUrl);
+    if (fullObj.origin === baseObj.origin && fullObj.pathname.startsWith(baseObj.pathname)) {
+      return (fullObj.pathname.slice(baseObj.pathname.length) + fullObj.search + fullObj.hash);
+    }
+  } catch { /* invalid URL — pass through */ }
+  return fullUrl;
 }
 
 async function sendPagoLinkWhatsApp(
@@ -119,9 +129,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   if (body.action === "paste_link") {
     if (!body.link_url) return NextResponse.json({ error: "link_url required" }, { status: 400 });
+    const link_url = body.link_url.trim();
 
     const [pagoUpdate, citaRes] = await Promise.all([
-      supabase.from("pagos").update({ link_url: body.link_url }).eq("cita_id", cita_id),
+      supabase.from("pagos").update({ link_url }).eq("cita_id", cita_id),
       supabase
         .from("citas")
         .select(`
@@ -148,7 +159,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
           paciente.nombre_completo ?? "—",
           svcNombre,
           formatFechaHoraNicaragua(cita.fecha_hora_cita),
-          body.link_url,
+          link_url,
         ).catch((err) => console.error("[pago/paste_link] WhatsApp threw:", err));
       }
     }

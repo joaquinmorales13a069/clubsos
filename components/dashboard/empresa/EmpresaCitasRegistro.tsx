@@ -11,7 +11,7 @@
  * - Approve: POST /api/ea/citas/aprobar | Reject: direct Supabase JS.
  */
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 /** Formats UTC ISO timestamp in Nicaragua time. Correct in any browser/server timezone. */
 const NI_TZ = "America/Managua";
@@ -134,10 +134,10 @@ export default function EmpresaCitasRegistro() {
   const [aprobandoId,  setAprobandoId]  = useState<string | null>(null);
   const [rechazandoId, setRechazandoId] = useState<string | null>(null);
 
-  // ── Fetch on mount ───────────────────────────────────────────────────────
-  useEffect(() => {
+  // ── Fetch citas ───────────────────────────────────────────────────────────
+  const fetchCitas = useCallback(() => {
+    setLoading(true);
     const supabase = createClient();
-
     supabase
       .from("citas")
       .select(`
@@ -150,12 +150,19 @@ export default function EmpresaCitasRegistro() {
       `)
       .order("created_at", { ascending: false })
       .then(({ data, error }) => {
-        if (!error && data) {
-          setCitas(data as unknown as CitaRegistro[]);
-        }
+        if (!error && data) setCitas(data as unknown as CitaRegistro[]);
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => { fetchCitas(); }, [fetchCitas]);
+
+  // Re-fetch when user returns to this tab so new citas appear without manual refresh
+  useEffect(() => {
+    const handler = () => { if (document.visibilityState === "visible") fetchCitas(); };
+    document.addEventListener("visibilitychange", handler);
+    return () => document.removeEventListener("visibilitychange", handler);
+  }, [fetchCitas]);
 
   // ── Derived counts per filter tab (from full dataset) ───────────────────
   const counts = useMemo<Record<FilterKey, number>>(() => ({
