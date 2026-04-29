@@ -208,6 +208,13 @@ export default function AdminCitasRegistro() {
     return () => window.removeEventListener("citas:mutated", handler);
   }, [fetchCitas]);
 
+  // Re-fetch when user returns to this tab so new citas appear without manual refresh
+  useEffect(() => {
+    const handler = () => { if (document.visibilityState === "visible") void fetchCitas(); };
+    document.addEventListener("visibilitychange", handler);
+    return () => document.removeEventListener("visibilitychange", handler);
+  }, [fetchCitas]);
+
   // Reset to page 0 on filter/empresa changes
   const handleFilterChange = (key: FilterKey) => { setFilter(key); setPage(0); };
   const handleEmpresaChange = (id: string)    => { setEmpresaFilter(id); setPage(0); };
