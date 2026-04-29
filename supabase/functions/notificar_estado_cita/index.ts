@@ -68,6 +68,7 @@ interface ServicioRow {
 }
 
 type AdminNotificationType = "confirmado" | "rechazado";
+type AdminContext         = "empresa_admin" | "pago_admin";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -293,21 +294,23 @@ function buildAdminCancelEmail(params: {
 async function handleAdminAction(params: {
   cita:          CitaRecord;
   tipo:          AdminNotificationType;
+  context:       AdminContext;
   supabase:      ReturnType<typeof createClient>;
   phoneNumberId: string;
   apiToken:      string;
   resendApiKey:  string;
 }) {
-  const { cita, tipo, supabase, phoneNumberId, apiToken, resendApiKey } = params;
+  const { cita, tipo, context, supabase, phoneNumberId, apiToken, resendApiKey } = params;
   const FALLBACK_EMAIL = "informatica@sosmedical.com.ni";
 
-  const [miembroRes, servicioRes, adminRes] = await Promise.all([
+  const [miembroRes, servicioRes, empresaRes] = await Promise.all([
     supabase.from("users").select("nombre_completo, telefono, email").eq("id", cita.paciente_id).single(),
     cita.ea_service_id
       ? supabase.from("servicios").select("nombre, ea_category_id").eq("ea_service_id", cita.ea_service_id).single()
       : Promise.resolve({ data: null, error: null }),
-    tipo === "rechazado" && cita.empresa_id
-      ? supabase.from("users").select("nombre_completo").eq("empresa_id", cita.empresa_id).eq("rol", "empresa_admin").eq("estado", "activo").order("created_at", { ascending: true }).limit(1).single()
+    // Fetch empresa name only for empresa_admin rejections (convenio flow)
+    tipo === "rechazado" && context === "empresa_admin" && cita.empresa_id
+      ? supabase.from("empresas").select("nombre").eq("id", cita.empresa_id).single()
       : Promise.resolve({ data: null, error: null }),
   ]);
 
@@ -318,13 +321,15 @@ async function handleAdminAction(params: {
   }
 
   const servicio    = servicioRes.data as ServicioRow | null;
-  const adminFirst  = adminRes.data as { nombre_completo: string | null } | null;
+  const empresa     = empresaRes.data as { nombre: string } | null;
   const nombre      = miembro.nombre_completo ?? "Miembro";
   const servicioNom = servicio?.nombre ?? cita.servicio_asociado ?? "Servicio médico";
   const fechaHora   = formatFechaHoraNicaragua(cita.fecha_hora_cita);
   const extraInfo   = tipo === "confirmado"
     ? resolveUbicacion(servicio?.ea_category_id ?? 0)
-    : (adminFirst?.nombre_completo ?? "Administrador de empresa");
+    : context === "pago_admin"
+      ? "SOS Medical"
+      : (empresa?.nombre ?? "Administrador de empresa");
 
   const templateName = tipo === "confirmado" ? "cita_confirmada" : "cita_rechazada";
   let notified = false;
@@ -440,8 +445,12 @@ serve(async (req: Request) => {
     const oldEstado = old?.estado_sync ?? "";
     const newEstado = cita.estado_sync;
 
-    const isAdminAction   = oldEstado === "pendiente" && (newEstado === "confirmado" || newEstado === "rechazado");
-    const isMiembroCancel = (oldEstado === "pendiente" || oldEstado === "confirmado") && newEstado === "cancelado";
+    // Empresa_admin approves/rejects a convenio cita (pendiente → confirmado/rechazado)
+    const isEmpresaAdminAction = oldEstado === "pendiente" && (newEstado === "confirmado" || newEstado === "rechazado");
+    // SOS Medical admin rejects a cita due to payment validation failure
+    const isPaymentRejection   = (oldEstado === "pendiente_pago" || oldEstado === "pendiente_admin") && newEstado === "rechazado";
+    const isAdminAction        = isEmpresaAdminAction || isPaymentRejection;
+    const isMiembroCancel      = (oldEstado === "pendiente" || oldEstado === "confirmado") && newEstado === "cancelado";
 
     if (!isAdminAction && !isMiembroCancel) {
       return new Response(JSON.stringify({ skipped: true }), { status: 200 });
@@ -459,6 +468,7 @@ serve(async (req: Request) => {
       await handleAdminAction({
         cita,
         tipo:          newEstado as AdminNotificationType,
+        context:       isPaymentRejection ? "pago_admin" : "empresa_admin",
         supabase,
         phoneNumberId: WHATSAPP_PHONE_NUMBER_ID,
         apiToken:      WHATSAPP_API_TOKEN,
