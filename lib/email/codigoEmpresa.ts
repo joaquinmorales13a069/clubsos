@@ -1,5 +1,5 @@
 const LOGO_URL =
-  "https://jdhaxwklszodavhdrtsp.supabase.co/storage/v1/object/public/beneficios-imagenes/logo-SOSMedical.webp";
+  "https://jdhaxwklszodavhdrtsp.supabase.co/storage/v1/object/public/beneficios-imagenes/LOGO%20TRANSPARENTE.png";
 
 export function buildCodigoEmpresaEmail(empresaNombre: string, codigo: string): string {
   return `<!DOCTYPE html>
@@ -62,7 +62,7 @@ export function buildCodigoEmpresaEmail(empresaNombre: string, codigo: string): 
                       ¿Cómo usar este código?
                     </p>
                     <ol style="margin:0;padding-left:18px;font-size:14px;color:#374151;line-height:1.8;">
-                      <li>Descarga la app ClubSOS o visita el portal web.</li>
+                      <li>Visita el portal web <a href="https://clubsos.sosmedical.com.ni/es/signup" style="color:#CD2129;text-decoration:none;">ClubSOS</a></li>
                       <li>Durante el registro, ingresa este código en el campo <em>«Código de empresa»</em>.</li>
                       <li>Tu cuenta quedará vinculada automáticamente a <strong>${empresaNombre}</strong>.</li>
                     </ol>
