@@ -13,6 +13,11 @@ const PAGE_SIZE_DEFAULT = 25;
 const PAGE_SIZE_MAX     = 100;
 const CSV_ROWS_MAX      = 5000;
 
+const CSV_HEADERS = [
+  "fecha_hora", "actor_nombre", "actor_rol", "accion",
+  "entidad", "entidad_id", "datos_antes", "datos_despues", "ip_address",
+];
+
 type LogRow = {
   id: string;
   created_at: string;
@@ -87,10 +92,7 @@ function flattenRows(data: unknown[]): LogRow[] {
 }
 
 function rowsToCsv(rows: LogRow[]): string {
-  const headers = [
-    "fecha_hora", "actor_nombre", "actor_rol", "accion",
-    "entidad", "entidad_id", "datos_antes", "datos_despues", "ip_address",
-  ];
+  const headers = CSV_HEADERS;
   const escape = (v: unknown) => {
     const s = v == null ? "" : typeof v === "object" ? JSON.stringify(v) : String(v);
     return `"${s.replace(/"/g, '""')}"`;
@@ -125,13 +127,13 @@ export async function GET(req: NextRequest) {
   const sp     = req.nextUrl.searchParams;
   const format = sp.get("format") ?? "json";
 
-  const actorSearchRaw = sp.get("actor_search") || undefined;
+  const actorSearchRaw = sp.get("actor_search")?.slice(0, 100) || undefined;
   let actorIds: string[] | undefined;
   if (actorSearchRaw) {
     const ids = await resolveActorIds(supabase, actorSearchRaw);
     if (!ids || ids.length === 0) {
       if (format === "csv") {
-        return new NextResponse("fecha_hora,actor_nombre,actor_rol,accion,entidad,entidad_id,datos_antes,datos_despues,ip_address\r\n", {
+        return new NextResponse(CSV_HEADERS.join(",") + "\r\n", {
           headers: {
             "Content-Type": "text/csv; charset=utf-8",
             "Content-Disposition": `attachment; filename="audit-logs-${new Date().toISOString().slice(0, 10)}.csv"`,
@@ -166,10 +168,10 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  const page     = Math.max(0, parseInt(sp.get("page") ?? "0", 10));
+  const page     = Math.max(0, parseInt(sp.get("page") ?? "0", 10) || 0);
   const pageSize = Math.min(
     PAGE_SIZE_MAX,
-    Math.max(1, parseInt(sp.get("page_size") ?? String(PAGE_SIZE_DEFAULT), 10)),
+    Math.max(1, parseInt(sp.get("page_size") ?? String(PAGE_SIZE_DEFAULT), 10) || PAGE_SIZE_DEFAULT),
   );
 
   const { data, count, error } = await buildQuery(supabase, filterParams)
