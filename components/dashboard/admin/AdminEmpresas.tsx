@@ -174,7 +174,6 @@ function EmpresaFormModal({ open, empresa, onClose, onCreated, onUpdated }: Form
     if (!nombre.trim() || codigo.trim().length < 4) return;
     setSaving(true);
 
-    const supabase = createClient();
     const payload = {
       nombre:               nombre.trim(),
       codigo_empresa:       codigo.trim().toUpperCase(),
@@ -183,35 +182,34 @@ function EmpresaFormModal({ open, empresa, onClose, onCreated, onUpdated }: Form
       ruc:                  ruc.trim() || null,
       direccion_calle:      dirCalle.trim() || null,
       departamento:         departamento || null,
-      ...(isEdit ? { estado } : { estado: "activa" as const }),
+      ...(isEdit ? { estado } : {}),
     };
 
     if (isEdit && empresa) {
-      const { data, error } = await supabase
-        .from("empresas")
-        .update(payload)
-        .eq("id", empresa.id)
-        .select()
-        .single();
-
-      if (error) {
+      const res = await fetch(`/api/admin/empresas/${empresa.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!res.ok) {
         toast.error(t("errorGuardar"));
       } else {
-        onUpdated(data as EmpresaRow);
+        onUpdated(json.empresa as EmpresaRow);
         toast.success(t("actualizado"));
         onClose();
       }
     } else {
-      const { data, error } = await supabase
-        .from("empresas")
-        .insert(payload)
-        .select()
-        .single();
-
-      if (error) {
+      const res = await fetch("/api/admin/empresas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!res.ok) {
         toast.error(t("errorGuardar"));
       } else {
-        onCreated(data as EmpresaRow);
+        onCreated(json.empresa as EmpresaRow);
         toast.success(t("creado"));
         onClose();
       }
@@ -485,12 +483,13 @@ export default function AdminEmpresas({ userId: _userId }: Props) {
     setTogglingId(empresa.id);
     setToggleConfirmId(null);
     const nuevoEstado = empresa.estado === "activa" ? "inactiva" : "activa";
-    const { error } = await createClient()
-      .from("empresas")
-      .update({ estado: nuevoEstado })
-      .eq("id", empresa.id);
+    const res = await fetch(`/api/admin/empresas/${empresa.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ estado: nuevoEstado }),
+    });
 
-    if (!error) {
+    if (res.ok) {
       setEmpresas((prev) =>
         prev.map((e) => (e.id === empresa.id ? { ...e, estado: nuevoEstado } : e)),
       );
