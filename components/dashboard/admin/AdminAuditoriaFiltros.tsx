@@ -48,10 +48,11 @@ export default function AdminAuditoriaFiltros({
     <div className="flex flex-wrap gap-3 items-end">
       {/* Acción */}
       <div className="flex flex-col gap-1 min-w-[160px]">
-        <label className="text-xs font-semibold font-roboto text-gray-500 uppercase tracking-wide">
+        <label htmlFor="audit-accion" className="text-xs font-semibold font-roboto text-gray-500 uppercase tracking-wide">
           {t("accion")}
         </label>
         <select
+          id="audit-accion"
           value={filtros.accion}
           onChange={(e) => onFiltroChange("accion", e.target.value)}
           className={inputCls}
@@ -65,10 +66,11 @@ export default function AdminAuditoriaFiltros({
 
       {/* Entidad */}
       <div className="flex flex-col gap-1 min-w-[150px]">
-        <label className="text-xs font-semibold font-roboto text-gray-500 uppercase tracking-wide">
+        <label htmlFor="audit-entidad" className="text-xs font-semibold font-roboto text-gray-500 uppercase tracking-wide">
           {t("entidad")}
         </label>
         <select
+          id="audit-entidad"
           value={filtros.entidad}
           onChange={(e) => onFiltroChange("entidad", e.target.value)}
           className={inputCls}
@@ -82,10 +84,11 @@ export default function AdminAuditoriaFiltros({
 
       {/* Desde */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-semibold font-roboto text-gray-500 uppercase tracking-wide">
+        <label htmlFor="audit-desde" className="text-xs font-semibold font-roboto text-gray-500 uppercase tracking-wide">
           {t("desde")}
         </label>
         <input
+          id="audit-desde"
           type="date"
           value={filtros.desde}
           onChange={(e) => onFiltroChange("desde", e.target.value)}
@@ -95,10 +98,11 @@ export default function AdminAuditoriaFiltros({
 
       {/* Hasta */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-semibold font-roboto text-gray-500 uppercase tracking-wide">
+        <label htmlFor="audit-hasta" className="text-xs font-semibold font-roboto text-gray-500 uppercase tracking-wide">
           {t("hasta")}
         </label>
         <input
+          id="audit-hasta"
           type="date"
           value={filtros.hasta}
           onChange={(e) => onFiltroChange("hasta", e.target.value)}
@@ -108,10 +112,11 @@ export default function AdminAuditoriaFiltros({
 
       {/* Actor search */}
       <div className="flex flex-col gap-1 min-w-[180px]">
-        <label className="text-xs font-semibold font-roboto text-gray-500 uppercase tracking-wide">
+        <label htmlFor="audit-actor" className="text-xs font-semibold font-roboto text-gray-500 uppercase tracking-wide">
           {t("actor")}
         </label>
         <input
+          id="audit-actor"
           type="text"
           placeholder={t("actor")}
           value={filtros.actorSearch}
