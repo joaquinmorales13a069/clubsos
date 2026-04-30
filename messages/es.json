@@ -648,7 +648,11 @@
         "autoConfirmarDesc": "Cuando está activo, las citas nuevas se confirman automáticamente sin requerir aprobación manual. El miembro recibe su confirmación de inmediato y no se notifica a los administradores.",
         "successGuardado": "Ajustes de empresa guardados exitosamente.",
         "errorGuardar": "Error al guardar los ajustes. Intenta de nuevo.",
-        "errorCopiar": "No se pudo copiar al portapapeles."
+        "errorCopiar": "No se pudo copiar al portapapeles.",
+        "emailBtn": "Enviar por correo",
+        "emailEnviando": "Enviando...",
+        "emailEnviado": "Código enviado a tu correo exitosamente.",
+        "emailError": "Error al enviar el correo. Intenta de nuevo."
       },
       "reportes": {
         "titulo": "Generar Reportes",
@@ -1037,7 +1041,12 @@
         "empty": "No hay empresas registradas aún.",
         "pageInfo": "{from}–{to} de {total} empresas",
         "prevPage": "Anterior",
-        "nextPage": "Siguiente"
+        "nextPage": "Siguiente",
+        "emailBtn": "Enviar código por correo",
+        "emailEnviando": "Enviando...",
+        "emailEnviado": "Código enviado a los administradores de la empresa.",
+        "emailError": "Error al enviar el correo. Intenta de nuevo.",
+        "emailSinAdmins": "Esta empresa no tiene administradores registrados."
       },
       "reportes": {
         "titulo": "Reportes del sistema",

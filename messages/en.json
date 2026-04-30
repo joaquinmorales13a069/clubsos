@@ -648,7 +648,11 @@
         "autoConfirmarDesc": "When enabled, new appointments are automatically confirmed without manual approval. The member receives their confirmation immediately and admins are not notified.",
         "successGuardado": "Company settings saved successfully.",
         "errorGuardar": "Error saving settings. Please try again.",
-        "errorCopiar": "Could not copy to clipboard."
+        "errorCopiar": "Could not copy to clipboard.",
+        "emailBtn": "Send by email",
+        "emailEnviando": "Sending...",
+        "emailEnviado": "Code sent to your email successfully.",
+        "emailError": "Error sending email. Please try again."
       },
       "reportes": {
         "titulo": "Generate Reports",
@@ -1037,7 +1041,12 @@
         "empty": "No companies registered yet.",
         "pageInfo": "{from}–{to} of {total} companies",
         "prevPage": "Previous",
-        "nextPage": "Next"
+        "nextPage": "Next",
+        "emailBtn": "Send code by email",
+        "emailEnviando": "Sending...",
+        "emailEnviado": "Code sent to the company administrators.",
+        "emailError": "Error sending email. Please try again.",
+        "emailSinAdmins": "This company has no registered administrators."
       },
       "reportes": {
         "titulo": "System Reports",

@@ -23,6 +23,7 @@ import {
   X,
   RefreshCw,
   AlertTriangle,
+  Mail,
 } from "lucide-react";
 import {
   Dialog,
@@ -148,6 +149,7 @@ function EmpresaFormModal({ open, empresa, onClose, onCreated, onUpdated }: Form
   const [departamento, setDepartamento] = useState("");
   const [saving,       setSaving]       = useState(false);
   const [regenConfirm, setRegenConfirm] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   // Populate form on open
   useEffect(() => {
@@ -163,6 +165,26 @@ function EmpresaFormModal({ open, empresa, onClose, onCreated, onUpdated }: Form
       setRegenConfirm(false);
     }
   }, [open, empresa]);
+
+  const handleSendEmail = async () => {
+    if (!empresa) return;
+    setSendingEmail(true);
+    try {
+      const res = await fetch(`/api/admin/empresas/${empresa.id}/send-codigo`, { method: "POST" });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      toast.success(t("emailEnviado"));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "";
+      if (msg === "Sin empresa_admin registrados") {
+        toast.error(t("emailSinAdmins"));
+      } else {
+        toast.error(t("emailError"));
+      }
+    } finally {
+      setSendingEmail(false);
+    }
+  };
 
   const handleRegen = () => {
     if (!regenConfirm) { setRegenConfirm(true); return; }
@@ -360,7 +382,24 @@ function EmpresaFormModal({ open, empresa, onClose, onCreated, onUpdated }: Form
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50/60">
+        <div className="px-6 py-4 border-t border-gray-100 flex items-center gap-3 bg-gray-50/60">
+          {/* Send email — edit mode only */}
+          {isEdit && (
+            <button
+              onClick={handleSendEmail}
+              disabled={sendingEmail || saving}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-roboto font-medium border border-secondary/30 bg-secondary/5 text-secondary hover:bg-secondary/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {sendingEmail
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : <Mail className="w-4 h-4" />
+              }
+              {sendingEmail ? t("emailEnviando") : t("emailBtn")}
+            </button>
+          )}
+
+          <div className="flex-1" />
+
           <button
             onClick={onClose}
             disabled={saving}
