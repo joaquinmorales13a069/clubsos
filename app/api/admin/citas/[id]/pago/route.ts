@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { logAction } from "@/utils/audit";
 
 // ── EA helpers ────────────────────────────────────────────────────────────────
 
@@ -243,6 +244,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     }).eq("id", cita_id);
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    await logAction(supabase, {
+      actorId:      user.id,
+      actorRol:     profile?.rol ?? "admin",
+      accion:       "pago.verificar",
+      entidad:      "citas",
+      entidadId:    cita_id,
+      datosDespues: { estado_sync: "confirmado", notas: body.notas ?? null, ea_appointment_id: eaAppointmentId },
+    });
     return NextResponse.json({ ok: true });
   }
 
