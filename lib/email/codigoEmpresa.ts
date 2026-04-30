@@ -18,7 +18,7 @@ export function buildCodigoEmpresaEmail(empresaNombre: string, codigo: string): 
 
           <!-- Header -->
           <tr>
-            <td style="background:#CD2129;padding:32px 40px;text-align:center;">
+            <td style="background:#ffffff;padding:28px 40px;text-align:center;border-bottom:4px solid #CD2129;">
               <img
                 src="${LOGO_URL}"
                 alt="SOS Medical"
@@ -26,11 +26,6 @@ export function buildCodigoEmpresaEmail(empresaNombre: string, codigo: string): 
                 style="display:block;margin:0 auto;height:auto;max-width:180px;"
               />
             </td>
-          </tr>
-
-          <!-- Divider accent -->
-          <tr>
-            <td style="height:4px;background:linear-gradient(90deg,#CD2129 0%,#2266A7 100%);"></td>
           </tr>
 
           <!-- Body -->
@@ -75,11 +70,15 @@ export function buildCodigoEmpresaEmail(empresaNombre: string, codigo: string): 
                 </tr>
               </table>
 
-              <p style="margin:0;font-size:13px;color:#9ca3af;line-height:1.6;">
+              <p style="margin:0;font-size:13px;color:#9ca3af;line-height:1.8;">
                 Si no solicitaste este correo, puedes ignorarlo de forma segura.
-                Para soporte, contáctanos en
-                <a href="mailto:soporte@sosmedical.com.ni" style="color:#CD2129;text-decoration:none;">
-                  soporte@sosmedical.com.ni
+                Para soporte contáctanos en
+                <a href="mailto:desarrollo@sosmedical.com.ni" style="color:#CD2129;text-decoration:none;">
+                  desarrollo@sosmedical.com.ni
+                </a>
+                o por WhatsApp al
+                <a href="https://wa.me/50581001226" style="color:#CD2129;text-decoration:none;">
+                  +505 8100 1226
                 </a>.
               </p>
             </td>
