@@ -42,6 +42,9 @@ type EmpresaRow = {
   notas:               string | null;
   auto_confirmar_citas: boolean;
   estado:              "activa" | "inactiva";
+  ruc:                 string | null;
+  direccion_calle:     string | null;
+  departamento:        string | null;
   created_at:          string;
 };
 
@@ -50,6 +53,13 @@ type EmpresaRow = {
 const PAGE_SIZE   = 20;
 const CODE_CHARS  = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const CODE_LENGTH = 8;
+
+const DEPARTAMENTOS_NI = [
+  "Boaco", "Carazo", "Chinandega", "Chontales", "Estelí", "Granada",
+  "Jinotega", "León", "Madriz", "Managua", "Masaya", "Matagalpa",
+  "Nueva Segovia", "Río San Juan", "Rivas",
+  "RACN (Costa Caribe Norte)", "RACS (Costa Caribe Sur)",
+] as const;
 
 function generateCodigo(): string {
   return Array.from(
@@ -128,12 +138,15 @@ function EmpresaFormModal({ open, empresa, onClose, onCreated, onUpdated }: Form
   const t      = useTranslations("Dashboard.admin.empresas");
   const isEdit = !!empresa;
 
-  const [nombre,      setNombre]      = useState("");
-  const [codigo,      setCodigo]      = useState("");
-  const [notas,       setNotas]       = useState("");
-  const [autoConf,    setAutoConf]    = useState(false);
-  const [estado,      setEstado]      = useState<"activa" | "inactiva">("activa");
-  const [saving,      setSaving]      = useState(false);
+  const [nombre,       setNombre]       = useState("");
+  const [codigo,       setCodigo]       = useState("");
+  const [notas,        setNotas]        = useState("");
+  const [autoConf,     setAutoConf]     = useState(false);
+  const [estado,       setEstado]       = useState<"activa" | "inactiva">("activa");
+  const [ruc,          setRuc]          = useState("");
+  const [dirCalle,     setDirCalle]     = useState("");
+  const [departamento, setDepartamento] = useState("");
+  const [saving,       setSaving]       = useState(false);
   const [regenConfirm, setRegenConfirm] = useState(false);
 
   // Populate form on open
@@ -144,6 +157,9 @@ function EmpresaFormModal({ open, empresa, onClose, onCreated, onUpdated }: Form
       setNotas(empresa?.notas ?? "");
       setAutoConf(empresa?.auto_confirmar_citas ?? false);
       setEstado(empresa?.estado ?? "activa");
+      setRuc(empresa?.ruc ?? "");
+      setDirCalle(empresa?.direccion_calle ?? "");
+      setDepartamento(empresa?.departamento ?? "");
       setRegenConfirm(false);
     }
   }, [open, empresa]);
@@ -164,6 +180,9 @@ function EmpresaFormModal({ open, empresa, onClose, onCreated, onUpdated }: Form
       codigo_empresa:       codigo.trim().toUpperCase(),
       notas:                notas.trim() || null,
       auto_confirmar_citas: autoConf,
+      ruc:                  ruc.trim() || null,
+      direccion_calle:      dirCalle.trim() || null,
+      departamento:         departamento || null,
       ...(isEdit ? { estado } : { estado: "activa" as const }),
     };
 
@@ -255,17 +274,38 @@ function EmpresaFormModal({ open, empresa, onClose, onCreated, onUpdated }: Form
             )}
           </div>
 
-          {/* Notas */}
+          {/* RUC */}
           <div>
-            <label className={labelCls}>{t("fieldNotas")}</label>
-            <textarea
-              value={notas}
-              onChange={(e) => setNotas(e.target.value)}
-              className={cn(inputCls, "resize-none h-24")}
-              maxLength={1000}
-              placeholder={t("fieldNotasPlaceholder")}
+            <label className={labelCls}>{t("fieldRuc")}</label>
+            <input
+              value={ruc}
+              onChange={(e) => setRuc(e.target.value)}
+              className={inputCls}
+              maxLength={20}
+              placeholder={t("fieldRucPlaceholder")}
             />
-            <p className="mt-0.5 text-right text-xs text-gray-400">{notasLen}/1000</p>
+          </div>
+
+          {/* Dirección */}
+          <div className="space-y-3">
+            <label className={labelCls}>{t("fieldDireccion")}</label>
+            <input
+              value={dirCalle}
+              onChange={(e) => setDirCalle(e.target.value)}
+              className={inputCls}
+              maxLength={255}
+              placeholder={t("fieldDireccionCallePlaceholder")}
+            />
+            <select
+              value={departamento}
+              onChange={(e) => setDepartamento(e.target.value)}
+              className={inputCls}
+            >
+              <option value="">{t("fieldDepartamentoPlaceholder")}</option>
+              {DEPARTAMENTOS_NI.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
           </div>
 
           {/* Auto confirmar */}
@@ -306,6 +346,19 @@ function EmpresaFormModal({ open, empresa, onClose, onCreated, onUpdated }: Form
               </select>
             </div>
           )}
+
+          {/* Notas */}
+          <div>
+            <label className={labelCls}>{t("fieldNotas")}</label>
+            <textarea
+              value={notas}
+              onChange={(e) => setNotas(e.target.value)}
+              className={cn(inputCls, "resize-none h-24")}
+              maxLength={1000}
+              placeholder={t("fieldNotasPlaceholder")}
+            />
+            <p className="mt-0.5 text-right text-xs text-gray-400">{notasLen}/1000</p>
+          </div>
         </div>
 
         {/* Footer */}

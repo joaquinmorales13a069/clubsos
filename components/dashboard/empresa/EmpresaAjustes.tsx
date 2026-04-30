@@ -33,6 +33,7 @@ import {
   FileText,
   Info,
   CalendarClock,
+  MapPin,
 } from "lucide-react";
 import {
   Dialog,
@@ -54,7 +55,17 @@ export type EmpresaData = {
   notas:                string | null;
   created_at:           string;
   auto_confirmar_citas: boolean;
+  ruc:                  string | null;
+  direccion_calle:      string | null;
+  departamento:         string | null;
 };
+
+const DEPARTAMENTOS_NI = [
+  "Boaco", "Carazo", "Chinandega", "Chontales", "Estelí", "Granada",
+  "Jinotega", "León", "Madriz", "Managua", "Masaya", "Matagalpa",
+  "Nueva Segovia", "Río San Juan", "Rivas",
+  "RACN (Costa Caribe Norte)", "RACS (Costa Caribe Sur)",
+] as const;
 
 interface Props {
   empresa: EmpresaData;
@@ -126,6 +137,9 @@ export default function EmpresaAjustes({ empresa }: Props) {
   const [codigo,          setCodigo]          = useState(empresa.codigo_empresa);
   const [notas,           setNotas]           = useState(empresa.notas ?? "");
   const [autoConfirmar,   setAutoConfirmar]   = useState(empresa.auto_confirmar_citas);
+  const [ruc,             setRuc]             = useState(empresa.ruc ?? "");
+  const [dirCalle,        setDirCalle]        = useState(empresa.direccion_calle ?? "");
+  const [departamento,    setDepartamento]    = useState(empresa.departamento ?? "");
   const [saving,          setSaving]          = useState(false);
 
   // Copy button feedback state
@@ -137,11 +151,14 @@ export default function EmpresaAjustes({ empresa }: Props) {
   // ── Dirty-state detection ─────────────────────────────────────────────────
   const isDirty = useMemo(
     () =>
-      nombre.trim()  !== empresa.nombre ||
-      codigo.trim()  !== empresa.codigo_empresa ||
-      notas.trim()   !== (empresa.notas ?? "") ||
-      autoConfirmar  !== empresa.auto_confirmar_citas,
-    [nombre, codigo, notas, autoConfirmar, empresa],
+      nombre.trim()    !== empresa.nombre ||
+      codigo.trim()    !== empresa.codigo_empresa ||
+      notas.trim()     !== (empresa.notas ?? "") ||
+      autoConfirmar    !== empresa.auto_confirmar_citas ||
+      ruc.trim()       !== (empresa.ruc ?? "") ||
+      dirCalle.trim()  !== (empresa.direccion_calle ?? "") ||
+      departamento     !== (empresa.departamento ?? ""),
+    [nombre, codigo, notas, autoConfirmar, ruc, dirCalle, departamento, empresa],
   );
 
   // ── Validation ────────────────────────────────────────────────────────────
@@ -155,6 +172,9 @@ export default function EmpresaAjustes({ empresa }: Props) {
     setCodigo(empresa.codigo_empresa);
     setNotas(empresa.notas ?? "");
     setAutoConfirmar(empresa.auto_confirmar_citas);
+    setRuc(empresa.ruc ?? "");
+    setDirCalle(empresa.direccion_calle ?? "");
+    setDepartamento(empresa.departamento ?? "");
   }
 
   // ── Copy codigo to clipboard ──────────────────────────────────────────────
@@ -187,6 +207,9 @@ export default function EmpresaAjustes({ empresa }: Props) {
         codigo_empresa:       codigo.trim().toUpperCase(),
         notas:                notas.trim() || null,
         auto_confirmar_citas: autoConfirmar,
+        ruc:                  ruc.trim() || null,
+        direccion_calle:      dirCalle.trim() || null,
+        departamento:         departamento || null,
       })
       .eq("id", empresa.id);
 
@@ -199,10 +222,16 @@ export default function EmpresaAjustes({ empresa }: Props) {
       empresa.codigo_empresa       = codigo.trim().toUpperCase();
       empresa.notas                = notas.trim() || null;
       empresa.auto_confirmar_citas = autoConfirmar;
+      empresa.ruc                  = ruc.trim() || null;
+      empresa.direccion_calle      = dirCalle.trim() || null;
+      empresa.departamento         = departamento || null;
       // Sync controlled fields after normalization
       setNombre(empresa.nombre);
       setCodigo(empresa.codigo_empresa);
       setNotas(empresa.notas ?? "");
+      setRuc(empresa.ruc ?? "");
+      setDirCalle(empresa.direccion_calle ?? "");
+      setDepartamento(empresa.departamento ?? "");
     }
 
     setSaving(false);
@@ -357,7 +386,64 @@ export default function EmpresaAjustes({ empresa }: Props) {
         </div>
       </Section>
 
-      {/* ── 5. Configuración de citas ──────────────────────────────────────── */}
+      {/* ── 5. RUC y Dirección ────────────────────────────────────────────── */}
+      <Section icon={MapPin} title={t("sectionDireccion")} subtitle={t("sectionDireccionSubtitle")}>
+        <div className="space-y-4">
+          {/* RUC */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+              {t("fieldRuc")}
+            </label>
+            <input
+              type="text"
+              value={ruc}
+              maxLength={20}
+              onChange={(e) => setRuc(e.target.value)}
+              placeholder={t("fieldRucPlaceholder")}
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm font-roboto text-gray-800
+                         placeholder:text-gray-400
+                         focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition"
+            />
+          </div>
+
+          {/* Calle */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+              {t("fieldDireccionCalle")}
+            </label>
+            <input
+              type="text"
+              value={dirCalle}
+              maxLength={255}
+              onChange={(e) => setDirCalle(e.target.value)}
+              placeholder={t("fieldDireccionCallePlaceholder")}
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm font-roboto text-gray-800
+                         placeholder:text-gray-400
+                         focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition"
+            />
+          </div>
+
+          {/* Departamento */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+              {t("fieldDepartamento")}
+            </label>
+            <select
+              value={departamento}
+              onChange={(e) => setDepartamento(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm font-roboto text-gray-700
+                         focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition"
+            >
+              <option value="">{t("fieldDepartamentoPlaceholder")}</option>
+              {DEPARTAMENTOS_NI.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </Section>
+
+      {/* ── 6. Configuración de citas ──────────────────────────────────────── */}
       <Section
         icon={CalendarClock}
         title={t("sectionCitas")}
