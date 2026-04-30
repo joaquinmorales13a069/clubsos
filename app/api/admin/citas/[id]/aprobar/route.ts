@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { logAction } from "@/utils/audit";
 
 const EA_RAW_URL = process.env.NEXT_PUBLIC_EA_API_URL ?? "";
 const EA_KEY     = process.env.EA_API_KEY ?? "";
@@ -98,5 +99,13 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  await logAction(supabase, {
+    actorId:      user.id,
+    actorRol:     profile?.rol ?? "admin",
+    accion:       "cita.aprobar",
+    entidad:      "citas",
+    entidadId:    citaId,
+    datosDespues: { estado_sync: "confirmado", ea_appointment_id: eaAppointmentId },
+  });
   return NextResponse.json({ ok: true, cita: updated });
 }

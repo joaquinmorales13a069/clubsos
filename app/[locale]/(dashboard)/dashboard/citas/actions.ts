@@ -7,6 +7,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
+import { logAction } from "@/utils/audit";
 
 // ── EA helpers (mirrors app/api/ea/citas/aprobar/route.ts) ────────────────────
 
@@ -91,6 +92,20 @@ export async function crearCita(input: CrearCitaInput) {
     .single();
 
   if (error) return { error: error.message };
+
+  await logAction(supabase, {
+    actorId:      user.id,
+    actorRol:     profileRes.data?.rol ?? "miembro",
+    accion:       "cita.crear",
+    entidad:      "citas",
+    entidadId:    inserted.id,
+    datosDespues: {
+      estado_sync:       estadoSync,
+      servicio_asociado: input.servicioAsociado,
+      fecha_hora_cita:   input.fechaHoraCita,
+      para_titular:      input.paraTitular,
+    },
+  });
 
   // ── EA sync ───────────────────────────────────────────────────────────────
   // Triggers when: empresa_admin creates (always confirmed) OR empresa has
@@ -180,6 +195,9 @@ export async function cancelarCita(citaId: string, eaAppointmentId: string | nul
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "No autenticado" };
 
+  const { data: profile } = await supabase
+    .from("users").select("rol").eq("id", user.id).single();
+
   // If already synced to EA, delete there first
   if (eaAppointmentId) {
     const EA_BASE = process.env.NEXT_PUBLIC_EA_API_URL ?? "";
@@ -201,6 +219,15 @@ export async function cancelarCita(citaId: string, eaAppointmentId: string | nul
     .eq("id", citaId);
 
   if (error) return { error: error.message };
+
+  await logAction(supabase, {
+    actorId:      user.id,
+    actorRol:     profile?.rol ?? "miembro",
+    accion:       "cita.cancelar",
+    entidad:      "citas",
+    entidadId:    citaId,
+    datosDespues: { estado_sync: "cancelado" },
+  });
 
   revalidatePath("/", "layout");
   return { success: true };

@@ -33,7 +33,7 @@ export default async function EmpresaAjustesPage() {
   // Fetch full empresa data
   const { data: empresa } = await supabase
     .from("empresas")
-    .select("id, nombre, codigo_empresa, notas, created_at, auto_confirmar_citas")
+    .select("id, nombre, codigo_empresa, notas, created_at, auto_confirmar_citas, ruc, direccion_calle, departamento")
     .eq("id", profile.empresa_id)
     .single();
 
@@ -48,6 +48,9 @@ export default async function EmpresaAjustesPage() {
         notas:                empresa.notas          ?? null,
         created_at:           empresa.created_at,
         auto_confirmar_citas: empresa.auto_confirmar_citas ?? false,
+        ruc:                  empresa.ruc            ?? null,
+        direccion_calle:      empresa.direccion_calle ?? null,
+        departamento:         empresa.departamento   ?? null,
       }}
     />
   );

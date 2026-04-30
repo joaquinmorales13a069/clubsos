@@ -162,6 +162,7 @@
         "gestionarBeneficios": "Gestionar Beneficios",
         "gestionarDocumentos": "Gestionar Documentos",
         "gestionarEmpresas": "Gestionar Empresas",
+        "auditoria": "Auditoría",
         "ajustesSistema": "Ajustes del Sistema"
       },
       "groupMiPerfil": "Mi Perfil",
@@ -633,13 +634,25 @@
         "confirmRegenerarDesc": "Los links de invitación existentes que usen el código anterior dejarán de funcionar. Esta acción no se puede deshacer.",
         "confirmRegenerarAceptar": "Sí, regenerar",
         "confirmRegenerarCancelar": "Cancelar",
+        "sectionDireccion": "Identificación fiscal y dirección",
+        "sectionDireccionSubtitle": "Datos fiscales y ubicación de la empresa.",
+        "fieldRuc": "RUC (Registro Único de Contribuyentes)",
+        "fieldRucPlaceholder": "Ej. J0310000100357",
+        "fieldDireccionCalle": "Calle / Referencia",
+        "fieldDireccionCallePlaceholder": "Ej. Bolonia, de Sermesa 80 vrs Oeste",
+        "fieldDepartamento": "Departamento",
+        "fieldDepartamentoPlaceholder": "Selecciona un departamento",
         "sectionCitas": "Configuración de citas",
         "sectionCitasSubtitle": "Controla el comportamiento de las nuevas citas.",
         "autoConfirmarLabel": "Auto-confirmar citas",
         "autoConfirmarDesc": "Cuando está activo, las citas nuevas se confirman automáticamente sin requerir aprobación manual. El miembro recibe su confirmación de inmediato y no se notifica a los administradores.",
         "successGuardado": "Ajustes de empresa guardados exitosamente.",
         "errorGuardar": "Error al guardar los ajustes. Intenta de nuevo.",
-        "errorCopiar": "No se pudo copiar al portapapeles."
+        "errorCopiar": "No se pudo copiar al portapapeles.",
+        "emailBtn": "Enviar por correo",
+        "emailEnviando": "Enviando...",
+        "emailEnviado": "Código enviado a tu correo exitosamente.",
+        "emailError": "Error al enviar el correo. Intenta de nuevo."
       },
       "reportes": {
         "titulo": "Generar Reportes",
@@ -1005,6 +1018,13 @@
         "fieldAutoConf": "Auto-confirmar citas",
         "fieldAutoConfDesc": "Las citas de esta empresa se aprueban automáticamente al crearse.",
         "fieldEstado": "Estado",
+        "fieldRuc": "RUC (Registro Único de Contribuyentes)",
+        "fieldRucPlaceholder": "Ej. J0310000100357",
+        "fieldDireccion": "Dirección",
+        "fieldDireccionCalle": "Calle / Referencia",
+        "fieldDireccionCallePlaceholder": "Ej. Bolonia, de Sermesa 80 vrs Oeste",
+        "fieldDepartamento": "Departamento",
+        "fieldDepartamentoPlaceholder": "Selecciona un departamento",
         "regenBtn": "Regenerar",
         "regenConfirmar": "Confirmar regenerar",
         "regenWarning": "Los miembros con el código anterior ya no podrán usarlo.",
@@ -1021,7 +1041,12 @@
         "empty": "No hay empresas registradas aún.",
         "pageInfo": "{from}–{to} de {total} empresas",
         "prevPage": "Anterior",
-        "nextPage": "Siguiente"
+        "nextPage": "Siguiente",
+        "emailBtn": "Enviar código por correo",
+        "emailEnviando": "Enviando...",
+        "emailEnviado": "Código enviado a los administradores de la empresa.",
+        "emailError": "Error al enviar el correo. Intenta de nuevo.",
+        "emailSinAdmins": "Esta empresa no tiene administradores registrados."
       },
       "reportes": {
         "titulo": "Reportes del sistema",
@@ -1176,6 +1201,39 @@
             "errorGuardar": "Error al guardar. Intenta de nuevo."
           }
         }
+      },
+      "auditoria": {
+        "titulo": "Auditoría del Sistema",
+        "subtitulo": "Registro de todas las acciones realizadas en el sistema.",
+        "filtros": {
+          "accion": "Acción",
+          "todasAcciones": "Todas las acciones",
+          "entidad": "Entidad",
+          "todasEntidades": "Todas las entidades",
+          "desde": "Desde",
+          "hasta": "Hasta",
+          "actor": "Actor (nombre)",
+          "limpiar": "Limpiar",
+          "exportarCsv": "Exportar CSV",
+          "exportando": "Exportando..."
+        },
+        "tabla": {
+          "fechaHora": "Fecha / Hora",
+          "actor": "Actor",
+          "accion": "Acción",
+          "entidad": "Entidad",
+          "detalle": "Detalle",
+          "antes": "Antes",
+          "despues": "Después",
+          "sinDatos": "—",
+          "verDetalle": "Ver detalle",
+          "ocultarDetalle": "Ocultar detalle",
+          "pageInfo": "{from}–{to} de {total} registros",
+          "anterior": "Anterior",
+          "siguiente": "Siguiente"
+        },
+        "vacio": "No hay registros para los filtros seleccionados.",
+        "errorCarga": "Error al cargar los registros de auditoría."
       }
     }
   },

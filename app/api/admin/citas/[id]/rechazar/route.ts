@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { logAction } from "@/utils/audit";
 
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
@@ -29,5 +30,13 @@ export async function POST(req: NextRequest) {
   if (body.motivo) {
     await supabase.from("pagos").update({ notas: body.motivo }).eq("cita_id", body.citaId);
   }
+  await logAction(supabase, {
+    actorId:      user.id,
+    actorRol:     profile?.rol ?? "admin",
+    accion:       "cita.rechazar",
+    entidad:      "citas",
+    entidadId:    body.citaId,
+    datosDespues: { estado_sync: "rechazado", motivo: body.motivo ?? null },
+  });
   return NextResponse.json({ ok: true });
 }

@@ -23,6 +23,7 @@ import {
   X,
   RefreshCw,
   AlertTriangle,
+  Mail,
 } from "lucide-react";
 import {
   Dialog,
@@ -42,6 +43,9 @@ type EmpresaRow = {
   notas:               string | null;
   auto_confirmar_citas: boolean;
   estado:              "activa" | "inactiva";
+  ruc:                 string | null;
+  direccion_calle:     string | null;
+  departamento:        string | null;
   created_at:          string;
 };
 
@@ -50,6 +54,13 @@ type EmpresaRow = {
 const PAGE_SIZE   = 20;
 const CODE_CHARS  = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const CODE_LENGTH = 8;
+
+const DEPARTAMENTOS_NI = [
+  "Boaco", "Carazo", "Chinandega", "Chontales", "Estelí", "Granada",
+  "Jinotega", "León", "Madriz", "Managua", "Masaya", "Matagalpa",
+  "Nueva Segovia", "Río San Juan", "Rivas",
+  "RACN (Costa Caribe Norte)", "RACS (Costa Caribe Sur)",
+] as const;
 
 function generateCodigo(): string {
   return Array.from(
@@ -128,13 +139,17 @@ function EmpresaFormModal({ open, empresa, onClose, onCreated, onUpdated }: Form
   const t      = useTranslations("Dashboard.admin.empresas");
   const isEdit = !!empresa;
 
-  const [nombre,      setNombre]      = useState("");
-  const [codigo,      setCodigo]      = useState("");
-  const [notas,       setNotas]       = useState("");
-  const [autoConf,    setAutoConf]    = useState(false);
-  const [estado,      setEstado]      = useState<"activa" | "inactiva">("activa");
-  const [saving,      setSaving]      = useState(false);
+  const [nombre,       setNombre]       = useState("");
+  const [codigo,       setCodigo]       = useState("");
+  const [notas,        setNotas]        = useState("");
+  const [autoConf,     setAutoConf]     = useState(false);
+  const [estado,       setEstado]       = useState<"activa" | "inactiva">("activa");
+  const [ruc,          setRuc]          = useState("");
+  const [dirCalle,     setDirCalle]     = useState("");
+  const [departamento, setDepartamento] = useState("");
+  const [saving,       setSaving]       = useState(false);
   const [regenConfirm, setRegenConfirm] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   // Populate form on open
   useEffect(() => {
@@ -144,9 +159,32 @@ function EmpresaFormModal({ open, empresa, onClose, onCreated, onUpdated }: Form
       setNotas(empresa?.notas ?? "");
       setAutoConf(empresa?.auto_confirmar_citas ?? false);
       setEstado(empresa?.estado ?? "activa");
+      setRuc(empresa?.ruc ?? "");
+      setDirCalle(empresa?.direccion_calle ?? "");
+      setDepartamento(empresa?.departamento ?? "");
       setRegenConfirm(false);
     }
   }, [open, empresa]);
+
+  const handleSendEmail = async () => {
+    if (!empresa) return;
+    setSendingEmail(true);
+    try {
+      const res = await fetch(`/api/admin/empresas/${empresa.id}/send-codigo`, { method: "POST" });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      toast.success(t("emailEnviado"));
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "";
+      if (msg === "Sin empresa_admin registrados") {
+        toast.error(t("emailSinAdmins"));
+      } else {
+        toast.error(t("emailError"));
+      }
+    } finally {
+      setSendingEmail(false);
+    }
+  };
 
   const handleRegen = () => {
     if (!regenConfirm) { setRegenConfirm(true); return; }
@@ -158,41 +196,42 @@ function EmpresaFormModal({ open, empresa, onClose, onCreated, onUpdated }: Form
     if (!nombre.trim() || codigo.trim().length < 4) return;
     setSaving(true);
 
-    const supabase = createClient();
     const payload = {
       nombre:               nombre.trim(),
       codigo_empresa:       codigo.trim().toUpperCase(),
       notas:                notas.trim() || null,
       auto_confirmar_citas: autoConf,
-      ...(isEdit ? { estado } : { estado: "activa" as const }),
+      ruc:                  ruc.trim() || null,
+      direccion_calle:      dirCalle.trim() || null,
+      departamento:         departamento || null,
+      ...(isEdit ? { estado } : {}),
     };
 
     if (isEdit && empresa) {
-      const { data, error } = await supabase
-        .from("empresas")
-        .update(payload)
-        .eq("id", empresa.id)
-        .select()
-        .single();
-
-      if (error) {
+      const res = await fetch(`/api/admin/empresas/${empresa.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!res.ok) {
         toast.error(t("errorGuardar"));
       } else {
-        onUpdated(data as EmpresaRow);
+        onUpdated(json.empresa as EmpresaRow);
         toast.success(t("actualizado"));
         onClose();
       }
     } else {
-      const { data, error } = await supabase
-        .from("empresas")
-        .insert(payload)
-        .select()
-        .single();
-
-      if (error) {
+      const res = await fetch("/api/admin/empresas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const json = await res.json();
+      if (!res.ok) {
         toast.error(t("errorGuardar"));
       } else {
-        onCreated(data as EmpresaRow);
+        onCreated(json.empresa as EmpresaRow);
         toast.success(t("creado"));
         onClose();
       }
@@ -255,17 +294,38 @@ function EmpresaFormModal({ open, empresa, onClose, onCreated, onUpdated }: Form
             )}
           </div>
 
-          {/* Notas */}
+          {/* RUC */}
           <div>
-            <label className={labelCls}>{t("fieldNotas")}</label>
-            <textarea
-              value={notas}
-              onChange={(e) => setNotas(e.target.value)}
-              className={cn(inputCls, "resize-none h-24")}
-              maxLength={1000}
-              placeholder={t("fieldNotasPlaceholder")}
+            <label className={labelCls}>{t("fieldRuc")}</label>
+            <input
+              value={ruc}
+              onChange={(e) => setRuc(e.target.value)}
+              className={inputCls}
+              maxLength={20}
+              placeholder={t("fieldRucPlaceholder")}
             />
-            <p className="mt-0.5 text-right text-xs text-gray-400">{notasLen}/1000</p>
+          </div>
+
+          {/* Dirección */}
+          <div className="space-y-3">
+            <label className={labelCls}>{t("fieldDireccion")}</label>
+            <input
+              value={dirCalle}
+              onChange={(e) => setDirCalle(e.target.value)}
+              className={inputCls}
+              maxLength={255}
+              placeholder={t("fieldDireccionCallePlaceholder")}
+            />
+            <select
+              value={departamento}
+              onChange={(e) => setDepartamento(e.target.value)}
+              className={inputCls}
+            >
+              <option value="">{t("fieldDepartamentoPlaceholder")}</option>
+              {DEPARTAMENTOS_NI.map((d) => (
+                <option key={d} value={d}>{d}</option>
+              ))}
+            </select>
           </div>
 
           {/* Auto confirmar */}
@@ -306,10 +366,40 @@ function EmpresaFormModal({ open, empresa, onClose, onCreated, onUpdated }: Form
               </select>
             </div>
           )}
+
+          {/* Notas */}
+          <div>
+            <label className={labelCls}>{t("fieldNotas")}</label>
+            <textarea
+              value={notas}
+              onChange={(e) => setNotas(e.target.value)}
+              className={cn(inputCls, "resize-none h-24")}
+              maxLength={1000}
+              placeholder={t("fieldNotasPlaceholder")}
+            />
+            <p className="mt-0.5 text-right text-xs text-gray-400">{notasLen}/1000</p>
+          </div>
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50/60">
+        <div className="px-6 py-4 border-t border-gray-100 flex items-center gap-3 bg-gray-50/60">
+          {/* Send email — edit mode only */}
+          {isEdit && (
+            <button
+              onClick={handleSendEmail}
+              disabled={sendingEmail || saving}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-roboto font-medium border border-secondary/30 bg-secondary/5 text-secondary hover:bg-secondary/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {sendingEmail
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : <Mail className="w-4 h-4" />
+              }
+              {sendingEmail ? t("emailEnviando") : t("emailBtn")}
+            </button>
+          )}
+
+          <div className="flex-1" />
+
           <button
             onClick={onClose}
             disabled={saving}
@@ -432,12 +522,13 @@ export default function AdminEmpresas({ userId: _userId }: Props) {
     setTogglingId(empresa.id);
     setToggleConfirmId(null);
     const nuevoEstado = empresa.estado === "activa" ? "inactiva" : "activa";
-    const { error } = await createClient()
-      .from("empresas")
-      .update({ estado: nuevoEstado })
-      .eq("id", empresa.id);
+    const res = await fetch(`/api/admin/empresas/${empresa.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ estado: nuevoEstado }),
+    });
 
-    if (!error) {
+    if (res.ok) {
       setEmpresas((prev) =>
         prev.map((e) => (e.id === empresa.id ? { ...e, estado: nuevoEstado } : e)),
       );

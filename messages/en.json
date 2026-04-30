@@ -162,6 +162,7 @@
         "gestionarBeneficios": "Manage Benefits",
         "gestionarDocumentos": "Manage Documents",
         "gestionarEmpresas": "Manage Companies",
+        "auditoria": "Audit Log",
         "ajustesSistema": "System Settings"
       },
       "groupMiPerfil": "My Profile",
@@ -633,13 +634,25 @@
         "confirmRegenerarDesc": "Existing invitation links using the previous code will stop working. This action cannot be undone.",
         "confirmRegenerarAceptar": "Yes, regenerate",
         "confirmRegenerarCancelar": "Cancel",
+        "sectionDireccion": "Tax identification & address",
+        "sectionDireccionSubtitle": "Fiscal data and company location.",
+        "fieldRuc": "RUC (Tax ID)",
+        "fieldRucPlaceholder": "E.g. J0310000100357",
+        "fieldDireccionCalle": "Street / Reference",
+        "fieldDireccionCallePlaceholder": "E.g. Bolonia, 80m West of Sermesa",
+        "fieldDepartamento": "Department",
+        "fieldDepartamentoPlaceholder": "Select a department",
         "sectionCitas": "Appointment settings",
         "sectionCitasSubtitle": "Control how new appointments are handled.",
         "autoConfirmarLabel": "Auto-confirm appointments",
         "autoConfirmarDesc": "When enabled, new appointments are automatically confirmed without manual approval. The member receives their confirmation immediately and admins are not notified.",
         "successGuardado": "Company settings saved successfully.",
         "errorGuardar": "Error saving settings. Please try again.",
-        "errorCopiar": "Could not copy to clipboard."
+        "errorCopiar": "Could not copy to clipboard.",
+        "emailBtn": "Send by email",
+        "emailEnviando": "Sending...",
+        "emailEnviado": "Code sent to your email successfully.",
+        "emailError": "Error sending email. Please try again."
       },
       "reportes": {
         "titulo": "Generate Reports",
@@ -1005,6 +1018,13 @@
         "fieldAutoConf": "Auto-confirm appointments",
         "fieldAutoConfDesc": "Appointments from this company are automatically approved when created.",
         "fieldEstado": "Status",
+        "fieldRuc": "RUC (Tax ID)",
+        "fieldRucPlaceholder": "E.g. J0310000100357",
+        "fieldDireccion": "Address",
+        "fieldDireccionCalle": "Street / Reference",
+        "fieldDireccionCallePlaceholder": "E.g. Bolonia, 80m West of Sermesa",
+        "fieldDepartamento": "Department",
+        "fieldDepartamentoPlaceholder": "Select a department",
         "regenBtn": "Regenerate",
         "regenConfirmar": "Confirm regenerate",
         "regenWarning": "Members using the old code will no longer be able to use it.",
@@ -1021,7 +1041,12 @@
         "empty": "No companies registered yet.",
         "pageInfo": "{from}–{to} of {total} companies",
         "prevPage": "Previous",
-        "nextPage": "Next"
+        "nextPage": "Next",
+        "emailBtn": "Send code by email",
+        "emailEnviando": "Sending...",
+        "emailEnviado": "Code sent to the company administrators.",
+        "emailError": "Error sending email. Please try again.",
+        "emailSinAdmins": "This company has no registered administrators."
       },
       "reportes": {
         "titulo": "System Reports",
@@ -1176,6 +1201,39 @@
             "errorGuardar": "Failed to save. Please try again."
           }
         }
+      },
+      "auditoria": {
+        "titulo": "System Audit Log",
+        "subtitulo": "Record of all actions performed in the system.",
+        "filtros": {
+          "accion": "Action",
+          "todasAcciones": "All actions",
+          "entidad": "Entity",
+          "todasEntidades": "All entities",
+          "desde": "From",
+          "hasta": "To",
+          "actor": "Actor (name)",
+          "limpiar": "Clear",
+          "exportarCsv": "Export CSV",
+          "exportando": "Exporting..."
+        },
+        "tabla": {
+          "fechaHora": "Date / Time",
+          "actor": "Actor",
+          "accion": "Action",
+          "entidad": "Entity",
+          "detalle": "Detail",
+          "antes": "Before",
+          "despues": "After",
+          "sinDatos": "—",
+          "verDetalle": "View detail",
+          "ocultarDetalle": "Hide detail",
+          "pageInfo": "{from}–{to} of {total} records",
+          "anterior": "Previous",
+          "siguiente": "Next"
+        },
+        "vacio": "No records found for the selected filters.",
+        "errorCarga": "Error loading audit records."
       }
     }
   },

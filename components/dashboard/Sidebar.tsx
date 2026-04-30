@@ -34,6 +34,7 @@ import {
   SlidersHorizontal,
   CalendarCheck,
   UserCog,
+  ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -103,6 +104,7 @@ function buildAdminNav(
     { href: `${base}/admin/usuarios`,   label: t("nav.gestionarUsuarios"),   icon: UserCog },
     { href: `${base}/admin/empresas`,   label: t("nav.gestionarEmpresas"),   icon: Building2 },
     { href: `${base}/admin/reportes`,   label: t("nav.generarReportes"),     icon: BarChart3 },
+    { href: `${base}/admin/auditoria`,  label: t("nav.auditoria"),           icon: ShieldCheck },
     { href: `${base}/admin/sistema`,    label: t("nav.ajustesSistema"),      icon: Settings },
   ];
 

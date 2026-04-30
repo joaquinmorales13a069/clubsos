@@ -182,7 +182,7 @@ export async function POST(req: NextRequest) {
         receptorTelefono: notif.telefono,
         pacienteNombre:   pacienteRes.data?.nombre_completo ?? "—",
         servicio:         servicioRes.data?.nombre ?? body.servicio_asociado ?? "Servicio médico",
-        fechaHora:        formatFechaHoraNicaragua(body.fecha_hora_cita),
+        fechaHora:        formatFechaHoraNicaragua(body.fecha_hora_cita + "-06:00"),
         doctorNombre:     doctorRes.data?.nombre ?? "—",
       });
     } catch (err) {
