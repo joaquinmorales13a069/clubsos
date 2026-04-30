@@ -8,12 +8,15 @@ const ACCIONES = [
   "empresa.crear", "empresa.actualizar", "empresa.activar", "empresa.desactivar",
   "contrato.crear", "contrato.actualizar", "contrato.eliminar",
   "documento.subir", "documento.actualizar", "documento.eliminar",
-  "usuario.activar", "usuario.desactivar", "pago.verificar",
+  "usuario.activar", "usuario.desactivar", "usuario.actualizar", "pago.verificar",
+  "beneficio.crear", "beneficio.actualizar", "beneficio.eliminar",
+  "aviso.crear", "aviso.actualizar", "aviso.eliminar",
   "configuracion.notificaciones_citas", "configuracion.datos_bancarios",
 ];
 
 const ENTIDADES = [
   "citas", "empresas", "contratos", "documentos_medicos", "users", "pagos",
+  "beneficios", "avisos", "configuracion_sistema",
 ];
 
 export type AuditoriaFiltros = {
