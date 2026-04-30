@@ -86,11 +86,14 @@ const FILTER_CONFIG: Array<{
 
 // Status badge styles for table rows
 const STATUS_BADGE: Record<string, { i18n: string; cls: string }> = {
-  pendiente:  { i18n: "statusPendiente",  cls: "bg-amber-100 text-amber-700" },
-  confirmado: { i18n: "statusConfirmado", cls: "bg-emerald-100 text-emerald-700" },
-  completado: { i18n: "statusCompletado", cls: "bg-blue-100 text-blue-700" },
-  cancelado:  { i18n: "statusCancelado",  cls: "bg-gray-100 text-gray-500" },
-  rechazado:  { i18n: "statusRechazado",  cls: "bg-red-100 text-red-600" },
+  pendiente:          { i18n: "statusPendiente",  cls: "bg-amber-100 text-amber-700" },
+  pendiente_empresa:  { i18n: "statusPendiente",  cls: "bg-amber-100 text-amber-700" },
+  pendiente_admin:    { i18n: "statusPendiente",  cls: "bg-amber-100 text-amber-700" },
+  pendiente_pago:     { i18n: "statusPendiente",  cls: "bg-amber-100 text-amber-700" },
+  confirmado:         { i18n: "statusConfirmado", cls: "bg-emerald-100 text-emerald-700" },
+  completado:         { i18n: "statusCompletado", cls: "bg-blue-100 text-blue-700" },
+  cancelado:          { i18n: "statusCancelado",  cls: "bg-gray-100 text-gray-500" },
+  rechazado:          { i18n: "statusRechazado",  cls: "bg-red-100 text-red-600" },
 };
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
@@ -165,9 +168,13 @@ export default function EmpresaCitasRegistro() {
   }, [fetchCitas]);
 
   // ── Derived counts per filter tab (from full dataset) ───────────────────
+  const isPendienteEstado = (estado: string) =>
+    estado === "pendiente" || estado === "pendiente_empresa" ||
+    estado === "pendiente_admin" || estado === "pendiente_pago";
+
   const counts = useMemo<Record<FilterKey, number>>(() => ({
     todas:      citas.length,
-    pendiente:  citas.filter((c) => c.estado_sync === "pendiente").length,
+    pendiente:  citas.filter((c) => isPendienteEstado(c.estado_sync)).length,
     confirmado: citas.filter((c) => c.estado_sync === "confirmado").length,
     completado: citas.filter((c) => c.estado_sync === "completado").length,
     cancelado:  citas.filter((c) => c.estado_sync === "cancelado").length,
@@ -178,7 +185,9 @@ export default function EmpresaCitasRegistro() {
   const filtered = useMemo(() => {
     let result = filter === "todas"
       ? citas
-      : citas.filter((c) => c.estado_sync === filter);
+      : filter === "pendiente"
+        ? citas.filter((c) => isPendienteEstado(c.estado_sync))
+        : citas.filter((c) => c.estado_sync === filter);
 
     if (search.trim()) {
       const q = search.trim().toLowerCase();
@@ -381,7 +390,7 @@ export default function EmpresaCitasRegistro() {
                     const fecha = formatNiShort(cita.fecha_hora_cita);
                     const isAprobando  = aprobandoId  === cita.id;
                     const isRechazando = rechazandoId === cita.id;
-                    const isPendiente  = cita.estado_sync === "pendiente";
+                    const isPendiente  = isPendienteEstado(cita.estado_sync);
 
                     return (
                       <tr
@@ -491,7 +500,7 @@ export default function EmpresaCitasRegistro() {
                   ? (cita.paciente?.nombre_completo ?? "—")
                   : (cita.paciente_nombre ?? "—");
                 const fecha  = formatNiCompact(cita.fecha_hora_cita);
-                const isPend = cita.estado_sync === "pendiente";
+                const isPend = isPendienteEstado(cita.estado_sync);
                 const isBusy = aprobandoId === cita.id || rechazandoId === cita.id;
 
                 return (
