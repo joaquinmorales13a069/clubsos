@@ -1,19 +1,7 @@
-import fs from "fs";
-import path from "path";
-
-let _logoBase64: string | null = null;
-
-function getLogoBase64(): string {
-  if (!_logoBase64) {
-    const logoPath = path.join(process.cwd(), "public", "logo-SOSMedical.webp");
-    _logoBase64 = fs.readFileSync(logoPath).toString("base64");
-  }
-  return _logoBase64;
-}
+const LOGO_URL =
+  "https://jdhaxwklszodavhdrtsp.supabase.co/storage/v1/object/public/beneficios-imagenes/logo-SOSMedical.webp";
 
 export function buildCodigoEmpresaEmail(empresaNombre: string, codigo: string): string {
-  const logoBase64 = getLogoBase64();
-
   return `<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -32,7 +20,7 @@ export function buildCodigoEmpresaEmail(empresaNombre: string, codigo: string): 
           <tr>
             <td style="background:#CD2129;padding:32px 40px;text-align:center;">
               <img
-                src="data:image/webp;base64,${logoBase64}"
+                src="${LOGO_URL}"
                 alt="SOS Medical"
                 width="180"
                 style="display:block;margin:0 auto;height:auto;max-width:180px;"
