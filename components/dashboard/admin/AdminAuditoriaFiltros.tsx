@@ -9,6 +9,7 @@ const ACCIONES = [
   "contrato.crear", "contrato.actualizar", "contrato.eliminar",
   "documento.subir", "documento.actualizar", "documento.eliminar",
   "usuario.activar", "usuario.desactivar", "pago.verificar",
+  "configuracion.notificaciones_citas", "configuracion.datos_bancarios",
 ];
 
 const ENTIDADES = [
