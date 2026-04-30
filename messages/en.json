@@ -1191,6 +1191,39 @@
             "errorGuardar": "Failed to save. Please try again."
           }
         }
+      },
+      "auditoria": {
+        "titulo": "System Audit Log",
+        "subtitulo": "Record of all actions performed in the system.",
+        "filtros": {
+          "accion": "Action",
+          "todasAcciones": "All actions",
+          "entidad": "Entity",
+          "todasEntidades": "All entities",
+          "desde": "From",
+          "hasta": "To",
+          "actor": "Actor (name)",
+          "limpiar": "Clear",
+          "exportarCsv": "Export CSV",
+          "exportando": "Exporting..."
+        },
+        "tabla": {
+          "fechaHora": "Date / Time",
+          "actor": "Actor",
+          "accion": "Action",
+          "entidad": "Entity",
+          "detalle": "Detail",
+          "antes": "Before",
+          "despues": "After",
+          "sinDatos": "—",
+          "verDetalle": "View detail",
+          "ocultarDetalle": "Hide detail",
+          "pageInfo": "{from}–{to} of {total} records",
+          "anterior": "Previous",
+          "siguiente": "Next"
+        },
+        "vacio": "No records found for the selected filters.",
+        "errorCarga": "Error loading audit records."
       }
     }
   },

@@ -1191,6 +1191,39 @@
             "errorGuardar": "Error al guardar. Intenta de nuevo."
           }
         }
+      },
+      "auditoria": {
+        "titulo": "Auditoría del Sistema",
+        "subtitulo": "Registro de todas las acciones realizadas en el sistema.",
+        "filtros": {
+          "accion": "Acción",
+          "todasAcciones": "Todas las acciones",
+          "entidad": "Entidad",
+          "todasEntidades": "Todas las entidades",
+          "desde": "Desde",
+          "hasta": "Hasta",
+          "actor": "Actor (nombre)",
+          "limpiar": "Limpiar",
+          "exportarCsv": "Exportar CSV",
+          "exportando": "Exportando..."
+        },
+        "tabla": {
+          "fechaHora": "Fecha / Hora",
+          "actor": "Actor",
+          "accion": "Acción",
+          "entidad": "Entidad",
+          "detalle": "Detalle",
+          "antes": "Antes",
+          "despues": "Después",
+          "sinDatos": "—",
+          "verDetalle": "Ver detalle",
+          "ocultarDetalle": "Ocultar detalle",
+          "pageInfo": "{from}–{to} de {total} registros",
+          "anterior": "Anterior",
+          "siguiente": "Siguiente"
+        },
+        "vacio": "No hay registros para los filtros seleccionados.",
+        "errorCarga": "Error al cargar los registros de auditoría."
       }
     }
   },
