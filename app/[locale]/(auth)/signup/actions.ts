@@ -228,7 +228,7 @@ export async function completeSignupAction(
       nombre_completo: formData.nombreCompleto,
       fecha_nacimiento: formData.fechaNacimiento || null,
       sexo: formData.sexo,
-      documento_identidad: formData.documento,
+      documento_identidad: formData.documento.replace(/-/g, ""),
       username: formData.username,
       tipo_cuenta: formData.tipoCuenta,
       empresa_id: formData.empresaId || null,

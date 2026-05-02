@@ -83,7 +83,7 @@ export async function crearCita(input: CrearCitaInput) {
       paciente_nombre:   input.pacienteNombre,
       paciente_telefono: input.pacienteTelefono,
       paciente_correo:   input.pacienteCorreo,
-      paciente_cedula:   input.pacienteCedula,
+      paciente_cedula:   input.pacienteCedula?.replace(/-/g, "") ?? null,
       motivo_cita:       input.motivoCita,
       estado_sync:       estadoSync,
       ea_appointment_id: null,

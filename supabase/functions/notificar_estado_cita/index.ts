@@ -7,7 +7,7 @@
  *
  * Casos manejados:
  *
- *   A) Acción de empresa_admin (old = pendiente → new = confirmado | rechazado)
+ *   A) Acción de admin/empresa_admin (old = pendiente* → new = confirmado | rechazado)
  *      → WA al miembro (cita_confirmada / cita_rechazada)
  *      → Fallback: email al miembro → informatica@sosmedical.com.ni
  *
@@ -440,7 +440,8 @@ serve(async (req: Request) => {
     const oldEstado = old?.estado_sync ?? "";
     const newEstado = cita.estado_sync;
 
-    const isAdminAction   = oldEstado === "pendiente" && (newEstado === "confirmado" || newEstado === "rechazado");
+    const PENDING_STATES  = ["pendiente", "pendiente_admin", "pendiente_empresa", "pendiente_pago"];
+    const isAdminAction   = PENDING_STATES.includes(oldEstado) && (newEstado === "confirmado" || newEstado === "rechazado");
     const isMiembroCancel = (oldEstado === "pendiente" || oldEstado === "confirmado") && newEstado === "cancelado";
 
     if (!isAdminAction && !isMiembroCancel) {

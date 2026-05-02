@@ -122,7 +122,7 @@ export default function AjustesForm({ profile }: AjustesFormProps) {
     const supabase = createClient();
     const { error } = await supabase
       .from("users")
-      .update({ nombre_completo: nombre.trim(), documento_identidad: documento.trim() })
+      .update({ nombre_completo: nombre.trim(), documento_identidad: documento.replace(/-/g, "").trim() })
       .eq("id", profile.id);
 
     error

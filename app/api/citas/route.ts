@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
       paciente_nombre:      body.paciente_nombre ?? null,
       paciente_telefono:    body.paciente_telefono ?? null,
       paciente_correo:      body.paciente_correo ?? null,
-      paciente_cedula:      body.paciente_cedula ?? null,
+      paciente_cedula:      body.paciente_cedula?.replace(/-/g, "") ?? null,
       motivo_cita:          body.motivo_cita ?? null,
       contrato_servicio_id,
       titular_ref_id:       contrato_servicio_id ? titular_ref_id : null,
