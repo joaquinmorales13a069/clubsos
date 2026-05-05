@@ -61,7 +61,7 @@ export default function BeneficioDetailModal({ open, onClose, beneficio }: Benef
         onClick={(e) => e.stopPropagation()}
       >
         {/* Image */}
-        <div className="relative w-full aspect-video bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+        <div className="relative w-full aspect-video bg-linear-to-br from-gray-50 to-gray-100 overflow-hidden">
           {beneficio.beneficio_image_url ? (
             <Image
               src={beneficio.beneficio_image_url}
@@ -76,15 +76,6 @@ export default function BeneficioDetailModal({ open, onClose, beneficio }: Benef
             </div>
           )}
 
-          {/* Type badge */}
-          <span className={cn(
-            "absolute top-3 left-3 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold backdrop-blur-sm bg-white/90",
-            config.cls,
-          )}>
-            <Icon className="w-3 h-3" />
-            {t(config.labelKey)}
-          </span>
-
           {/* Close button */}
           <button
             type="button"
@@ -98,10 +89,20 @@ export default function BeneficioDetailModal({ open, onClose, beneficio }: Benef
         </div>
 
         {/* Body */}
-        <div className="p-5 space-y-3">
-          <h2 className="font-poppins font-bold text-gray-900 text-lg leading-snug">
-            {beneficio.titulo}
-          </h2>
+        <div className="px-6 pt-5 pb-7 space-y-4">
+          {/* Title row: tipo pill + title */}
+          <div className="space-y-2">
+            <span className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold",
+              config.cls,
+            )}>
+              <Icon className="w-3.5 h-3.5" />
+              {t(config.labelKey)}
+            </span>
+            <h2 className="font-poppins font-bold text-gray-900 text-lg leading-snug">
+              {beneficio.titulo}
+            </h2>
+          </div>
 
           {/* Description */}
           <p className="font-roboto text-sm text-neutral leading-relaxed">
@@ -110,7 +111,7 @@ export default function BeneficioDetailModal({ open, onClose, beneficio }: Benef
 
           {/* Dates */}
           {(fechaInicio || fechaFin) && (
-            <div className="flex items-start gap-2 pt-2 border-t border-gray-100">
+            <div className="flex items-start gap-2 pt-1 border-t border-gray-100">
               <CalendarDays className="w-4 h-4 text-neutral/50 shrink-0 mt-0.5" />
               <div className="text-xs font-roboto text-neutral/70 space-y-0.5">
                 {fechaInicio && (
@@ -138,7 +139,7 @@ export default function BeneficioDetailModal({ open, onClose, beneficio }: Benef
           <button
             type="button"
             onClick={onClose}
-            className="w-full mt-1 py-2.5 rounded-xl border border-gray-200 text-sm font-roboto
+            className="w-full mt-2 py-2.5 rounded-xl border border-gray-200 text-sm font-roboto
                        font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
           >
             {t("cerrar")}

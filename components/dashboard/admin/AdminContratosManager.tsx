@@ -5,7 +5,14 @@ import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Loader2, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Servicio = { id: string; nombre: string };
+type Servicio = { id: string; nombre: string; ea_category_id: number | null };
+
+const CATEGORY_LABEL: Record<number, string> = { 1: "Managua", 2: "León" };
+
+function servicioLabel(s: Servicio): string {
+  const suffix = s.ea_category_id != null ? CATEGORY_LABEL[s.ea_category_id] : undefined;
+  return suffix ? `${s.nombre} - ${suffix}` : s.nombre;
+}
 type ContratoServicio = { id: string; cuota_por_titular: number; servicio: { id: string; nombre: string } | null };
 type Contrato = {
   id: string; nombre: string; fecha_inicio: string; fecha_fin: string | null;
@@ -38,14 +45,15 @@ export default function AdminContratosManager({ empresaId }: Props) {
 
   useEffect(() => { void loadContratos(); }, [loadContratos]);
 
+  // Load servicios and empresas on mount — servicios are needed when
+  // expanding a contract card, not just when the create/edit modal opens.
   useEffect(() => {
-    if (!showModal) return;
     import("@/utils/supabase/client").then(({ createClient }) => {
       const sb = createClient();
       void sb.from("empresas").select("id, nombre").order("nombre").then(({ data }) => setEmpresas(data ?? []));
-      void sb.from("servicios").select("id, nombre").eq("activo", true).order("nombre").then(({ data }) => setServicios(data ?? []));
+      void sb.from("servicios").select("id, nombre, ea_category_id").eq("activo", true).order("nombre").then(({ data }) => setServicios(data ?? []));
     });
-  }, [showModal]);
+  }, []);
 
   async function saveContrato() {
     setSaving(true);
@@ -245,45 +253,105 @@ function AddServicioRow({ contratoId, existing, servicios, onAdd, onRemove }: {
   onAdd: (contratoId: string, servicioId: string, cuota: number) => void;
   onRemove: (csId: string) => void;
 }) {
+  const [showForm, setShowForm]           = useState(false);
   const [newServicioId, setNewServicioId] = useState("");
   const [newCuota, setNewCuota]           = useState(1);
+  const [adding, setAdding]               = useState(false);
   const existingIds = new Set(existing.map(cs => cs.servicio?.id));
+  const available   = servicios.filter(s => !existingIds.has(s.id));
+
+  async function handleAdd() {
+    if (!newServicioId) return;
+    setAdding(true);
+    await onAdd(contratoId, newServicioId, newCuota);
+    setNewServicioId("");
+    setNewCuota(1);
+    setShowForm(false);
+    setAdding(false);
+  }
 
   return (
-    <div className="border-t border-gray-100 p-4 space-y-3 bg-gray-50">
-      {existing.map(cs => (
-        <div key={cs.id} className="flex items-center justify-between text-sm">
-          <span className="text-gray-700">{cs.servicio?.nombre ?? "?"}</span>
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-neutral">{cs.cuota_por_titular} / titular / período</span>
-            <button onClick={() => onRemove(cs.id)} className="text-red-500 hover:text-red-700">
-              <Trash2 className="h-3.5 w-3.5" />
+    <div className="border-t border-gray-100 bg-gray-50/70 px-4 pt-3 pb-4 space-y-2">
+      {/* Existing services list */}
+      {existing.length > 0 && (
+        <div className="space-y-1.5 mb-3">
+          {existing.map(cs => (
+            <div key={cs.id} className="flex items-center justify-between rounded-lg bg-white border border-gray-100 px-3 py-2">
+              <span className="text-sm font-medium text-gray-800">{cs.servicio?.nombre ?? "?"}</span>
+              <div className="flex items-center gap-3 shrink-0">
+                <span className="text-xs font-roboto text-neutral/70 bg-gray-100 px-2 py-0.5 rounded-full">
+                  {cs.cuota_por_titular} / titular / período
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onRemove(cs.id)}
+                  className="p-1 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Add form — shown inline when button is pressed */}
+      {showForm ? (
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-secondary/30 bg-white px-3 py-2.5">
+          <select
+            value={newServicioId}
+            onChange={e => setNewServicioId(e.target.value)}
+            className="w-52 rounded-lg border border-gray-200 px-2.5 py-1.5 text-sm text-gray-800
+                       focus:outline-none focus:border-secondary/60 focus:ring-2 focus:ring-secondary/10"
+            autoFocus
+          >
+            <option value="">Selecciona un servicio…</option>
+            {available.map(s => <option key={s.id} value={s.id}>{servicioLabel(s)}</option>)}
+          </select>
+
+          <div className="flex items-center gap-1.5">
+            <label className="text-xs text-neutral/70 whitespace-nowrap">Cuota / titular:</label>
+            <input
+              type="number" min="1" value={newCuota}
+              onChange={e => setNewCuota(Math.max(1, Number(e.target.value)))}
+              className="w-14 rounded-lg border border-gray-200 px-2 py-1.5 text-sm text-center
+                         focus:outline-none focus:border-secondary/60 focus:ring-2 focus:ring-secondary/10"
+            />
+          </div>
+
+          <div className="flex items-center gap-1.5 ml-auto">
+            <button
+              type="button"
+              onClick={() => { setShowForm(false); setNewServicioId(""); setNewCuota(1); }}
+              className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={() => void handleAdd()}
+              disabled={!newServicioId || adding}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-white
+                         text-xs font-semibold disabled:opacity-50 transition-colors hover:bg-secondary/90"
+            >
+              {adding && <Loader2 className="h-3 w-3 animate-spin" />}
+              Agregar
             </button>
           </div>
         </div>
-      ))}
-      <div className="flex gap-2">
-        <select
-          value={newServicioId}
-          onChange={e => setNewServicioId(e.target.value)}
-          className="flex-1 rounded-xl border border-gray-300 px-2 py-1.5 text-xs"
-        >
-          <option value="">+ Agregar servicio</option>
-          {servicios.filter(s => !existingIds.has(s.id)).map(s => <option key={s.id} value={s.id}>{s.nombre}</option>)}
-        </select>
-        <input
-          type="number" min="1" value={newCuota}
-          onChange={e => setNewCuota(Number(e.target.value))}
-          className="w-16 rounded-xl border border-gray-300 px-2 py-1.5 text-xs text-center"
-        />
+      ) : (
         <button
-          onClick={() => { if (newServicioId) { onAdd(contratoId, newServicioId, newCuota); setNewServicioId(""); } }}
-          disabled={!newServicioId}
-          className="px-3 py-1.5 rounded-xl bg-primary text-white text-xs font-medium disabled:opacity-50"
+          type="button"
+          onClick={() => setShowForm(true)}
+          disabled={available.length === 0}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-secondary/40
+                     text-xs font-medium text-secondary hover:bg-secondary/5 disabled:opacity-40
+                     disabled:cursor-not-allowed transition-colors"
         >
-          Agregar
+          <Plus className="h-3.5 w-3.5" />
+          {available.length === 0 ? "Todos los servicios ya están agregados" : "Agregar servicio"}
         </button>
-      </div>
+      )}
     </div>
   );
 }
