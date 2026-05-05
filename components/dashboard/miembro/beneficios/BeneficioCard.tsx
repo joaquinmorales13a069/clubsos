@@ -21,6 +21,7 @@ export type BeneficioRow = {
 
 interface BeneficioCardProps {
   beneficio: BeneficioRow;
+  onClick?: () => void;
 }
 
 const TIPO_CONFIG: Record<
@@ -48,16 +49,30 @@ function formatFechaFin(dateStr: string | null): string | null {
   });
 }
 
-export default function BeneficioCard({ beneficio }: BeneficioCardProps) {
+const MAX_DESC = 180;
+
+export default function BeneficioCard({ beneficio, onClick }: BeneficioCardProps) {
   const t = useTranslations("Dashboard.miembro.beneficios");
   const config = TIPO_CONFIG[beneficio.tipo_beneficio] ?? TIPO_CONFIG.descuento;
   const Icon = config.icon;
   const fechaFin = formatFechaFin(beneficio.fecha_fin);
 
+  const descTruncated = beneficio.descripcion
+    ? beneficio.descripcion.length > MAX_DESC
+      ? beneficio.descripcion.slice(0, MAX_DESC) + "…"
+      : beneficio.descripcion
+    : null;
+
   return (
-    <article className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
+    <article
+      className={cn(
+        "bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow",
+        onClick && "cursor-pointer",
+      )}
+      onClick={onClick}
+    >
       {/* Image / placeholder */}
-      <div className="relative aspect-square bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+      <div className="relative aspect-square bg-linear-to-br from-gray-50 to-gray-100 overflow-hidden">
         {beneficio.beneficio_image_url ? (
           <Image
             src={beneficio.beneficio_image_url}
@@ -90,9 +105,9 @@ export default function BeneficioCard({ beneficio }: BeneficioCardProps) {
           {beneficio.titulo}
         </h3>
 
-        {beneficio.descripcion && (
-          <p className="font-roboto text-xs text-neutral line-clamp-3 flex-1">
-            {beneficio.descripcion}
+        {descTruncated && (
+          <p className="font-roboto text-xs text-neutral flex-1">
+            {descTruncated}
           </p>
         )}
 

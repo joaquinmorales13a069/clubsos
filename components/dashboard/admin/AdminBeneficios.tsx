@@ -23,6 +23,7 @@ import {
 import { createClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
 import BeneficioFormModal from "./BeneficioFormModal";
+import BeneficioDetailModal from "@/components/dashboard/miembro/beneficios/BeneficioDetailModal";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -109,6 +110,9 @@ export default function AdminBeneficios({ userId }: Props) {
   // ── Delete confirm ────────────────────────────────────────────────────────
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deletingId,      setDeletingId]      = useState<string | null>(null);
+
+  // ── Detail modal ──────────────────────────────────────────────────────────
+  const [detailBeneficio, setDetailBeneficio] = useState<BeneficioRow | null>(null);
 
   // ── Fetch beneficios ──────────────────────────────────────────────────────
   const fetchBeneficios = useCallback(async () => {
@@ -270,7 +274,11 @@ export default function AdminBeneficios({ userId }: Props) {
                     const isDeleting   = deletingId === b.id;
 
                     return (
-                      <tr key={b.id} className="hover:bg-gray-50/50 transition-colors">
+                      <tr
+                        key={b.id}
+                        className="hover:bg-gray-50/50 transition-colors cursor-pointer"
+                        onClick={() => setDetailBeneficio(b)}
+                      >
                         {/* Thumbnail */}
                         <td className="px-5 py-3.5">
                           {b.beneficio_image_url ? (
@@ -319,7 +327,7 @@ export default function AdminBeneficios({ userId }: Props) {
                           {b.creado_por_user?.nombre_completo ?? "—"}
                         </td>
                         {/* Actions */}
-                        <td className="px-4 py-3.5">
+                        <td className="px-4 py-3.5" onClick={(e) => e.stopPropagation()}>
                           {isConfirming ? (
                             <div className="flex items-center gap-2">
                               <span className="text-xs text-red-600 font-medium font-roboto whitespace-nowrap">
@@ -376,7 +384,11 @@ export default function AdminBeneficios({ userId }: Props) {
                 const isDeleting   = deletingId === b.id;
 
                 return (
-                  <div key={b.id} className="px-4 py-4">
+                  <div
+                    key={b.id}
+                    className="px-4 py-4 cursor-pointer hover:bg-gray-50/60 transition-colors"
+                    onClick={() => setDetailBeneficio(b)}
+                  >
                     <div className="flex items-start gap-3">
                       {/* Thumbnail */}
                       {b.beneficio_image_url ? (
@@ -408,7 +420,7 @@ export default function AdminBeneficios({ userId }: Props) {
                           {formatDate(b.fecha_inicio)} – {formatDate(b.fecha_fin)}
                         </p>
                       </div>
-                      <div className="shrink-0">
+                      <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
                         {isConfirming ? (
                           <div className="flex flex-col gap-1.5 items-end">
                             <button
@@ -487,6 +499,13 @@ export default function AdminBeneficios({ userId }: Props) {
           </div>
         </div>
       )}
+
+      {/* Detail modal */}
+      <BeneficioDetailModal
+        open={detailBeneficio !== null}
+        beneficio={detailBeneficio}
+        onClose={() => setDetailBeneficio(null)}
+      />
 
       {/* Create / Edit modal */}
       <BeneficioFormModal

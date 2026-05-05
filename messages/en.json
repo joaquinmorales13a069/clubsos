@@ -370,7 +370,11 @@
         "emptySub": "There are no active benefits for your company at this time.",
         "pageInfo": "Page {current} of {total}",
         "prevPage": "Previous",
-        "nextPage": "Next"
+        "nextPage": "Next",
+        "cerrar": "Close",
+        "modalTitulo": "Benefit details",
+        "noDescripcion": "No description available.",
+        "fieldVigencia": "Validity"
       },
       "avisos": {
         "title": "Announcements",

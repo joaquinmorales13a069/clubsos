@@ -13,6 +13,7 @@ import { useTranslations } from "next-intl";
 import { Gift, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import BeneficioCard, { type BeneficioRow } from "./BeneficioCard";
+import BeneficioDetailModal from "./BeneficioDetailModal";
 
 const PAGE_SIZE = 12;
 
@@ -32,6 +33,7 @@ export default function BeneficiosGrid({ initialData, initialCount }: Beneficios
   const [beneficios, setBeneficios] = useState<BeneficioRow[]>(initialData);
   const [totalCount, setTotalCount] = useState(initialCount);
   const [loading, setLoading]       = useState(false);
+  const [selectedBeneficio, setSelectedBeneficio] = useState<BeneficioRow | null>(null);
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
@@ -129,7 +131,7 @@ export default function BeneficiosGrid({ initialData, initialCount }: Beneficios
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {beneficios.map((b) => (
-            <BeneficioCard key={b.id} beneficio={b} />
+            <BeneficioCard key={b.id} beneficio={b} onClick={() => setSelectedBeneficio(b)} />
           ))}
         </div>
       )}
@@ -164,6 +166,11 @@ export default function BeneficiosGrid({ initialData, initialCount }: Beneficios
           </div>
         </div>
       )}
+      <BeneficioDetailModal
+        open={selectedBeneficio !== null}
+        beneficio={selectedBeneficio}
+        onClose={() => setSelectedBeneficio(null)}
+      />
     </div>
   );
 }
