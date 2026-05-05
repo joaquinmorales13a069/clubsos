@@ -532,13 +532,24 @@ export default function AdminCitasRegistro() {
                           {nombre.trim().split(/\s+/).slice(0, 2).map((n) => n[0]).join("").toUpperCase()}
                         </span>
                       </div>
-                      <div className="flex-1 min-w-0 space-y-0.5">
+                      <div className="flex-1 min-w-0 space-y-1">
                         <p className="text-sm font-poppins font-semibold text-gray-900 truncate">{nombre}</p>
-                        <p className="text-xs font-roboto text-neutral/70 truncate">{empresa}</p>
-                        <p className="text-xs font-roboto text-neutral/70 truncate">
-                          {cita.servicio?.nombre ?? "—"} · {cita.doctor?.nombre ?? "—"}
-                        </p>
-                        <p className="text-xs font-roboto text-neutral/50">{fecha}</p>
+                        <div className="flex items-center gap-1 text-xs font-roboto">
+                          <span className="font-semibold text-gray-400 uppercase tracking-wide text-[10px]">{t("fieldEmpresa")}</span>
+                          <span className="text-neutral/70 truncate">{empresa}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs font-roboto">
+                          <span className="font-semibold text-gray-400 uppercase tracking-wide text-[10px]">{t("fieldServicio")}</span>
+                          <span className="text-neutral/70 truncate">{cita.servicio?.nombre ?? "—"}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs font-roboto">
+                          <span className="font-semibold text-gray-400 uppercase tracking-wide text-[10px]">{t("fieldDoctor")}</span>
+                          <span className="text-neutral/70 truncate">{cita.doctor?.nombre ?? "—"}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs font-roboto">
+                          <span className="font-semibold text-gray-400 uppercase tracking-wide text-[10px]">{t("fieldFecha")}</span>
+                          <span className="text-neutral/50">{fecha}</span>
+                        </div>
                       </div>
                       <div className="flex flex-col items-end gap-2 shrink-0">
                         <span className={cn("text-xs font-semibold px-2 py-0.5 rounded-full", status.cls)}>

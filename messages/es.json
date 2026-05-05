@@ -370,7 +370,11 @@
         "emptySub": "No hay beneficios activos para tu empresa en este momento.",
         "pageInfo": "Página {current} de {total}",
         "prevPage": "Anterior",
-        "nextPage": "Siguiente"
+        "nextPage": "Siguiente",
+        "cerrar": "Cerrar",
+        "modalTitulo": "Detalle del beneficio",
+        "noDescripcion": "Sin descripción disponible.",
+        "fieldVigencia": "Vigencia"
       },
       "avisos": {
         "title": "Avisos",
