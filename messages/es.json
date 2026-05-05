@@ -106,7 +106,9 @@
       "completeBtn": "Completar Registro",
       "hasAccount": "¿Ya tienes cuenta?",
       "loginLink": "Inicia sesión aquí",
-      "phoneError": "Por favor ingresa un número de teléfono válido (mínimo 8 dígitos)."
+      "phoneError": "Por favor ingresa un número de teléfono válido (mínimo 8 dígitos).",
+      "credentialsHint": "Tu usuario se genera automáticamente con tu nombre y fecha de nacimiento, pero puedes cambiarlo por uno que prefieras. Elige una contraseña que recuerdes fácilmente.",
+      "usernameHint": "Sin espacios. Puedes editarlo libremente."
     },
     "errors": {
       "companyNotFound": "Empresa no encontrada. Verifica el código e intenta de nuevo.",

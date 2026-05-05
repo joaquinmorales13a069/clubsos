@@ -106,7 +106,9 @@
       "loginLink": "Log in here",
       "phoneError": "Please enter a valid phone number (at least 8 digits).",
       "otpSentSuccess": "Code sent to your WhatsApp.",
-      "loginSuccess": "Welcome back!"
+      "loginSuccess": "Welcome back!",
+      "credentialsHint": "Your username is generated automatically from your name and date of birth, but you can change it to whatever you prefer. Choose a password you'll remember easily.",
+      "usernameHint": "No spaces allowed. Feel free to change it."
     },
     "errors": {
       "companyNotFound": "Company not found. Please check the code and try again.",

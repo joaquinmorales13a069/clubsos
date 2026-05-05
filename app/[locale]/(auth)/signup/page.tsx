@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
@@ -12,6 +12,38 @@ import "react-phone-number-input/style.css";
 import Image from "next/image";
 import { UserCircle, Users, Building2, Search, ShieldCheck, ArrowRight, ArrowLeft, CheckCircle2, Eye, EyeOff } from "lucide-react";
 import { sendSignupOtpAction, verifySignupOtpAction, completeSignupAction, buscarEmpresaAction } from "./actions";
+
+// ── Username auto-generator ───────────────────────────────────────────────────
+// Rules:
+//   4+ words → word[0] + word[2] + DDMMYY   (short year)
+//   3  words → word[0] + word[2] + DDMMYYYY
+//   2  words → word[0] + word[1] + DDMMYYYY
+//   1  word  → word[0]           + DDMMYYYY
+function generateUsername(nombre: string, fechaNac: string): string {
+  if (!nombre.trim() || !fechaNac) return "";
+  const strip = (s: string) =>
+    s.toLowerCase()
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9]/g, "");
+  const words = nombre.trim().split(/\s+/).map(strip).filter(Boolean);
+  const [yyyy, mm, dd] = fechaNac.split("-");
+  if (!yyyy || !mm || !dd) return "";
+
+  let namePart: string;
+  let datePart: string;
+  if (words.length >= 4) {
+    namePart = words[0] + words[2];
+    datePart = dd + mm + yyyy.slice(2); // DDMMYY
+  } else if (words.length === 3) {
+    namePart = words[0] + words[2];
+    datePart = dd + mm + yyyy;          // DDMMYYYY
+  } else {
+    namePart = words.join("");
+    datePart = dd + mm + yyyy;          // DDMMYYYY
+  }
+  return namePart + datePart;
+}
 import HelpModal from "@/components/auth/HelpModal";
 import { Turnstile } from "@marsidev/react-turnstile";
 
@@ -43,11 +75,19 @@ export default function SignupPage() {
   const [fechaNacimiento, setFechaNacimiento] = useState("");
   const [sexo, setSexo] = useState<"masculino" | "femenino" | "">("");
   const [documento, setDocumento] = useState("");
-  const [username, setUsername] = useState("");
+  const [username, setUsername]         = useState("");
+  const [usernameTouched, setUsernameTouched] = useState(false);
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [noEmail, setNoEmail] = useState(false);
+
+  // Auto-fill username when nombre/fecha change, unless user manually edited it
+  useEffect(() => {
+    if (usernameTouched) return;
+    const generated = generateUsername(nombreCompleto, fechaNacimiento);
+    if (generated) setUsername(generated);
+  }, [nombreCompleto, fechaNacimiento, usernameTouched]);
 
   const handleNextStep = () => setStep((prev) => prev + 1);
   const handlePrevStep = () => setStep((prev) => prev - 1);
@@ -412,14 +452,27 @@ export default function SignupPage() {
           </div>
 
           <div className="col-span-1 md:col-span-2 mt-4 pt-4 border-t border-gray-100">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center">
+            <h3 className="text-sm font-semibold text-gray-900 mb-1 flex items-center">
               <ShieldCheck className="h-4 w-4 mr-2 text-secondary" /> {t("credentialsTitle")}
             </h3>
+            <p className="text-xs text-neutral/70 mb-4">{t("credentialsHint")}</p>
             
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">{t("usernameLabel")}</label>
-                <Input required value={username} onChange={e => setUsername(e.target.value)} placeholder={t("usernamePlaceholder")} className="rounded-xl h-11" />
+                <Input
+                  required
+                  value={username}
+                  onChange={e => {
+                    const val = e.target.value.replace(/\s/g, "");
+                    setUsername(val);
+                    setUsernameTouched(true);
+                  }}
+                  placeholder={t("usernamePlaceholder")}
+                  className="rounded-xl h-11"
+                  autoComplete="username"
+                />
+                <p className="text-xs text-neutral/70">{t("usernameHint")}</p>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">{t("passwordLabel")}</label>
