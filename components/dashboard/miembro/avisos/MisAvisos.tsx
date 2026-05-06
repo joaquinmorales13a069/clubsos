@@ -25,7 +25,8 @@ const PAGE_SIZE = 12;
 
 function formatDate(iso: string | null): string {
   if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("es-NI", {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString("es-NI", {
     day: "numeric", month: "short", year: "numeric",
   });
 }
