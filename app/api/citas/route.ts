@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
     .eq("id", user.id)
     .single();
 
-  if (!profile || (profile.rol !== "miembro" && profile.rol !== "admin")) {
+  if (!profile || (profile.rol !== "miembro" && profile.rol !== "admin" && profile.rol !== "empresa_admin")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -152,7 +152,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: citaError?.message ?? "Failed to create cita" }, { status: 500 });
   }
 
-  if (body.metodo_pago) {
+  if (body.metodo_pago && !contrato_servicio_id) {
     const { error: pagoError } = await supabase.from("pagos").insert({
       cita_id: cita.id,
       metodo:  body.metodo_pago,

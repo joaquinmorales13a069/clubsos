@@ -270,7 +270,8 @@ function EditarUsuarioAdminModal({ usuario, empresas, onClose, onSaved }: EditMo
               <select
                 value={estado}
                 onChange={(e) => setEstado(e.target.value as UsuarioRow["estado"])}
-                className={inputCls}
+                disabled={isAdmin}
+                className={cn(inputCls, isAdmin && "opacity-50 cursor-not-allowed")}
               >
                 <option value="activo">{t("estadoActivo")}</option>
                 <option value="inactivo">{t("estadoInactivo")}</option>
