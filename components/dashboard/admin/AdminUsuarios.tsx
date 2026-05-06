@@ -231,7 +231,8 @@ function EditarUsuarioAdminModal({ usuario, empresas, onClose, onSaved }: EditMo
               <input
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                className={inputCls}
+                disabled={isAdmin}
+                className={cn(inputCls, isAdmin && "opacity-50 cursor-not-allowed")}
                 maxLength={120}
               />
             </div>
@@ -241,7 +242,8 @@ function EditarUsuarioAdminModal({ usuario, empresas, onClose, onSaved }: EditMo
               <input
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
-                className={inputCls}
+                disabled={isAdmin}
+                className={cn(inputCls, isAdmin && "opacity-50 cursor-not-allowed")}
                 type="tel"
               />
             </div>
@@ -251,7 +253,8 @@ function EditarUsuarioAdminModal({ usuario, empresas, onClose, onSaved }: EditMo
               <input
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={inputCls}
+                disabled={isAdmin}
+                className={cn(inputCls, isAdmin && "opacity-50 cursor-not-allowed")}
                 type="email"
               />
             </div>
@@ -261,7 +264,8 @@ function EditarUsuarioAdminModal({ usuario, empresas, onClose, onSaved }: EditMo
               <input
                 value={documento}
                 onChange={(e) => setDocumento(e.target.value.replace(/[^a-zA-Z0-9]/g, ""))}
-                className={inputCls}
+                disabled={isAdmin}
+                className={cn(inputCls, isAdmin && "opacity-50 cursor-not-allowed")}
               />
             </div>
 
@@ -298,7 +302,8 @@ function EditarUsuarioAdminModal({ usuario, empresas, onClose, onSaved }: EditMo
               <select
                 value={empresaId}
                 onChange={(e) => setEmpresaId(e.target.value)}
-                className={inputCls}
+                disabled={isAdmin}
+                className={cn(inputCls, isAdmin && "opacity-50 cursor-not-allowed")}
               >
                 <option value="">{t("sinEmpresa")}</option>
                 {empresas.map((e) => (
@@ -330,7 +335,7 @@ function EditarUsuarioAdminModal({ usuario, empresas, onClose, onSaved }: EditMo
           </button>
           <button
             onClick={handleSave}
-            disabled={saving || !nombre.trim()}
+            disabled={saving || !nombre.trim() || isAdmin}
             className="px-5 py-2 rounded-xl text-sm font-roboto font-medium bg-secondary text-white hover:bg-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
           >
             {saving && <Loader2 className="w-4 h-4 animate-spin" />}
