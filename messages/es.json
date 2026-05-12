@@ -1324,7 +1324,8 @@
       "disableError": "Error al desactivar MFA.",
       "disabling": "Desactivando…",
       "cancel": "Cancelar",
-      "disableConfirmCTA": "Sí, desactivar"
+      "disableConfirmCTA": "Sí, desactivar",
+      "enrollRefreshError": "Error al actualizar el estado del MFA."
     }
   }
 }

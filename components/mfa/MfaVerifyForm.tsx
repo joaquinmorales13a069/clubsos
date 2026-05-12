@@ -29,7 +29,7 @@ export default function MfaVerifyForm({ factorId }: MfaVerifyFormProps) {
       setCode("");
       return;
     }
-    router.push(`/${locale}/dashboard`);
+    router.replace(`/${locale}/dashboard`);
   }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {

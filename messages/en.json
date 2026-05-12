@@ -1324,7 +1324,8 @@
       "disableError": "Error disabling MFA.",
       "disabling": "Disabling…",
       "cancel": "Cancel",
-      "disableConfirmCTA": "Yes, disable"
+      "disableConfirmCTA": "Yes, disable",
+      "enrollRefreshError": "Failed to refresh MFA status."
     }
   }
 }

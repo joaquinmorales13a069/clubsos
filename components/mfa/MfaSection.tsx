@@ -40,7 +40,7 @@ export default function MfaSection({ enrolled: initialEnrolled, factorId: initia
   async function handleEnrolled() {
     const { data, error } = await supabase.auth.mfa.listFactors();
     if (error) {
-      toast.error(t("disableError"));
+      toast.error(t("enrollRefreshError"));
       return;
     }
     const factor = data?.totp[0];
