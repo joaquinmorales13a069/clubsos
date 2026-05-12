@@ -36,6 +36,7 @@ export default function MfaSetupModal({ open, onClose, onEnrolled }: MfaSetupMod
       friendlyName: "ClubSOS",
     });
     if (error || !data) {
+      console.error("[MFA enroll error]", error);
       toast.error(t("enrollError"));
       onClose();
       return;
