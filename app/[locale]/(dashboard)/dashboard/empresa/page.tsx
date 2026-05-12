@@ -10,6 +10,7 @@ import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import { createClient } from "@/utils/supabase/server";
 import EmpresaInicio from "@/components/dashboard/empresa/EmpresaInicio";
+import MfaBanner from "@/components/dashboard/MfaBanner";
 
 export default async function EmpresaDashboardPage() {
   const supabase = await createClient();
@@ -34,5 +35,13 @@ export default async function EmpresaDashboardPage() {
   const firstName  = profile?.nombre_completo?.split(" ")[0] ?? "Admin";
   const empresaId  = profile?.empresa_id ?? null;
 
-  return <EmpresaInicio firstName={firstName} empresaId={empresaId} />;
+  const { data: mfaFactors } = await supabase.auth.mfa.listFactors();
+  const mfaEnrolled = (mfaFactors?.totp?.length ?? 0) > 0;
+
+  return (
+    <div className="space-y-6">
+      {!mfaEnrolled && <MfaBanner />}
+      <EmpresaInicio firstName={firstName} empresaId={empresaId} />
+    </div>
+  );
 }
