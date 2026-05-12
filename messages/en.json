@@ -1306,7 +1306,10 @@
       "verifyDesc": "Enter the 6-digit code from your authenticator app.",
       "confirm": "Confirm",
       "successToast": "MFA enabled successfully",
-      "errorToast": "Incorrect code. Please try again."
+      "errorToast": "Incorrect code. Please try again.",
+      "enrollError": "Failed to start MFA setup. Please try again.",
+      "close": "Close",
+      "qrAlt": "QR code for MFA setup"
     },
     "section": {
       "title": "Two-factor authentication",

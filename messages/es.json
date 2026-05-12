@@ -1306,7 +1306,10 @@
       "verifyDesc": "Ingresa el código de 6 dígitos de tu app.",
       "confirm": "Confirmar",
       "successToast": "MFA activado correctamente",
-      "errorToast": "Código incorrecto. Intenta de nuevo."
+      "errorToast": "Código incorrecto. Intenta de nuevo.",
+      "enrollError": "Error al iniciar la configuración. Intenta de nuevo.",
+      "close": "Cerrar",
+      "qrAlt": "Código QR para configurar MFA"
     },
     "section": {
       "title": "Autenticación de dos factores",

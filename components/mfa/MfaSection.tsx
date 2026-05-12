@@ -38,7 +38,11 @@ export default function MfaSection({ enrolled: initialEnrolled, factorId: initia
   }
 
   async function handleEnrolled() {
-    const { data } = await supabase.auth.mfa.listFactors();
+    const { data, error } = await supabase.auth.mfa.listFactors();
+    if (error) {
+      toast.error(t("disableError"));
+      return;
+    }
     const factor = data?.totp[0];
     setEnrolled(true);
     setFactorId(factor?.id ?? null);

@@ -36,7 +36,7 @@ export default function MfaSetupModal({ open, onClose, onEnrolled }: MfaSetupMod
       friendlyName: "ClubSOS",
     });
     if (error || !data) {
-      toast.error("Error al iniciar configuración.");
+      toast.error(t("enrollError"));
       onClose();
       return;
     }
@@ -46,7 +46,7 @@ export default function MfaSetupModal({ open, onClose, onEnrolled }: MfaSetupMod
       secret: data.totp.secret,
     });
     setPhase("scan");
-  }, [supabase, onClose]);
+  }, [supabase, onClose, t]);
 
   useEffect(() => {
     if (open) {
@@ -102,7 +102,6 @@ export default function MfaSetupModal({ open, onClose, onEnrolled }: MfaSetupMod
         className="relative z-10 w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-4 sm:fade-in duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-secondary" />
@@ -111,21 +110,19 @@ export default function MfaSetupModal({ open, onClose, onEnrolled }: MfaSetupMod
           <button
             onClick={handleClose}
             className="p-1.5 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
-            aria-label="Cerrar"
+            aria-label={t("close")}
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <div className="px-6 pb-8 pt-5 space-y-5">
-          {/* Phase: loading */}
           {phase === "loading" && (
             <div className="flex justify-center py-8">
               <Loader2 className="w-8 h-8 animate-spin text-secondary" />
             </div>
           )}
 
-          {/* Phase: scan QR */}
           {phase === "scan" && enrollData && (
             <>
               <div>
@@ -137,7 +134,7 @@ export default function MfaSetupModal({ open, onClose, onEnrolled }: MfaSetupMod
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(enrollData.qrCode)}`}
-                  alt="QR Code MFA"
+                  alt={t("qrAlt")}
                   className="w-48 h-48"
                 />
               </div>
@@ -160,14 +157,11 @@ export default function MfaSetupModal({ open, onClose, onEnrolled }: MfaSetupMod
             </>
           )}
 
-          {/* Phase: verify code */}
           {phase === "verify" && (
             <>
               <div>
                 <p className="text-sm font-semibold font-poppins text-gray-900">{t("verifyTitle")}</p>
-                <p className="text-xs font-roboto text-neutral mt-1">
-                  {t("verifyDesc")}
-                </p>
+                <p className="text-xs font-roboto text-neutral mt-1">{t("verifyDesc")}</p>
               </div>
 
               <input
