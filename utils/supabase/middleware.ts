@@ -7,7 +7,13 @@ export type UserRole = 'admin' | 'empresa_admin' | 'miembro' | null
 export async function updateSession(
   request: NextRequest,
   response: NextResponse
-): Promise<{ response: NextResponse; user: User | null; role: UserRole }> {
+): Promise<{
+  response: NextResponse
+  user: User | null
+  role: UserRole
+  aalNext: string | null
+  aalCurrent: string | null
+}> {
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -28,16 +34,19 @@ export async function updateSession(
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Fetch role from public.users if authenticated
   let role: UserRole = null
+  let aalNext: string | null = null
+  let aalCurrent: string | null = null
+
   if (user) {
-    const { data: profile } = await supabase
-      .from('users')
-      .select('rol')
-      .eq('id', user.id)
-      .single()
-    role = (profile?.rol as UserRole) ?? 'miembro'
+    const [profileResult, aalResult] = await Promise.all([
+      supabase.from('users').select('rol').eq('id', user.id).single(),
+      supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
+    ])
+    role = (profileResult.data?.rol as UserRole) ?? 'miembro'
+    aalNext = aalResult.data?.nextLevel ?? null
+    aalCurrent = aalResult.data?.currentLevel ?? null
   }
 
-  return { response, user, role }
+  return { response, user, role, aalNext, aalCurrent }
 }
