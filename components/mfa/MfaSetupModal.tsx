@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { X, Loader2, ShieldCheck } from "lucide-react";
@@ -22,7 +22,7 @@ type EnrollData = {
 
 export default function MfaSetupModal({ open, onClose, onEnrolled }: MfaSetupModalProps) {
   const t = useTranslations("MFA.setup");
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const [phase, setPhase] = useState<Phase>("loading");
   const [enrollData, setEnrollData] = useState<EnrollData | null>(null);
@@ -134,6 +134,7 @@ export default function MfaSetupModal({ open, onClose, onEnrolled }: MfaSetupMod
               </div>
 
               <div className="flex justify-center p-4 bg-gray-50 rounded-xl border border-gray-100">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(enrollData.qrCode)}`}
                   alt="QR Code MFA"
@@ -165,7 +166,7 @@ export default function MfaSetupModal({ open, onClose, onEnrolled }: MfaSetupMod
               <div>
                 <p className="text-sm font-semibold font-poppins text-gray-900">{t("verifyTitle")}</p>
                 <p className="text-xs font-roboto text-neutral mt-1">
-                  Ingresa el código de 6 dígitos de tu app.
+                  {t("verifyDesc")}
                 </p>
               </div>
 

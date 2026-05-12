@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ShieldCheck, ShieldOff } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
@@ -14,7 +14,7 @@ interface MfaSectionProps {
 
 export default function MfaSection({ enrolled: initialEnrolled, factorId: initialFactorId }: MfaSectionProps) {
   const t = useTranslations("MFA.section");
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const [enrolled, setEnrolled] = useState(initialEnrolled);
   const [factorId, setFactorId] = useState(initialFactorId);
@@ -28,7 +28,7 @@ export default function MfaSection({ enrolled: initialEnrolled, factorId: initia
     const { error } = await supabase.auth.mfa.unenroll({ factorId });
     setDisabling(false);
     if (error) {
-      toast.error("Error al desactivar MFA.");
+      toast.error(t("disableError"));
       return;
     }
     toast.success(t("disableSuccess"));
@@ -80,13 +80,13 @@ export default function MfaSection({ enrolled: initialEnrolled, factorId: initia
                     disabled={disabling}
                     className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-roboto font-semibold hover:bg-red-700 disabled:opacity-50 transition-colors"
                   >
-                    {disabling ? "Desactivando…" : "Sí, desactivar"}
+                    {disabling ? t("disabling") : t("disableConfirmCTA")}
                   </button>
                   <button
                     onClick={() => setConfirming(false)}
                     className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-roboto font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
                   >
-                    Cancelar
+                    {t("cancel")}
                   </button>
                 </div>
               </div>

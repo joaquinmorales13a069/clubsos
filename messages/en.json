@@ -1303,6 +1303,7 @@
       "manualLabel": "Manual key",
       "scannedCTA": "I already scanned it",
       "verifyTitle": "Enter the verification code",
+      "verifyDesc": "Enter the 6-digit code from your authenticator app.",
       "confirm": "Confirm",
       "successToast": "MFA enabled successfully",
       "errorToast": "Incorrect code. Please try again."
@@ -1316,7 +1317,11 @@
       "enabledDesc": "Your account is protected with TOTP.",
       "disabledDesc": "Add an extra layer of security to your account.",
       "disableConfirm": "Are you sure you want to disable MFA?",
-      "disableSuccess": "MFA disabled successfully."
+      "disableSuccess": "MFA disabled successfully.",
+      "disableError": "Error disabling MFA.",
+      "disabling": "Disabling…",
+      "cancel": "Cancel",
+      "disableConfirmCTA": "Yes, disable"
     }
   }
 }

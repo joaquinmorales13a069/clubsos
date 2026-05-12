@@ -1303,6 +1303,7 @@
       "manualLabel": "Clave manual",
       "scannedCTA": "Ya escaneé",
       "verifyTitle": "Ingresa el código de verificación",
+      "verifyDesc": "Ingresa el código de 6 dígitos de tu app.",
       "confirm": "Confirmar",
       "successToast": "MFA activado correctamente",
       "errorToast": "Código incorrecto. Intenta de nuevo."
@@ -1316,7 +1317,11 @@
       "enabledDesc": "Tu cuenta está protegida con TOTP.",
       "disabledDesc": "Añade una capa extra de seguridad a tu cuenta.",
       "disableConfirm": "¿Seguro que deseas desactivar el MFA?",
-      "disableSuccess": "MFA desactivado correctamente."
+      "disableSuccess": "MFA desactivado correctamente.",
+      "disableError": "Error al desactivar MFA.",
+      "disabling": "Desactivando…",
+      "cancel": "Cancelar",
+      "disableConfirmCTA": "Sí, desactivar"
     }
   }
 }
