@@ -14,6 +14,7 @@ import { createClient }             from "@/utils/supabase/server";
 import AvisosAdmin                  from "@/components/dashboard/admin/AvisosAdmin";
 import AdminDatosBancarios          from "@/components/dashboard/admin/AdminDatosBancarios";
 import AdminNotificacionesCitas     from "@/components/dashboard/admin/AdminNotificacionesCitas";
+import MfaSection                  from "@/components/mfa/MfaSection";
 import {
   Settings,
   Megaphone,
@@ -50,7 +51,7 @@ export default async function AdminSistemaPage() {
   if (!user) redirect(`/${locale}/login`);
 
   // Fetch all data in parallel
-  const [profileResult, kpisResult, empresasResult] = await Promise.all([
+  const [profileResult, kpisResult, empresasResult, mfaResult] = await Promise.all([
     supabase.from("users").select("rol").eq("id", user.id).single(),
     supabase.rpc("get_admin_kpis"),
     supabase
@@ -58,6 +59,7 @@ export default async function AdminSistemaPage() {
       .select("id, nombre")
       .eq("estado", "activa")
       .order("nombre"),
+    supabase.auth.mfa.listFactors(),
   ]);
 
   // Guard: only global admin
@@ -65,6 +67,8 @@ export default async function AdminSistemaPage() {
 
   const kpis    = (kpisResult.data ?? {}) as AdminKpis;
   const empresas = (empresasResult.data ?? []) as { id: string; nombre: string }[];
+  const mfaEnrolled = (mfaResult.data?.totp?.length ?? 0) > 0;
+  const mfaFactorId = mfaResult.data?.totp[0]?.id ?? null;
 
   // App version & deploy date from env vars (with fallbacks)
   const appVersion  = process.env.NEXT_PUBLIC_APP_VERSION  ?? "v2.0.0";
@@ -152,6 +156,9 @@ export default async function AdminSistemaPage() {
           <AdminNotificacionesCitas />
         </div>
       </div>
+
+      {/* ── Card F — Autenticación de dos factores ────────────────────────── */}
+      <MfaSection enrolled={mfaEnrolled} factorId={mfaFactorId} />
     </div>
   );
 }

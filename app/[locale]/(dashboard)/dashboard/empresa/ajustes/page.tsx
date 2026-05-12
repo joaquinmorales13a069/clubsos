@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import { createClient } from "@/utils/supabase/server";
 import EmpresaAjustes from "@/components/dashboard/empresa/EmpresaAjustes";
+import MfaSection from "@/components/mfa/MfaSection";
 
 export default async function EmpresaAjustesPage() {
   const supabase = await createClient();
@@ -39,19 +40,26 @@ export default async function EmpresaAjustesPage() {
 
   if (!empresa) redirect(`/${locale}/dashboard`);
 
+  const { data: mfaFactors } = await supabase.auth.mfa.listFactors();
+  const mfaEnrolled = (mfaFactors?.totp?.length ?? 0) > 0;
+  const mfaFactorId = mfaFactors?.totp[0]?.id ?? null;
+
   return (
-    <EmpresaAjustes
-      empresa={{
-        id:                   empresa.id,
-        nombre:               empresa.nombre         ?? "",
-        codigo_empresa:       empresa.codigo_empresa ?? "",
-        notas:                empresa.notas          ?? null,
-        created_at:           empresa.created_at,
-        auto_confirmar_citas: empresa.auto_confirmar_citas ?? false,
-        ruc:                  empresa.ruc            ?? null,
-        direccion_calle:      empresa.direccion_calle ?? null,
-        departamento:         empresa.departamento   ?? null,
-      }}
-    />
+    <div className="space-y-6">
+      <EmpresaAjustes
+        empresa={{
+          id:                   empresa.id,
+          nombre:               empresa.nombre         ?? "",
+          codigo_empresa:       empresa.codigo_empresa ?? "",
+          notas:                empresa.notas          ?? null,
+          created_at:           empresa.created_at,
+          auto_confirmar_citas: empresa.auto_confirmar_citas ?? false,
+          ruc:                  empresa.ruc            ?? null,
+          direccion_calle:      empresa.direccion_calle ?? null,
+          departamento:         empresa.departamento   ?? null,
+        }}
+      />
+      <MfaSection enrolled={mfaEnrolled} factorId={mfaFactorId} />
+    </div>
   );
 }
