@@ -1282,5 +1282,41 @@
       "s7Title": "7. Retención de Datos",
       "s7Body": "Conservamos tus datos mientras tu membresía esté activa y por el período que exija la legislación nicaragüense aplicable. Tras la baja, los datos se anonimizarán o eliminarán según corresponda."
     }
+  },
+  "MFA": {
+    "banner": {
+      "title": "Protege tu cuenta con autenticación de dos factores",
+      "description": "Activa el MFA para mayor seguridad.",
+      "cta": "Configurar ahora"
+    },
+    "verify": {
+      "title": "Verificación en dos pasos",
+      "description": "Abre tu app autenticadora e ingresa el código actual.",
+      "submit": "Verificar",
+      "support": "¿Problemas? Contacta soporte",
+      "errorInvalid": "Código incorrecto. Intenta de nuevo."
+    },
+    "setup": {
+      "title": "Configurar autenticación de dos factores",
+      "scanTitle": "Escanea el código QR",
+      "scanDesc": "Usa Google Authenticator, Authy u otra app compatible.",
+      "manualLabel": "Clave manual",
+      "scannedCTA": "Ya escaneé",
+      "verifyTitle": "Ingresa el código de verificación",
+      "confirm": "Confirmar",
+      "successToast": "MFA activado correctamente",
+      "errorToast": "Código incorrecto. Intenta de nuevo."
+    },
+    "section": {
+      "title": "Autenticación de dos factores",
+      "statusActive": "Activo",
+      "statusInactive": "Inactivo",
+      "enableCTA": "Activar MFA",
+      "disableCTA": "Desactivar",
+      "enabledDesc": "Tu cuenta está protegida con TOTP.",
+      "disabledDesc": "Añade una capa extra de seguridad a tu cuenta.",
+      "disableConfirm": "¿Seguro que deseas desactivar el MFA?",
+      "disableSuccess": "MFA desactivado correctamente."
+    }
   }
 }

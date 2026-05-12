@@ -1282,5 +1282,41 @@
       "s7Title": "7. Data Retention",
       "s7Body": "We retain your data while your membership is active and for the period required by applicable Nicaraguan law. After cancellation, data will be anonymized or deleted as appropriate."
     }
+  },
+  "MFA": {
+    "banner": {
+      "title": "Protect your account with two-factor authentication",
+      "description": "Enable MFA for added security.",
+      "cta": "Set up now"
+    },
+    "verify": {
+      "title": "Two-step verification",
+      "description": "Open your authenticator app and enter the current code.",
+      "submit": "Verify",
+      "support": "Having trouble? Contact support",
+      "errorInvalid": "Incorrect code. Please try again."
+    },
+    "setup": {
+      "title": "Set up two-factor authentication",
+      "scanTitle": "Scan the QR code",
+      "scanDesc": "Use Google Authenticator, Authy, or another compatible app.",
+      "manualLabel": "Manual key",
+      "scannedCTA": "I already scanned it",
+      "verifyTitle": "Enter the verification code",
+      "confirm": "Confirm",
+      "successToast": "MFA enabled successfully",
+      "errorToast": "Incorrect code. Please try again."
+    },
+    "section": {
+      "title": "Two-factor authentication",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "enableCTA": "Enable MFA",
+      "disableCTA": "Disable",
+      "enabledDesc": "Your account is protected with TOTP.",
+      "disabledDesc": "Add an extra layer of security to your account.",
+      "disableConfirm": "Are you sure you want to disable MFA?",
+      "disableSuccess": "MFA disabled successfully."
+    }
   }
 }
