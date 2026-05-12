@@ -600,6 +600,7 @@
         "estadoToggleActivo": "Active",
         "estadoToggleInactivo": "Inactive",
         "estadoPendienteNote": "This user is pending activation. Saving will change the status to active or inactive based on your selection.",
+        "estadoSelfNote": "You cannot deactivate your own account.",
         "sectionInfo": "Account information",
         "sectionEditar": "Edit details",
         "sinNombre": "No name",

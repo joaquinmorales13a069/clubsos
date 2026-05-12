@@ -600,6 +600,7 @@
         "estadoToggleActivo": "Activo",
         "estadoToggleInactivo": "Inactivo",
         "estadoPendienteNote": "Este usuario está pendiente de activación. Al guardar, el estado cambiará a activo o inactivo según tu selección.",
+        "estadoSelfNote": "No puedes desactivar tu propia cuenta.",
         "sectionInfo": "Información de cuenta",
         "sectionEditar": "Editar datos",
         "sinNombre": "Sin nombre",

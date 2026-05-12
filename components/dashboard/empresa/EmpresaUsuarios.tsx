@@ -102,6 +102,7 @@ export default function EmpresaUsuarios() {
   // ── UI state ─────────────────────────────────────────────────────────────
   const [search, setSearch] = useState("");
   const [page,   setPage]   = useState(0);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   // ── Modal state ──────────────────────────────────────────────────────────
   const [selectedUser, setSelectedUser] = useState<UsuarioEmpresa | null>(null);
@@ -124,6 +125,14 @@ export default function EmpresaUsuarios() {
         setLoading(false);
       });
   }, [t]);
+
+  // ── Fetch current user ID ────────────────────────────────────────────────
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      setCurrentUserId(data.user?.id ?? null);
+    });
+  }, []);
 
   // ── Filtered + paged data ────────────────────────────────────────────────
   const filtered = useMemo(() => {
@@ -411,6 +420,7 @@ export default function EmpresaUsuarios() {
         user={selectedUser}
         onClose={() => setModalOpen(false)}
         onSaved={handleSaved}
+        currentUserId={currentUserId}
       />
     </div>
   );

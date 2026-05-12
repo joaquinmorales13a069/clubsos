@@ -90,10 +90,11 @@ function InputField({
 // ── Component ─────────────────────────────────────────────────────────────────
 
 interface Props {
-  open:    boolean;
-  user:    UsuarioEmpresa | null;
-  onClose: () => void;
-  onSaved: (updated: UsuarioEmpresa) => void;
+  open:          boolean;
+  user:          UsuarioEmpresa | null;
+  onClose:       () => void;
+  onSaved:       (updated: UsuarioEmpresa) => void;
+  currentUserId: string | null;
 }
 
 // Estado badge for the header display
@@ -113,7 +114,7 @@ function initials(name: string | null) {
   return name.trim().split(/\s+/).slice(0, 2).map((n) => n[0]).join("").toUpperCase();
 }
 
-export default function EditarUsuarioModal({ open, user, onClose, onSaved }: Props) {
+export default function EditarUsuarioModal({ open, user, onClose, onSaved, currentUserId }: Props) {
   const t = useTranslations("Dashboard.empresa.gestionarUsuarios");
 
   // ── Form state (synced from user prop when it changes) ───────────────────
@@ -137,6 +138,9 @@ export default function EditarUsuarioModal({ open, user, onClose, onSaved }: Pro
 
   if (!user) return null;
 
+  const isSelf        = user.id === currentUserId;
+  const isTargetAdmin = user.rol === "empresa_admin";
+
   const estadoCfg = ESTADO_BADGE[user.estado] ?? ESTADO_BADGE.inactivo;
   const rolCls    = ROL_BADGE[user.rol] ?? ROL_BADGE.miembro;
 
@@ -149,13 +153,22 @@ export default function EditarUsuarioModal({ open, user, onClose, onSaved }: Pro
     setSaving(true);
     const supabase = createClient();
 
-    const patch = {
-      nombre_completo:     nombre.trim() || null,
-      telefono:            telefono.trim() || null,
-      email:               email.trim() || null,
-      documento_identidad: documento.trim() || null,
-      estado,
-    };
+    const patch = isSelf
+      ? {
+          nombre_completo:     nombre.trim() || null,
+          telefono:            telefono.trim() || null,
+          email:               email.trim() || null,
+          documento_identidad: documento.trim() || null,
+        }
+      : isTargetAdmin
+        ? { estado }
+        : {
+            nombre_completo:     nombre.trim() || null,
+            telefono:            telefono.trim() || null,
+            email:               email.trim() || null,
+            documento_identidad: documento.trim() || null,
+            estado,
+          };
 
     const { error } = await supabase
       .from("users")
@@ -172,7 +185,11 @@ export default function EditarUsuarioModal({ open, user, onClose, onSaved }: Pro
         rol:         currentUser.rol,
         tipo_cuenta: currentUser.tipo_cuenta,
         created_at:  currentUser.created_at,
-        ...patch,
+        nombre_completo:     isSelf || !isTargetAdmin ? nombre.trim() || null : currentUser.nombre_completo,
+        telefono:            isSelf || !isTargetAdmin ? telefono.trim() || null : currentUser.telefono,
+        email:               isSelf || !isTargetAdmin ? email.trim() || null : currentUser.email,
+        documento_identidad: isSelf || !isTargetAdmin ? documento.trim() || null : currentUser.documento_identidad,
+        estado:              isSelf ? currentUser.estado : estado,
       };
       onSaved(updated);
     }
@@ -246,55 +263,66 @@ export default function EditarUsuarioModal({ open, user, onClose, onSaved }: Pro
             </div>
           </section>
 
-          {/* ── Editable fields ───────────────────────────────────────────── */}
+          {/* ── Editable / read-only fields ─────────────────────────────── */}
           <section className="space-y-4">
             <h4 className="text-xs font-poppins font-semibold text-gray-500 uppercase tracking-wider">
               {t("sectionEditar")}
             </h4>
 
-            <InputField
-              label={t("fieldNombre")}
-              value={nombre}
-              onChange={setNombre}
-              icon={User}
-            />
-
-            <InputField
-              label={t("fieldTelefono")}
-              value={telefono}
-              onChange={setTelefono}
-              type="tel"
-              icon={Phone}
-            />
-
-            <InputField
-              label={t("fieldEmail")}
-              value={email}
-              onChange={setEmail}
-              type="email"
-              icon={Mail}
-              note={t("emailNote")}
-            />
-
-            <InputField
-              label={t("fieldDocumento")}
-              value={documento}
-              onChange={(v) => setDocumento(v.replace(/[^a-zA-Z0-9]/g, ""))}
-              icon={FileText}
-            />
+            {(isTargetAdmin && !isSelf) ? (
+              /* Other empresa_admin — personal data is read-only */
+              <div className="space-y-3 bg-gray-50 rounded-xl p-4">
+                <ReadField label={t("fieldNombre")}    value={user.nombre_completo} />
+                <ReadField label={t("fieldTelefono")}  value={user.telefono} />
+                <ReadField label={t("fieldEmail")}     value={user.email} />
+                <ReadField label={t("fieldDocumento")} value={user.documento_identidad} />
+              </div>
+            ) : (
+              /* Self or miembro — full edit */
+              <>
+                <InputField
+                  label={t("fieldNombre")}
+                  value={nombre}
+                  onChange={setNombre}
+                  icon={User}
+                />
+                <InputField
+                  label={t("fieldTelefono")}
+                  value={telefono}
+                  onChange={setTelefono}
+                  type="tel"
+                  icon={Phone}
+                />
+                <InputField
+                  label={t("fieldEmail")}
+                  value={email}
+                  onChange={setEmail}
+                  type="email"
+                  icon={Mail}
+                  note={t("emailNote")}
+                />
+                <InputField
+                  label={t("fieldDocumento")}
+                  value={documento}
+                  onChange={(v) => setDocumento(v.replace(/[^a-zA-Z0-9]/g, ""))}
+                  icon={FileText}
+                />
+              </>
+            )}
 
             {/* ── Estado toggle (activo ↔ inactivo) ────────────────────── */}
             <div className="space-y-2">
               <label className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
                 {t("fieldEstado")}
               </label>
-              {/* Pill toggle */}
               <div className="flex rounded-xl border border-gray-200 overflow-hidden w-fit">
                 <button
                   type="button"
                   onClick={() => setEstado("activo")}
+                  disabled={isSelf}
                   className={cn(
                     "px-4 py-2 text-xs font-semibold font-roboto transition-colors",
+                    isSelf && "opacity-50 cursor-not-allowed",
                     estado === "activo"
                       ? "bg-emerald-600 text-white"
                       : "bg-white text-gray-500 hover:bg-gray-50",
@@ -305,8 +333,10 @@ export default function EditarUsuarioModal({ open, user, onClose, onSaved }: Pro
                 <button
                   type="button"
                   onClick={() => setEstado("inactivo")}
+                  disabled={isSelf}
                   className={cn(
                     "px-4 py-2 text-xs font-semibold font-roboto transition-colors border-l border-gray-200",
+                    isSelf && "opacity-50 cursor-not-allowed",
                     estado === "inactivo"
                       ? "bg-red-500 text-white"
                       : "bg-white text-gray-500 hover:bg-gray-50",
@@ -315,7 +345,16 @@ export default function EditarUsuarioModal({ open, user, onClose, onSaved }: Pro
                   {t("estadoToggleInactivo")}
                 </button>
               </div>
-              {/* Warning when estado was pendiente — inform admin */}
+
+              {/* Self-deactivation block note */}
+              {isSelf && (
+                <div className="flex items-start gap-1.5 text-[11px] font-roboto text-amber-700 bg-amber-50 px-3 py-2 rounded-xl">
+                  <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                  <span>{t("estadoSelfNote")}</span>
+                </div>
+              )}
+
+              {/* Pendiente warning */}
               {user.estado === "pendiente" && (
                 <div className="flex items-start gap-1.5 text-[11px] font-roboto text-amber-700 bg-amber-50 px-3 py-2 rounded-xl">
                   <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
@@ -340,7 +379,7 @@ export default function EditarUsuarioModal({ open, user, onClose, onSaved }: Pro
           <button
             type="button"
             onClick={handleSave}
-            disabled={saving || !nombre.trim()}
+            disabled={saving || ((!isTargetAdmin || isSelf) && !nombre.trim())}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl
                        bg-secondary text-white text-sm font-semibold font-roboto
                        hover:bg-secondary/90 disabled:opacity-50 transition-colors"
