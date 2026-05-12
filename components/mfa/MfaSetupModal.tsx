@@ -133,7 +133,7 @@ export default function MfaSetupModal({ open, onClose, onEnrolled }: MfaSetupMod
               <div className="flex justify-center p-4 bg-gray-50 rounded-xl border border-gray-100">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(enrollData.qrCode)}`}
+                  src={enrollData.qrCode}
                   alt={t("qrAlt")}
                   className="w-48 h-48"
                 />
