@@ -42,7 +42,7 @@ const TIPO_CONFIG: Record<
 
 function formatFechaFin(dateStr: string | null): string | null {
   if (!dateStr) return null;
-  const [y, m, d] = dateStr.split("-").map(Number);
+  const [y, m, d] = dateStr.slice(0, 10).split("-").map(Number);
   return new Date(y, m - 1, d).toLocaleDateString("es-NI", {
     day: "numeric",
     month: "short",

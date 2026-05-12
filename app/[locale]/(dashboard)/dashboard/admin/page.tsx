@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import { createClient } from "@/utils/supabase/server";
 import AdminInicio from "@/components/dashboard/admin/AdminInicio";
+import MfaBanner from "@/components/dashboard/MfaBanner";
 
 export default async function AdminDashboardPage() {
   const supabase = await createClient();
@@ -30,5 +31,13 @@ export default async function AdminDashboardPage() {
 
   const firstName = profile?.nombre_completo?.split(" ")[0] ?? "Admin";
 
-  return <AdminInicio firstName={firstName} />;
+  const { data: mfaFactors } = await supabase.auth.mfa.listFactors();
+  const mfaEnrolled = (mfaFactors?.totp?.length ?? 0) > 0;
+
+  return (
+    <div className="space-y-6">
+      {!mfaEnrolled && <MfaBanner />}
+      <AdminInicio firstName={firstName} />
+    </div>
+  );
 }

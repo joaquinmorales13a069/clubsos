@@ -14,6 +14,7 @@ import RecentBeneficiosCard from "@/components/dashboard/miembro/RecentBeneficio
 import RecentDocumentosCard from "@/components/dashboard/miembro/RecentDocumentosCard";
 import RecentAvisosCard from "@/components/dashboard/miembro/RecentAvisosCard";
 import MisServiciosCubiertos from "@/components/dashboard/miembro/MisServiciosCubiertos";
+import MfaBanner from "@/components/dashboard/MfaBanner";
 
 export default async function MiembroDashboardPage() {
   const supabase = await createClient();
@@ -28,7 +29,7 @@ export default async function MiembroDashboardPage() {
 
   // Fetch all home data in parallel.
   // RLS policies scope each query to the authenticated user automatically.
-  const [profileRes, citaRes, beneficiosRes, documentosRes, avisosRes] =
+  const [profileRes, citaRes, beneficiosRes, documentosRes, avisosRes, mfaRes] =
     await Promise.all([
       supabase
         .from("users")
@@ -69,7 +70,11 @@ export default async function MiembroDashboardPage() {
         .eq("estado_aviso", "activa")
         .order("created_at", { ascending: false })
         .limit(2),
+
+      supabase.auth.mfa.listFactors(),
     ]);
+
+  const mfaEnrolled = (mfaRes.data?.totp?.length ?? 0) > 0;
 
   const profile = profileRes.data;
   // Extract first name for the greeting
@@ -84,6 +89,8 @@ export default async function MiembroDashboardPage() {
 
   return (
     <div className="space-y-6">
+      {!mfaEnrolled && <MfaBanner />}
+
       {/* Greeting */}
       <div>
         <h1 className="text-2xl font-poppins font-bold text-gray-900">
