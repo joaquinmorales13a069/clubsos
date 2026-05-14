@@ -254,6 +254,7 @@
         "sectionHistory": "History",
         "cancelBtn": "Cancel appointment",
         "cancelConfirm": "Are you sure you want to cancel this appointment?",
+        "cancelTooLate": "Cancellation is not available within 1 hour of the appointment.",
         "statusPendiente": "Pending approval",
         "statusConfirmado": "Confirmed",
         "statusCompletado": "Completed",
