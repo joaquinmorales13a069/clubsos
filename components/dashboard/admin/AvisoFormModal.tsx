@@ -12,7 +12,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { Loader2, Upload, X, ImageIcon } from "lucide-react";
+import { Loader2, Upload, X, ImageIcon, Search } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -106,12 +106,14 @@ export default function AvisoFormModal({
   const [removeExisting, setRemoveExisting] = useState(false);
   const [saving,         setSaving]         = useState(false);
   const [errors,         setErrors]         = useState<Partial<Record<keyof FormState, string>>>({});
+  const [empresaSearch,  setEmpresaSearch]  = useState("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Populate form on open
   useEffect(() => {
     if (open) {
+      setEmpresaSearch("");
       if (aviso) {
         setForm({
           titulo:       aviso.titulo,
@@ -339,24 +341,38 @@ export default function AvisoFormModal({
                 {/* Empresas multi-select */}
                 <FormField label={t("fieldEmpresas")}>
                   <div className="border border-gray-200 rounded-xl overflow-hidden">
+                    <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-100">
+                      <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                      <input
+                        type="text"
+                        value={empresaSearch}
+                        onChange={(e) => setEmpresaSearch(e.target.value)}
+                        placeholder={t("buscarEmpresa")}
+                        className="flex-1 text-xs font-roboto text-gray-700 bg-transparent outline-none placeholder:text-gray-400"
+                      />
+                    </div>
                     <div className="max-h-40 overflow-y-auto divide-y divide-gray-50">
                       {empresas.length === 0 ? (
                         <p className="px-3 py-2 text-xs text-gray-400 font-roboto">{t("sinEmpresas")}</p>
+                      ) : empresas.filter(e => e.nombre.toLowerCase().includes(empresaSearch.toLowerCase())).length === 0 ? (
+                        <p className="px-3 py-2 text-xs text-gray-400 font-roboto">{t("sinResultados")}</p>
                       ) : (
-                        empresas.map((emp) => (
-                          <label
-                            key={emp.id}
-                            className="flex items-center gap-2.5 px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={form.empresa_ids.includes(emp.id)}
-                              onChange={() => toggleEmpresa(emp.id)}
-                              className="w-3.5 h-3.5 rounded accent-secondary"
-                            />
-                            <span className="text-sm font-roboto text-gray-700 truncate">{emp.nombre}</span>
-                          </label>
-                        ))
+                        empresas
+                          .filter(e => e.nombre.toLowerCase().includes(empresaSearch.toLowerCase()))
+                          .map((emp) => (
+                            <label
+                              key={emp.id}
+                              className="flex items-center gap-2.5 px-3 py-2 cursor-pointer hover:bg-gray-50 transition-colors"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={form.empresa_ids.includes(emp.id)}
+                                onChange={() => toggleEmpresa(emp.id)}
+                                className="w-3.5 h-3.5 rounded accent-secondary"
+                              />
+                              <span className="text-sm font-roboto text-gray-700 truncate">{emp.nombre}</span>
+                            </label>
+                          ))
                       )}
                     </div>
                     <div className="px-3 py-1.5 bg-gray-50 border-t border-gray-100">
