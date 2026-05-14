@@ -368,6 +368,8 @@
         "typeDiscount": "Discount",
         "typePromotion": "Promotion",
         "validUntil": "Valid until",
+        "validDesde": "From:",
+        "validHasta": "until",
         "empty": "No benefits available",
         "emptySub": "There are no active benefits for your company at this time.",
         "pageInfo": "Page {current} of {total}",

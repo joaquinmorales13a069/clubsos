@@ -14,6 +14,7 @@ export type BeneficioRow = {
   id: string;
   titulo: string;
   descripcion: string | null;
+  fecha_inicio: string | null;
   fecha_fin: string | null;
   tipo_beneficio: "descuento" | "promocion";
   beneficio_image_url: string | null;
@@ -40,7 +41,7 @@ const TIPO_CONFIG: Record<
   },
 };
 
-function formatFechaFin(dateStr: string | null): string | null {
+function formatFecha(dateStr: string | null): string | null {
   if (!dateStr) return null;
   const [y, m, d] = dateStr.slice(0, 10).split("-").map(Number);
   return new Date(y, m - 1, d).toLocaleDateString("es-NI", {
@@ -56,7 +57,8 @@ export default function BeneficioCard({ beneficio, onClick }: BeneficioCardProps
   const t = useTranslations("Dashboard.miembro.beneficios");
   const config = TIPO_CONFIG[beneficio.tipo_beneficio] ?? TIPO_CONFIG.descuento;
   const Icon = config.icon;
-  const fechaFin = formatFechaFin(beneficio.fecha_fin);
+  const fechaInicio = formatFecha(beneficio.fecha_inicio);
+  const fechaFin    = formatFecha(beneficio.fecha_fin);
 
   const descTruncated = beneficio.descripcion
     ? beneficio.descripcion.length > MAX_DESC
@@ -112,12 +114,14 @@ export default function BeneficioCard({ beneficio, onClick }: BeneficioCardProps
           </p>
         )}
 
-        {/* Expiry */}
-        {fechaFin && (
+        {/* Date range */}
+        {(fechaInicio || fechaFin) && (
           <div className="flex items-center gap-1.5 text-xs font-roboto text-neutral/70 mt-auto pt-2 border-t border-gray-50">
             <CalendarDays className="w-3.5 h-3.5 shrink-0" />
             <span>
-              {t("validUntil")} {fechaFin}
+              {fechaInicio && <>{t("validDesde")} {fechaInicio}</>}
+              {fechaInicio && fechaFin && " "}
+              {fechaFin && <>{t("validHasta")} {fechaFin}</>}
             </span>
           </div>
         )}
