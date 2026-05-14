@@ -389,7 +389,11 @@
         "estadoActiva": "Activo",
         "estadoExpirada": "Expirado",
         "pageInfo": "{from}–{to} de {total}",
-        "errorCargar": "Error al cargar los avisos."
+        "errorCargar": "Error al cargar los avisos.",
+        "cerrar": "Cerrar",
+        "noDescripcion": "Sin descripción.",
+        "vigencia": "Vigencia",
+        "validHasta": "Válido hasta"
       },
       "documentos": {
         "title": "Mis Reportes",

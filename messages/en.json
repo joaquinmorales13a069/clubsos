@@ -389,7 +389,11 @@
         "estadoActiva": "Active",
         "estadoExpirada": "Expired",
         "pageInfo": "{from}–{to} of {total}",
-        "errorCargar": "Failed to load announcements."
+        "errorCargar": "Failed to load announcements.",
+        "cerrar": "Close",
+        "noDescripcion": "No description.",
+        "vigencia": "Valid",
+        "validHasta": "Valid until"
       },
       "documentos": {
         "title": "My Reports",

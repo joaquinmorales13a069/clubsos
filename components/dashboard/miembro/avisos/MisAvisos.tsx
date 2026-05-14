@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Megaphone, ChevronLeft, ChevronRight, ImageIcon } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
+import AvisoDetailModal from "./AvisoDetailModal";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -51,11 +52,12 @@ function CardSkeleton() {
 export default function MisAvisos() {
   const t = useTranslations("Dashboard.miembro.avisos");
 
-  const [avisos,     setAvisos]     = useState<AvisoRow[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [loading,    setLoading]    = useState(true);
-  const [error,      setError]      = useState(false);
-  const [page,       setPage]       = useState(0);
+  const [avisos,        setAvisos]        = useState<AvisoRow[]>([]);
+  const [totalCount,    setTotalCount]    = useState(0);
+  const [loading,       setLoading]       = useState(true);
+  const [error,         setError]         = useState(false);
+  const [page,          setPage]          = useState(0);
+  const [selectedAviso, setSelectedAviso] = useState<AvisoRow | null>(null);
 
   const pageRef   = useRef(0);
   pageRef.current = page;
@@ -119,7 +121,8 @@ export default function MisAvisos() {
           {avisos.map((aviso) => (
             <div
               key={aviso.id}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col"
+              className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => setSelectedAviso(aviso)}
             >
               {/* Image */}
               {aviso.aviso_image_url ? (
@@ -169,6 +172,13 @@ export default function MisAvisos() {
           ))}
         </div>
       )}
+
+      {/* Detail modal */}
+      <AvisoDetailModal
+        open={!!selectedAviso}
+        onClose={() => setSelectedAviso(null)}
+        aviso={selectedAviso}
+      />
 
       {/* Pagination */}
       {!loading && !error && totalCount > PAGE_SIZE && (
