@@ -47,7 +47,7 @@ export default function BeneficiosGrid({ initialData, initialCount }: Beneficios
 
       let query = supabase
         .from("beneficios")
-        .select("id, titulo, descripcion, fecha_fin, tipo_beneficio, beneficio_image_url", {
+        .select("id, titulo, descripcion, fecha_inicio, fecha_fin, tipo_beneficio, beneficio_image_url", {
           count: "exact",
         })
         .eq("estado_beneficio", "activa")

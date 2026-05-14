@@ -67,8 +67,8 @@ export default async function AdminSistemaPage() {
 
   const kpis    = (kpisResult.data ?? {}) as AdminKpis;
   const empresas = (empresasResult.data ?? []) as { id: string; nombre: string }[];
-  const mfaEnrolled = (mfaResult.data?.totp?.length ?? 0) > 0;
-  const mfaFactorId = mfaResult.data?.totp[0]?.id ?? null;
+  const mfaEnrolled = mfaResult.data?.totp.some(f => f.status === "verified") ?? false;
+  const mfaFactorId = mfaResult.data?.totp.find(f => f.status === "verified")?.id ?? null;
 
   // App version & deploy date from env vars (with fallbacks)
   const appVersion  = process.env.NEXT_PUBLIC_APP_VERSION  ?? "v2.0.0";

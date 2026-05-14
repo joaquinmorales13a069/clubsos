@@ -19,7 +19,7 @@ export default async function BeneficiosPage() {
 
   const { data, count } = await supabase
     .from("beneficios")
-    .select("id, titulo, descripcion, fecha_fin, tipo_beneficio, beneficio_image_url", {
+    .select("id, titulo, descripcion, fecha_inicio, fecha_fin, tipo_beneficio, beneficio_image_url", {
       count: "exact",
     })
     .eq("estado_beneficio", "activa")

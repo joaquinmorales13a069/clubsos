@@ -74,7 +74,7 @@ export default async function MiembroDashboardPage() {
       supabase.auth.mfa.listFactors(),
     ]);
 
-  const mfaEnrolled = (mfaRes.data?.totp?.length ?? 0) > 0;
+  const mfaEnrolled = mfaRes.data?.totp.some(f => f.status === "verified") ?? false;
 
   const profile = profileRes.data;
   // Extract first name for the greeting

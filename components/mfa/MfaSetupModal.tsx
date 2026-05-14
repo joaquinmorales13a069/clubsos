@@ -34,6 +34,7 @@ export default function MfaSetupModal({ open, onClose, onEnrolled }: MfaSetupMod
     const { data, error } = await supabase.auth.mfa.enroll({
       factorType: "totp",
       friendlyName: "ClubSOS",
+      issuer: "ClubSOS",
     });
     if (error || !data) {
       console.error("[MFA enroll error]", error);

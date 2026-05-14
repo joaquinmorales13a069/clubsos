@@ -25,8 +25,8 @@ export default async function AjustesPage() {
     supabase.auth.mfa.listFactors(),
   ]);
 
-  const mfaEnrolled = (mfaFactors?.totp?.length ?? 0) > 0;
-  const mfaFactorId = mfaFactors?.totp[0]?.id ?? null;
+  const mfaEnrolled = mfaFactors?.totp.some(f => f.status === "verified") ?? false;
+  const mfaFactorId = mfaFactors?.totp.find(f => f.status === "verified")?.id ?? null;
 
   return (
     <div className="space-y-6">

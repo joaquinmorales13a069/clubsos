@@ -32,7 +32,7 @@ export default async function AdminDashboardPage() {
   const firstName = profile?.nombre_completo?.split(" ")[0] ?? "Admin";
 
   const { data: mfaFactors } = await supabase.auth.mfa.listFactors();
-  const mfaEnrolled = (mfaFactors?.totp?.length ?? 0) > 0;
+  const mfaEnrolled = mfaFactors?.totp.some(f => f.status === "verified") ?? false;
 
   return (
     <div className="space-y-6">

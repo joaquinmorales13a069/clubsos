@@ -43,7 +43,7 @@ export default function MfaSection({ enrolled: initialEnrolled, factorId: initia
       toast.error(t("enrollRefreshError"));
       return;
     }
-    const factor = data?.totp[0];
+    const factor = data?.totp.find(f => f.status === "verified");
     setEnrolled(true);
     setFactorId(factor?.id ?? null);
   }

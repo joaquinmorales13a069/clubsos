@@ -36,7 +36,7 @@ export default async function EmpresaDashboardPage() {
   const empresaId  = profile?.empresa_id ?? null;
 
   const { data: mfaFactors } = await supabase.auth.mfa.listFactors();
-  const mfaEnrolled = (mfaFactors?.totp?.length ?? 0) > 0;
+  const mfaEnrolled = mfaFactors?.totp.some(f => f.status === "verified") ?? false;
 
   return (
     <div className="space-y-6">

@@ -23,11 +23,17 @@ function formatDateTime(dtStr: string) {
 }
 
 const CANCELABLE = new Set(["pendiente", "confirmado"]);
+const CUTOFF_MS  = 60 * 60 * 1000; // 1 hour in ms
+
+function isPastCutoff(fechaHoraCita: string): boolean {
+  return Date.now() >= new Date(fechaHoraCita).getTime() - CUTOFF_MS;
+}
 
 export default function CitaCard({ cita }: CitaCardProps) {
   const t = useTranslations("Dashboard.miembro.citas");
   const [cancelling, setCancelling] = useState(false);
   const { date, time } = formatDateTime(cita.fecha_hora_cita);
+  const pastCutoff = isPastCutoff(cita.fecha_hora_cita);
 
   async function handleCancel() {
     if (!confirm(t("cancelConfirm"))) return;
@@ -72,18 +78,25 @@ export default function CitaCard({ cita }: CitaCardProps) {
 
       {/* Cancel button */}
       {CANCELABLE.has(cita.estado_sync) && (
-        <button
-          onClick={handleCancel}
-          disabled={cancelling}
-          className="flex items-center gap-1.5 text-xs font-semibold text-red-500 hover:text-red-600 disabled:opacity-50 transition-colors"
-        >
-          {cancelling ? (
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-          ) : (
-            <X className="w-3.5 h-3.5" />
+        <div className="space-y-1">
+          <button
+            onClick={handleCancel}
+            disabled={cancelling || pastCutoff}
+            className="flex items-center gap-1.5 text-xs font-semibold text-red-500 hover:text-red-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            {cancelling ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            ) : (
+              <X className="w-3.5 h-3.5" />
+            )}
+            {t("cancelBtn")}
+          </button>
+          {pastCutoff && (
+            <p className="text-[10px] font-roboto text-gray-400 leading-tight">
+              {t("cancelTooLate")}
+            </p>
           )}
-          {t("cancelBtn")}
-        </button>
+        </div>
       )}
     </div>
   );
