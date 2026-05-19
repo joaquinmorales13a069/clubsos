@@ -77,23 +77,25 @@ interface Props {
 }
 
 type FormState = {
-  titulo:            string;
-  descripcion:       string;
-  tipo_beneficio:    "descuento" | "promocion";
-  estado_beneficio:  "activa" | "expirada";
-  fecha_inicio:      string;
-  fecha_fin:         string;
-  empresa_ids:       string[];
+  titulo:               string;
+  descripcion:          string;
+  tipo_beneficio:       "descuento" | "promocion";
+  estado_beneficio:     "activa" | "expirada";
+  fecha_inicio:         string;
+  fecha_fin:            string;
+  empresa_ids:          string[];
+  porcentaje_descuento: string;
 };
 
 const DEFAULT_FORM: FormState = {
-  titulo:           "",
-  descripcion:      "",
-  tipo_beneficio:   "descuento",
-  estado_beneficio: "activa",
-  fecha_inicio:     "",
-  fecha_fin:        "",
-  empresa_ids:      [],
+  titulo:               "",
+  descripcion:          "",
+  tipo_beneficio:       "descuento",
+  estado_beneficio:     "activa",
+  fecha_inicio:         "",
+  fecha_fin:            "",
+  empresa_ids:          [],
+  porcentaje_descuento: "",
 };
 
 export default function BeneficioFormModal({
@@ -116,13 +118,14 @@ export default function BeneficioFormModal({
       setEmpresaSearch("");
       if (beneficio) {
         setForm({
-          titulo:           beneficio.titulo,
-          descripcion:      beneficio.descripcion ?? "",
-          tipo_beneficio:   beneficio.tipo_beneficio,
-          estado_beneficio: beneficio.estado_beneficio,
-          fecha_inicio:     toDateInput(beneficio.fecha_inicio),
-          fecha_fin:        toDateInput(beneficio.fecha_fin),
-          empresa_ids:      beneficio.empresa_id ?? [],
+          titulo:               beneficio.titulo,
+          descripcion:          beneficio.descripcion ?? "",
+          tipo_beneficio:       beneficio.tipo_beneficio,
+          estado_beneficio:     beneficio.estado_beneficio,
+          fecha_inicio:         toDateInput(beneficio.fecha_inicio),
+          fecha_fin:            toDateInput(beneficio.fecha_fin),
+          empresa_ids:          beneficio.empresa_id ?? [],
+          porcentaje_descuento: beneficio.porcentaje_descuento ?? "",
         });
       } else {
         setForm(DEFAULT_FORM);
@@ -204,14 +207,17 @@ export default function BeneficioFormModal({
       }
 
       const payload = {
-        titulo:             form.titulo.trim(),
-        descripcion:        form.descripcion.trim() || null,
-        tipo_beneficio:     form.tipo_beneficio,
-        estado_beneficio:   form.estado_beneficio,
-        fecha_inicio:       form.fecha_inicio   || null,
-        fecha_fin:          form.fecha_fin       || null,
-        empresa_id:         form.empresa_ids.length > 0 ? form.empresa_ids : null,
-        beneficio_image_url: finalImageUrl,
+        titulo:               form.titulo.trim(),
+        descripcion:          form.descripcion.trim() || null,
+        tipo_beneficio:       form.tipo_beneficio,
+        estado_beneficio:     form.estado_beneficio,
+        fecha_inicio:         form.fecha_inicio   || null,
+        fecha_fin:            form.fecha_fin       || null,
+        empresa_id:           form.empresa_ids.length > 0 ? form.empresa_ids : null,
+        beneficio_image_url:  finalImageUrl,
+        porcentaje_descuento: form.tipo_beneficio === "descuento" && form.porcentaje_descuento.trim()
+          ? form.porcentaje_descuento.trim()
+          : null,
       };
 
       if (mode === "crear") {
@@ -309,7 +315,14 @@ export default function BeneficioFormModal({
                   <FormField label={t("fieldTipo")}>
                     <select
                       value={form.tipo_beneficio}
-                      onChange={(e) => setForm({ ...form, tipo_beneficio: e.target.value as "descuento" | "promocion" })}
+                      onChange={(e) => {
+                        const newTipo = e.target.value as "descuento" | "promocion";
+                        setForm({
+                          ...form,
+                          tipo_beneficio:       newTipo,
+                          porcentaje_descuento: newTipo === "promocion" ? "" : form.porcentaje_descuento,
+                        });
+                      }}
                       className={inputCls}
                     >
                       <option value="descuento">{t("tipoDescuento")}</option>
@@ -328,6 +341,20 @@ export default function BeneficioFormModal({
                     </select>
                   </FormField>
                 </div>
+
+                {/* Porcentaje de descuento — only visible for descuento type */}
+                {form.tipo_beneficio === "descuento" && (
+                  <FormField label={t("fieldPorcentaje")}>
+                    <input
+                      type="text"
+                      maxLength={20}
+                      value={form.porcentaje_descuento}
+                      onChange={(e) => setForm({ ...form, porcentaje_descuento: e.target.value })}
+                      placeholder="ej. 25 o hasta 30%"
+                      className={inputCls}
+                    />
+                  </FormField>
+                )}
 
                 {/* Fechas */}
                 <div className="grid grid-cols-2 gap-3">
