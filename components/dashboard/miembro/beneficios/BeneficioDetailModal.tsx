@@ -13,6 +13,7 @@ export type BeneficioDetailData = {
   tipo_beneficio: "descuento" | "promocion";
   beneficio_image_url: string | null;
   estado_beneficio?: "activa" | "expirada";
+  porcentaje_descuento?: string | null;
 };
 
 interface BeneficioDetailModalProps {

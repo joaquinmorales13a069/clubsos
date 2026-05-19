@@ -18,6 +18,7 @@ export type BeneficioRow = {
   fecha_fin: string | null;
   tipo_beneficio: "descuento" | "promocion";
   beneficio_image_url: string | null;
+  porcentaje_descuento: string | null;
 };
 
 interface BeneficioCardProps {
