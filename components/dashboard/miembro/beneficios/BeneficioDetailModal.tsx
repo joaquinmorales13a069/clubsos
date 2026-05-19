@@ -106,6 +106,15 @@ export default function BeneficioDetailModal({ open, onClose, beneficio }: Benef
             </h2>
           </div>
 
+          {/* Porcentaje de descuento */}
+          {beneficio.tipo_beneficio === "descuento" && beneficio.porcentaje_descuento && (
+            <p className="font-poppins font-bold text-2xl text-[#CD2129]">
+              {/^\d+$/.test(beneficio.porcentaje_descuento)
+                ? `${beneficio.porcentaje_descuento}%`
+                : beneficio.porcentaje_descuento}
+            </p>
+          )}
+
           {/* Description */}
           <p className="font-roboto text-sm text-neutral leading-relaxed">
             {beneficio.descripcion ?? t("noDescripcion")}
