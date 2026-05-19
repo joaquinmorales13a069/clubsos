@@ -100,7 +100,7 @@ export default function BeneficioCard({ beneficio, onClick }: BeneficioCardProps
         >
           <Icon className="w-3 h-3" />
           {beneficio.tipo_beneficio === "descuento" && beneficio.porcentaje_descuento
-            ? /^\d+$/.test(beneficio.porcentaje_descuento)
+            ? /^\d+(\.\d+)?$/.test(beneficio.porcentaje_descuento)
               ? `${beneficio.porcentaje_descuento}%`
               : beneficio.porcentaje_descuento
             : t(config.labelKey)}
