@@ -350,7 +350,7 @@ export default function BeneficioFormModal({
                       maxLength={20}
                       value={form.porcentaje_descuento}
                       onChange={(e) => setForm({ ...form, porcentaje_descuento: e.target.value })}
-                      placeholder="ej. 25 o hasta 30%"
+                      placeholder={t("fieldPorcentajePlaceholder")}
                       className={inputCls}
                     />
                   </FormField>
