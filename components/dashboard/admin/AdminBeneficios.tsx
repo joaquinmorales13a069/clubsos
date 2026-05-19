@@ -28,18 +28,19 @@ import BeneficioDetailModal from "@/components/dashboard/miembro/beneficios/Bene
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type BeneficioRow = {
-  id:                  string;
-  titulo:              string;
-  descripcion:         string | null;
-  fecha_inicio:        string | null;
-  fecha_fin:           string | null;
-  estado_beneficio:    "activa" | "expirada";
-  tipo_beneficio:      "descuento" | "promocion";
-  empresa_id:          string[] | null;
-  beneficio_image_url: string | null;
-  creado_por:          string | null;
-  created_at:          string;
-  creado_por_user:     { nombre_completo: string } | null;
+  id:                   string;
+  titulo:               string;
+  descripcion:          string | null;
+  fecha_inicio:         string | null;
+  fecha_fin:            string | null;
+  estado_beneficio:     "activa" | "expirada";
+  tipo_beneficio:       "descuento" | "promocion";
+  empresa_id:           string[] | null;
+  beneficio_image_url:  string | null;
+  creado_por:           string | null;
+  created_at:           string;
+  creado_por_user:      { nombre_completo: string } | null;
+  porcentaje_descuento: string | null;
 };
 
 export type EmpresaOption = { id: string; nombre: string };

@@ -852,6 +852,8 @@
           "fieldFechaFin": "Fecha fin",
           "fieldEmpresas": "Empresas (vacío = global)",
           "fieldImagen": "Imagen (opcional)",
+          "fieldPorcentaje": "Porcentaje de descuento (opcional)",
+          "fieldPorcentajePlaceholder": "ej. 25 o hasta 30%",
           "imagenActual": "Imagen actual",
           "imagenEliminada": "Imagen eliminada. Selecciona una nueva o guarda sin imagen.",
           "eliminarImagen": "Eliminar imagen",

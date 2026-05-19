@@ -18,6 +18,7 @@ export type BeneficioRow = {
   fecha_fin: string | null;
   tipo_beneficio: "descuento" | "promocion";
   beneficio_image_url: string | null;
+  porcentaje_descuento: string | null;
 };
 
 interface BeneficioCardProps {
@@ -98,7 +99,11 @@ export default function BeneficioCard({ beneficio, onClick }: BeneficioCardProps
           )}
         >
           <Icon className="w-3 h-3" />
-          {t(config.labelKey)}
+          {beneficio.tipo_beneficio === "descuento" && beneficio.porcentaje_descuento
+            ? /^\d+(\.\d+)?$/.test(beneficio.porcentaje_descuento)
+              ? `${beneficio.porcentaje_descuento}%`
+              : beneficio.porcentaje_descuento
+            : t(config.labelKey)}
         </span>
       </div>
 
