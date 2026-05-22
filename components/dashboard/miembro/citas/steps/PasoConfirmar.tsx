@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { MapPin, Stethoscope, User, CalendarDays, Clock, AlertCircle, Loader2 } from "lucide-react";
+import {
+  MapPin, Stethoscope, User, CalendarDays, Clock,
+  AlertCircle, AlertTriangle, Loader2,
+} from "lucide-react";
 import type { WizardState, WizardUserProfile } from "../types";
 
 interface PasoConfirmarProps {
@@ -12,7 +15,10 @@ interface PasoConfirmarProps {
   onBack: () => void;
   onSuccess: () => void;
   onTransferenciaRequired: (citaId: string) => void;
+  onSlotTaken: () => void;
 }
+
+interface Slot { hora_inicio: string; disponible: boolean }
 
 /** Format "YYYY-MM-DD" to readable date */
 function formatDate(dateStr: string): string {
@@ -21,46 +27,71 @@ function formatDate(dateStr: string): string {
   return dt.toLocaleDateString("es-NI", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 }
 
-/** Convert "HH:MM" 24h → "H:MM AM/PM" 12h */
-function to12h(t: string): string {
-  const [hStr, mStr] = t.split(":");
-  const h = parseInt(hStr, 10);
+/** Format ISO UTC to local Nicaragua hh:mm AM/PM */
+function isoTo12hLocal(isoUtc: string): string {
+  const niOffsetMs = -6 * 60 * 60 * 1000;
+  const local = new Date(new Date(isoUtc).getTime() + niOffsetMs);
+  const h = local.getUTCHours();
+  const m = String(local.getUTCMinutes()).padStart(2, "0");
   const period = h >= 12 ? "PM" : "AM";
-  const h12    = h > 12 ? h - 12 : h === 0 ? 12 : h;
-  return `${h12}:${mStr} ${period}`;
+  const h12 = h > 12 ? h - 12 : h === 0 ? 12 : h;
+  return `${h12}:${m} ${period}`;
 }
 
-const SUMMARY_ITEMS = [
-  { icon: MapPin,       key: "ubicacion",  getValue: (w: WizardState) => w.ubicacionNombre },
-  { icon: Stethoscope,  key: "servicio",   getValue: (w: WizardState) => w.servicioNombre  },
-  { icon: User,         key: "doctor",     getValue: (w: WizardState) => w.doctorNombre    },
-  { icon: CalendarDays, key: "fecha",      getValue: (w: WizardState) => w.fecha ? formatDate(w.fecha) : "" },
-  { icon: Clock,        key: "horario",    getValue: (w: WizardState) => w.hora ? to12h(w.hora) : "" },
-  { icon: User,         key: "paciente",   getValue: (w: WizardState) => w.paraTitular ? "Para mí" : w.pacienteNombre },
-] as const;
-
-export default function PasoConfirmar({ wizard, userProfile, onBack, onSuccess, onTransferenciaRequired }: PasoConfirmarProps) {
+export default function PasoConfirmar({
+  wizard, userProfile, onBack, onSuccess, onTransferenciaRequired, onSlotTaken,
+}: PasoConfirmarProps) {
   const t  = useTranslations("Dashboard.miembro.citas.wizard");
   const tc = useTranslations("Dashboard.miembro.citas.wizard.confirmar");
+  const te = useTranslations("Errors.citas");
   const [loading, setLoading] = useState(false);
 
+  const SUMMARY_ITEMS = [
+    { icon: MapPin,       key: "ubicacion",  value: wizard.ubicacionNombre },
+    { icon: Stethoscope,  key: "servicio",   value: wizard.servicioNombre  },
+    { icon: User,         key: "doctor",     value: wizard.doctorNombre    },
+    { icon: CalendarDays, key: "fecha",      value: wizard.fecha ? formatDate(wizard.fecha) : "" },
+    { icon: Clock,        key: "horario",    value: wizard.fechaHoraCita ? isoTo12hLocal(wizard.fechaHoraCita) : "" },
+    { icon: User,         key: "paciente",   value: wizard.paraTitular ? "Para mí" : wizard.pacienteNombre },
+  ];
+
   async function handleConfirm() {
-    if (!wizard.fecha || !wizard.hora || !wizard.eaServiceId || !wizard.eaProviderId) return;
+    if (!wizard.doctorId || !wizard.servicioId || !wizard.fechaHoraCita || !wizard.fecha) return;
     setLoading(true);
+
+    // Capa 2: re-verifica disponibilidad antes del submit
+    try {
+      const checkRes = await fetch(
+        `/api/citas/disponibilidad?doctor_id=${wizard.doctorId}&servicio_id=${wizard.servicioId}&fecha=${wizard.fecha}`,
+      );
+      if (checkRes.ok) {
+        const j = await checkRes.json() as { slots?: Slot[] };
+        const slot = (j.slots ?? []).find((s) => s.hora_inicio === wizard.fechaHoraCita);
+        if (!slot || !slot.disponible) {
+          toast.error(te("slot_taken"));
+          setLoading(false);
+          onSlotTaken();
+          return;
+        }
+      }
+    } catch {
+      // Network glitch → seguimos al POST y dejamos que el atomic insert decida
+    }
 
     try {
       const body = {
-        ea_service_id:     wizard.eaServiceId,
-        ea_provider_id:    wizard.eaProviderId,
-        fecha_hora_cita:   `${wizard.fecha}T${wizard.hora}:00`,
-        servicio_asociado: wizard.servicioNombre,
-        para_titular:      wizard.paraTitular,
-        paciente_nombre:   wizard.paraTitular ? null : wizard.pacienteNombre,
-        paciente_telefono: wizard.paraTitular ? null : wizard.pacienteTelefono,
-        paciente_correo:   wizard.paraTitular ? null : wizard.pacienteCorreo,
-        paciente_cedula:   wizard.paraTitular ? null : wizard.pacienteCedula,
+        doctor_id:            wizard.doctorId,
+        servicio_id:          wizard.servicioId,
+        fecha_hora_cita:      wizard.fechaHoraCita,
+        servicio_asociado:    wizard.servicioNombre,
+        para_titular:         wizard.paraTitular,
+        paciente_nombre:      wizard.paraTitular ? undefined : wizard.pacienteNombre,
+        paciente_telefono:    wizard.paraTitular ? undefined : wizard.pacienteTelefono,
+        paciente_correo:      wizard.paraTitular ? undefined : wizard.pacienteCorreo,
+        paciente_cedula:      wizard.paraTitular ? undefined : wizard.pacienteCedula,
         ...(wizard.contrato_servicio_id ? { contrato_servicio_id: wizard.contrato_servicio_id } : {}),
         ...(wizard.metodo_pago ? { metodo_pago: wizard.metodo_pago } : {}),
+        ...(wizard.monto != null ? { monto: wizard.monto } : {}),
       };
 
       const res = await fetch("/api/citas", {
@@ -69,21 +100,45 @@ export default function PasoConfirmar({ wizard, userProfile, onBack, onSuccess, 
         body: JSON.stringify(body),
       });
 
-      if (!res.ok) {
-        const err = await res.json() as { error?: string };
-        throw new Error(err.error ?? "Error al crear la cita");
+      const j = await res.json().catch(() => ({})) as {
+        ok?: boolean;
+        cita?: { id: string; estado_sync: string };
+        error?: string;
+        i18nKey?: string;
+      };
+
+      if (!res.ok || !j.ok) {
+        const code = j.error;
+        if (code === "SLOT_TAKEN") {
+          toast.error(te("slot_taken"));
+          onSlotTaken();
+          return;
+        }
+        if (code === "QUOTA_EXCEEDED") {
+          toast.error(te("quota_exceeded"));
+          return;
+        }
+        if (j.i18nKey) {
+          const last = j.i18nKey.split(".").pop() ?? "unknown";
+          try {
+            toast.error(te(last));
+          } catch {
+            toast.error(te("unknown"));
+          }
+          return;
+        }
+        toast.error(te("unknown"));
+        return;
       }
 
-      const { cita } = await res.json() as { cita: { id: string; estado_sync: string } };
       toast.success(tc("success"));
-
-      if (wizard.metodo_pago === "transferencia") {
-        onTransferenciaRequired(cita.id);
+      if (wizard.metodo_pago === "transferencia" && j.cita) {
+        onTransferenciaRequired(j.cita.id);
       } else {
         onSuccess();
       }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : tc("error"));
+    } catch {
+      toast.error(te("unknown"));
     } finally {
       setLoading(false);
     }
@@ -96,21 +151,29 @@ export default function PasoConfirmar({ wizard, userProfile, onBack, onSuccess, 
         <p className="text-sm font-roboto text-neutral mt-0.5">{tc("subtitle")}</p>
       </div>
 
-      {/* Summary cards */}
       <div className="rounded-2xl border border-gray-100 bg-gray-50 divide-y divide-gray-100 overflow-hidden">
-        {SUMMARY_ITEMS.map(({ icon: Icon, key, getValue }) => (
+        {SUMMARY_ITEMS.map(({ icon: Icon, key, value }) => (
           <div key={key} className="flex items-center gap-3 px-4 py-3">
             <Icon className="w-4 h-4 text-secondary shrink-0" />
-            <span className="text-sm font-roboto text-gray-800 capitalize">{getValue(wizard)}</span>
+            <span className="text-sm font-roboto text-gray-800 capitalize">{value}</span>
           </div>
         ))}
       </div>
 
+      {/* Concurrency notice */}
+      <div className="flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3">
+        <AlertTriangle className="w-5 h-5 shrink-0 text-amber-600 mt-0.5" />
+        <p className="text-sm font-roboto text-amber-900">
+          <strong className="font-semibold">{tc("aviso_concurrencia_titulo")}</strong>{" "}
+          {tc("aviso_concurrencia_body")}
+        </p>
+      </div>
+
       {/* Pending approval notice — only shown for miembro (empresa_admin auto-confirms) */}
       {userProfile.rol !== "empresa_admin" && (
-        <div className="flex items-start gap-2 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3">
-          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-          <p className="text-xs font-roboto text-amber-700">{tc("pendingNote")}</p>
+        <div className="flex items-start gap-2 rounded-xl bg-blue-50 border border-blue-200 px-4 py-3">
+          <AlertCircle className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+          <p className="text-xs font-roboto text-blue-700">{tc("pendingNote")}</p>
         </div>
       )}
 
