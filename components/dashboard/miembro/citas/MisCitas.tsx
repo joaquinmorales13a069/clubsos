@@ -93,7 +93,7 @@ export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) 
   // ── Wizard view ─────────────────────────────────────────────────────────────
   if (view === "wizard") {
     return (
-      <div className="space-y-5 max-w-lg mx-auto">
+      <div className="space-y-5 max-w-3xl mx-auto">
         {/* Header with close button */}
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-poppins font-bold text-gray-900">{t("scheduleTitle")}</h1>
