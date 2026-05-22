@@ -34,7 +34,7 @@ export async function GET(
     .select(`
       id, fecha_hora_cita, fecha_hora_fin, estado_sync, motivo_cita,
       para_titular, paciente_nombre, paciente_telefono, paciente_cedula,
-      paciente:users!paciente_id(nombre_completo, telefono, correo),
+      paciente:users!paciente_id(nombre_completo, telefono, email),
       doctor:doctores(id, nombre),
       servicio:servicios(id, nombre),
       ubicacion:ubicaciones(id, nombre, direccion)

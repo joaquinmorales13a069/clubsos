@@ -40,7 +40,7 @@ interface CitaDetalle {
   paciente: RelOne<{
     nombre_completo: string | null;
     telefono: string | null;
-    correo: string | null;
+    email: string | null;
   }>;
   doctor: RelOne<{ id: string; nombre: string }>;
   servicio: RelOne<{ id: string; nombre: string }>;
@@ -101,7 +101,7 @@ export default function AdminCitaDetalleModal({
       setCita(j.cita ?? null);
     } catch {
       setCita(null);
-      toast.error(t("cargando"));
+      toast.error(t("error_cargar"));
     } finally {
       setLoading(false);
     }

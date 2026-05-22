@@ -99,19 +99,35 @@ function buildAdminNav(
     });
   }
 
-  // "Administrar" — global admin management sections
-  const administrarItems: NavItemConfig[] = [
-    { href: `${base}/admin/citas`,              label: t("nav.gestionarCitas"),       icon: CalendarCheck },
-    { href: `${base}/admin/ubicaciones`,        label: t("nav.gestionarUbicaciones"), icon: MapPin },
-    { href: `${base}/admin/servicios`,          label: t("nav.gestionarServicios"),   icon: Stethoscope },
-    { href: `${base}/admin/doctores`,           label: t("nav.gestionarDoctores"),    icon: UserRound },
-    { href: `${base}/admin/beneficios`,         label: t("nav.gestionarBeneficios"),  icon: Gift },
-    { href: `${base}/admin/documentos`,         label: t("nav.gestionarDocumentos"),  icon: FileText },
-    { href: `${base}/admin/usuarios`,           label: t("nav.gestionarUsuarios"),    icon: UserCog },
-    { href: `${base}/admin/empresas`,           label: t("nav.gestionarEmpresas"),    icon: Building2 },
-    { href: `${base}/admin/reportes`,           label: t("nav.generarReportes"),      icon: BarChart3 },
-    { href: `${base}/admin/auditoria`,          label: t("nav.auditoria"),            icon: ShieldCheck },
-    { href: `${base}/admin/sistema`,            label: t("nav.ajustesSistema"),       icon: Settings },
+  // "Citas" — booking module management
+  const citasItems: NavItemConfig[] = [
+    { href: `${base}/admin/citas`,        label: t("nav.gestionarCitas"),       icon: CalendarCheck },
+    { href: `${base}/admin/ubicaciones`,  label: t("nav.gestionarUbicaciones"), icon: MapPin },
+    { href: `${base}/admin/servicios`,    label: t("nav.gestionarServicios"),   icon: Stethoscope },
+    { href: `${base}/admin/doctores`,     label: t("nav.gestionarDoctores"),    icon: UserRound },
+  ];
+
+  // "Clientes" — users + companies
+  const clientesItems: NavItemConfig[] = [
+    { href: `${base}/admin/usuarios`,     label: t("nav.gestionarUsuarios"),    icon: UserCog },
+    { href: `${base}/admin/empresas`,     label: t("nav.gestionarEmpresas"),    icon: Building2 },
+  ];
+
+  // "Recursos" — content available to members
+  const recursosItems: NavItemConfig[] = [
+    { href: `${base}/admin/beneficios`,   label: t("nav.gestionarBeneficios"),  icon: Gift },
+    { href: `${base}/admin/documentos`,   label: t("nav.gestionarDocumentos"),  icon: FileText },
+  ];
+
+  // "Reportes" — analytics & audit
+  const reportesItems: NavItemConfig[] = [
+    { href: `${base}/admin/reportes`,     label: t("nav.generarReportes"),      icon: BarChart3 },
+    { href: `${base}/admin/auditoria`,    label: t("nav.auditoria"),            icon: ShieldCheck },
+  ];
+
+  // "Sistema" — config
+  const sistemaItems: NavItemConfig[] = [
+    { href: `${base}/admin/sistema`,      label: t("nav.ajustesSistema"),       icon: Settings },
   ];
 
   return [
@@ -120,8 +136,12 @@ function buildAdminNav(
         { href: `${base}/admin`, label: t("nav.dashboard"), icon: LayoutDashboard, exact: true },
       ],
     },
-    { label: t("groupMiPerfil"),         items: miPerfilItems },
-    { label: t("groupAdministrarAdmin"), items: administrarItems },
+    { label: t("groupMiPerfil"),  items: miPerfilItems },
+    { label: t("groupCitas"),     items: citasItems },
+    { label: t("groupClientes"),  items: clientesItems },
+    { label: t("groupRecursos"),  items: recursosItems },
+    { label: t("groupReportes"),  items: reportesItems },
+    { label: t("groupSistema"),   items: sistemaItems },
   ];
 }
 

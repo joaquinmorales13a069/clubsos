@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Stethoscope, Loader2, Clock, DollarSign } from "lucide-react";
+import { Stethoscope, Loader2, Clock, DollarSign, Search, X } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import type { WizardState } from "../types";
 
@@ -63,6 +63,16 @@ export default function PasoServicio({
   const [servicios, setServicios] = useState<Servicio[]>([]);
   const [loading, setLoading]     = useState(true);
   const [checking, setChecking]   = useState<string | null>(null);
+  const [search, setSearch]       = useState("");
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLocaleLowerCase();
+    if (!q) return servicios;
+    return servicios.filter((s) =>
+      s.nombre.toLocaleLowerCase().includes(q) ||
+      (s.descripcion ?? "").toLocaleLowerCase().includes(q),
+    );
+  }, [servicios, search]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -135,8 +145,40 @@ export default function PasoServicio({
           <p className="text-sm font-roboto text-gray-500">{ts("noServices")}</p>
         </div>
       ) : (
-        <div className="grid gap-3">
-          {servicios.map((s) => (
+        <>
+          {/* Search input */}
+          <div className="relative">
+            <Search className="w-4 h-4 text-neutral absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={ts("searchPlaceholder")}
+              aria-label={ts("searchPlaceholder")}
+              className="w-full rounded-xl border border-gray-200 bg-white pl-9 pr-9 py-2 text-sm font-roboto
+                         focus:outline-none focus:border-secondary/60 focus:ring-2 focus:ring-secondary/10
+                         transition-colors"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                aria-label={ts("clearSearch")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md text-neutral hover:text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {filtered.length === 0 ? (
+            <div className="text-center py-10">
+              <Search className="w-8 h-8 text-gray-200 mx-auto mb-2" />
+              <p className="text-sm font-roboto text-gray-500">{ts("noMatches")}</p>
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2">
+              {filtered.map((s) => (
             <button
               key={s.id}
               type="button"
@@ -174,8 +216,10 @@ export default function PasoServicio({
                 )}
               </div>
             </button>
-          ))}
-        </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       <button
