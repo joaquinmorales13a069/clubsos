@@ -5,13 +5,10 @@ import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Loader2, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Servicio = { id: string; nombre: string; ea_category_id: number | null };
-
-const CATEGORY_LABEL: Record<number, string> = { 1: "Managua", 2: "León" };
+type Servicio = { id: string; nombre: string };
 
 function servicioLabel(s: Servicio): string {
-  const suffix = s.ea_category_id != null ? CATEGORY_LABEL[s.ea_category_id] : undefined;
-  return suffix ? `${s.nombre} - ${suffix}` : s.nombre;
+  return s.nombre;
 }
 type ContratoServicio = { id: string; cuota_por_titular: number; servicio: { id: string; nombre: string } | null };
 type Contrato = {
@@ -51,7 +48,7 @@ export default function AdminContratosManager({ empresaId }: Props) {
     import("@/utils/supabase/client").then(({ createClient }) => {
       const sb = createClient();
       void sb.from("empresas").select("id, nombre").order("nombre").then(({ data }) => setEmpresas(data ?? []));
-      void sb.from("servicios").select("id, nombre, ea_category_id").eq("activo", true).order("nombre").then(({ data }) => setServicios(data ?? []));
+      void sb.from("servicios").select("id, nombre").eq("activo", true).order("nombre").then(({ data }) => setServicios(data ?? []));
     });
   }, []);
 
