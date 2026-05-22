@@ -9,7 +9,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/utils/supabase/server";
 import { logAction } from "@/utils/audit";
 
-// ── EA helpers (mirrors app/api/ea/citas/aprobar/route.ts) ────────────────────
+// ── EA helpers (direct calls to Easy Appointment from server actions) ────────
 
 const EA_RAW_URL = process.env.NEXT_PUBLIC_EA_API_URL ?? "";
 const EA_KEY     = process.env.EA_API_KEY ?? "";
