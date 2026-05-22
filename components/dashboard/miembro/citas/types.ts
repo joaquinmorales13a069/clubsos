@@ -13,22 +13,21 @@ export type WizardStep =
 
 export interface WizardState {
   step: WizardStep;
-  // Step 1
-  categoriaId:      number | null;
+  // Step 1 — ubicación
+  ubicacionId:      string | null;
   ubicacionNombre:  string;
-  // Step 2
-  eaServiceId:      number | null;
+  // Step 2 — servicio
   servicioId:       string | null;
   servicioNombre:   string;
-  servicioDuracion: number;
-  // Step 3
-  eaProviderId:     number | null;
+  servicioDuracion: number;  // duración total estimada en minutos (informativa)
+  // Step 3 — doctor
+  doctorId:         string | null;
   doctorNombre:     string;
-  // Step 4
+  // Step 4 — fecha (YYYY-MM-DD)
   fecha:            string | null;
-  // Step 5
-  hora:             string | null;
-  // Step 6
+  // Step 5 — horario (ISO UTC del slot inicial elegido)
+  fechaHoraCita:    string | null;
+  // Step 6 — paciente
   paraTitular:      boolean;
   pacienteNombre:   string;
   pacienteTelefono: string;
@@ -57,16 +56,15 @@ export const WIZARD_STEPS = WIZARD_STEPS_BASE;
 
 export const INITIAL_WIZARD: WizardState = {
   step:                 "ubicacion",
-  categoriaId:          null,
+  ubicacionId:          null,
   ubicacionNombre:      "",
-  eaServiceId:          null,
   servicioId:           null,
   servicioNombre:       "",
   servicioDuracion:     30,
-  eaProviderId:         null,
+  doctorId:             null,
   doctorNombre:         "",
   fecha:                null,
-  hora:                 null,
+  fechaHoraCita:        null,
   paraTitular:          true,
   pacienteNombre:       "",
   pacienteTelefono:     "",
@@ -95,7 +93,6 @@ export interface CitaRow {
   fecha_hora_cita:   string;
   estado_sync:       CitaEstado;
   servicio_asociado: string | null;
-  ea_appointment_id: string | null;
   paciente_nombre:   string | null;
   para_titular:      boolean;
 }
@@ -105,7 +102,6 @@ export interface WizardUserProfile {
   rol:                 string;
   empresa_id:          string | null;
   titular_id:          string | null;
-  ea_customer_id:      number | null;
   nombre_completo:     string | null;
   telefono:            string | null;
   documento_identidad: string | null;
