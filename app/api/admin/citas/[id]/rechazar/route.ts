@@ -14,7 +14,7 @@ export async function POST(
 
   const { data: profile } = await supabase
     .from("users").select("rol").eq("id", user.id).single();
-  if (profile?.rol !== "admin") {
+  if (profile?.rol !== "admin" && profile?.rol !== "empresa_admin") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -39,7 +39,7 @@ export async function POST(
 
   await logAction(supabase, {
     actorId:      user.id,
-    actorRol:     "admin",
+    actorRol:     profile?.rol ?? "admin",
     accion:       "cita.rechazar",
     entidad:      "citas",
     entidadId:    id,
