@@ -46,10 +46,8 @@ export default function AdminCitasPendientesAdmin() {
   async function aprobar(citaId: string) {
     setActing(a => ({ ...a, [citaId]: true }));
     try {
-      const res = await fetch(`/api/admin/citas/${citaId}/aprobar`, {
+      const res = await fetch(`/api/admin/citas/${citaId}/confirmar`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ citaId }),
       });
       if (!res.ok) throw new Error(((await res.json()) as { error?: string }).error ?? "Error");
       toast.success("Cita aprobada");
@@ -66,7 +64,7 @@ export default function AdminCitasPendientesAdmin() {
       const res = await fetch(`/api/admin/citas/${citaId}/rechazar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ citaId }),
+        body: JSON.stringify({ motivo: "" }),
       });
       if (!res.ok) throw new Error(((await res.json()) as { error?: string }).error ?? "Error");
       toast.success("Cita rechazada");

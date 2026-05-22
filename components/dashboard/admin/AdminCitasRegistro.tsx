@@ -7,7 +7,7 @@
  * empresa filter, or page changes. Search is client-side over the
  * current fetched page (CONTEXT §7.3: "sobre la página actual cargada").
  *
- * Approve: POST /api/ea/citas/aprobar (only when ea_appointment_id IS NULL)
+ * Approve: POST /api/admin/citas/[id]/confirmar (only when ea_appointment_id IS NULL)
  * Reject:  direct Supabase JS update
  */
 
@@ -239,10 +239,8 @@ export default function AdminCitasRegistro() {
   const handleAprobar = async (citaId: string) => {
     setAprobandoId(citaId);
     try {
-      const res = await fetch("/api/ea/citas/aprobar", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ citaId }),
+      const res = await fetch(`/api/admin/citas/${citaId}/confirmar`, {
+        method: "POST",
       });
       if (res.ok) {
         setCitas((prev) =>

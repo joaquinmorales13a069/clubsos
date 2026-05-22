@@ -8,7 +8,7 @@
  * - Client-side search on paciente name, servicio, doctor.
  * - Client-side pagination (20 per page).
  * - Row click → DetalleModal (Sheet panel).
- * - Approve: POST /api/ea/citas/aprobar | Reject: direct Supabase JS.
+ * - Approve: POST /api/admin/citas/[id]/confirmar | Reject: direct Supabase JS.
  */
 
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -216,10 +216,8 @@ export default function EmpresaCitasRegistro() {
   const handleAprobar = async (citaId: string) => {
     setAprobandoId(citaId);
     try {
-      const res = await fetch("/api/ea/citas/aprobar", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ citaId }),
+      const res = await fetch(`/api/admin/citas/${citaId}/confirmar`, {
+        method: "POST",
       });
 
       if (res.ok) {

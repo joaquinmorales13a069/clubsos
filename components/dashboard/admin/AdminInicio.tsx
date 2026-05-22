@@ -190,10 +190,8 @@ export default function AdminInicio({ firstName }: Props) {
   const handleAprobar = async (citaId: string) => {
     setAprobandoIds((prev) => new Set(prev).add(citaId));
     try {
-      const res = await fetch("/api/ea/citas/aprobar", {
+      const res = await fetch(`/api/admin/citas/${citaId}/confirmar`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ citaId }),
       });
       if (res.ok) {
         setCitas((prev) => prev.filter((c) => c.id !== citaId));
