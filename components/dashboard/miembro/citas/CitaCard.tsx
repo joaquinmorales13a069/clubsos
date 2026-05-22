@@ -38,7 +38,7 @@ export default function CitaCard({ cita }: CitaCardProps) {
   async function handleCancel() {
     if (!confirm(t("cancelConfirm"))) return;
     setCancelling(true);
-    const result = await cancelarCita(cita.id, cita.ea_appointment_id);
+    const result = await cancelarCita(cita.id);
     setCancelling(false);
     if (result?.error) {
       toast.error(result.error);

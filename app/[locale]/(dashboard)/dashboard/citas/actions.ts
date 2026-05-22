@@ -15,13 +15,8 @@ import { createClient } from "@/utils/supabase/server";
 import { logAction } from "@/utils/audit";
 
 // ── cancelarCita ──────────────────────────────────────────────────────────────
-//
-// The second `_legacyEaId` parameter is kept for backward compatibility with
-// existing callers (CitaCard) that still pass it; it is ignored. The signature
-// will be cleaned up in Phase 3 when the wizard/miembro components are migrated.
 
-export async function cancelarCita(citaId: string, _legacyEaId?: string | null) {
-  void _legacyEaId; // unused — preserved for caller compatibility
+export async function cancelarCita(citaId: string) {
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();
