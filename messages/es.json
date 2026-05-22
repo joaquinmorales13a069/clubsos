@@ -276,10 +276,7 @@
           "ubicacion": {
             "title": "¿Dónde deseas tu cita?",
             "subtitle": "Selecciona la ubicación de la clínica",
-            "managua": "Managua",
-            "managuaDesc": "Clínicas SOS en la capital",
-            "leon": "León",
-            "leonDesc": "Clínicas SOS en el occidente"
+            "loading": "Cargando ubicaciones..."
           },
           "servicio": {
             "title": "¿Qué servicio necesitas?",

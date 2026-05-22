@@ -276,10 +276,7 @@
           "ubicacion": {
             "title": "Where do you want your appointment?",
             "subtitle": "Select the clinic location",
-            "managua": "Managua",
-            "managuaDesc": "SOS Clinics in the capital",
-            "leon": "León",
-            "leonDesc": "SOS Clinics in the west"
+            "loading": "Loading locations..."
           },
           "servicio": {
             "title": "What service do you need?",
