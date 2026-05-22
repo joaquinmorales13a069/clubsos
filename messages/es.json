@@ -259,6 +259,13 @@
         "cancelBtn": "Cancelar cita",
         "cancelConfirm": "¿Estás seguro de que deseas cancelar esta cita?",
         "cancelTooLate": "No se puede cancelar con menos de 1 hora de anticipación.",
+        "agregar_calendario": {
+          "button": "Agregar al calendario",
+          "google": "Google Calendar",
+          "outlook": "Outlook",
+          "apple": "Apple Calendar",
+          "ics": "Descargar .ics"
+        },
         "statusPendiente": "Pendiente aprobación",
         "statusConfirmado": "Confirmado",
         "statusCompletado": "Completado",

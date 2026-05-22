@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { CalendarDays, Clock, X, Loader2 } from "lucide-react";
 import { cancelarCita } from "@/app/[locale]/(dashboard)/dashboard/citas/actions";
 import CitaEstadoBadge from "./CitaEstadoBadge";
+import AgregarACalendario from "./AgregarACalendario";
 import type { CitaEstado, CitaRow } from "./types";
 
 interface CitaCardProps {
@@ -74,6 +75,21 @@ export default function CitaCard({ cita }: CitaCardProps) {
         <p className="text-xs font-roboto text-neutral">
           Paciente: <span className="font-medium text-gray-700">{cita.paciente_nombre}</span>
         </p>
+      )}
+
+      {/* Add to external calendar — only for confirmed citas */}
+      {cita.estado_sync === "confirmado" && (
+        <AgregarACalendario
+          citaId={cita.id}
+          title={`${cita.servicio_asociado ?? "Cita médica"}${cita.doctor?.nombre ? ` con ${cita.doctor.nombre}` : ""}`}
+          start={new Date(cita.fecha_hora_cita)}
+          end={cita.fecha_hora_fin
+            ? new Date(cita.fecha_hora_fin)
+            : new Date(new Date(cita.fecha_hora_cita).getTime() + 30 * 60_000)}
+          location={cita.ubicacion
+            ? `${cita.ubicacion.nombre}${cita.ubicacion.direccion ? `, ${cita.ubicacion.direccion}` : ""}`
+            : undefined}
+        />
       )}
 
       {/* Cancel button */}

@@ -91,10 +91,13 @@ export type CitaEstado =
 export interface CitaRow {
   id:                string;
   fecha_hora_cita:   string;
+  fecha_hora_fin:    string | null;
   estado_sync:       CitaEstado;
   servicio_asociado: string | null;
   paciente_nombre:   string | null;
   para_titular:      boolean;
+  doctor:            { nombre: string } | null;
+  ubicacion:         { nombre: string; direccion: string | null } | null;
 }
 
 export interface WizardUserProfile {
