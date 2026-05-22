@@ -113,29 +113,30 @@ export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) 
           {wizard.step === "ubicacion" && (
             <PasoUbicacion onSelect={patchAndAdvance} />
           )}
-          {wizard.step === "servicio" && wizard.categoriaId !== null && (
+          {wizard.step === "servicio" && wizard.ubicacionId !== null && (
             <PasoServicio
-              categoriaId={wizard.categoriaId}
+              ubicacionId={wizard.ubicacionId}
               empresaId={userProfile?.empresa_id ?? null}
               titularRefId={userProfile?.titular_id ?? userProfile?.id ?? ""}
               onSelect={patchAndAdvance}
               onBack={goBack}
             />
           )}
-          {wizard.step === "doctor" && wizard.eaServiceId !== null && (
+          {wizard.step === "doctor" && wizard.ubicacionId !== null && wizard.servicioId !== null && (
             <PasoDoctor
-              eaServiceId={wizard.eaServiceId}
+              ubicacionId={wizard.ubicacionId}
+              servicioId={wizard.servicioId}
               onSelect={patchAndAdvance}
               onBack={goBack}
             />
           )}
-          {wizard.step === "fecha" && (
-            <PasoFecha onSelect={patchAndAdvance} onBack={goBack} />
+          {wizard.step === "fecha" && wizard.doctorId !== null && (
+            <PasoFecha doctorId={wizard.doctorId} onSelect={patchAndAdvance} onBack={goBack} />
           )}
-          {wizard.step === "horario" && wizard.eaProviderId !== null && wizard.eaServiceId !== null && wizard.fecha !== null && (
+          {wizard.step === "horario" && wizard.doctorId !== null && wizard.servicioId !== null && wizard.fecha !== null && (
             <PasoHorario
-              eaProviderId={wizard.eaProviderId}
-              eaServiceId={wizard.eaServiceId}
+              doctorId={wizard.doctorId}
+              servicioId={wizard.servicioId}
               fecha={wizard.fecha}
               onSelect={patchAndAdvance}
               onBack={goBack}
@@ -143,7 +144,7 @@ export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) 
           )}
           {wizard.step === "paciente" && (
             <PasoPaciente
-              userProfile={userProfile ?? { id: "", rol: "miembro", empresa_id: null, titular_id: null, ea_customer_id: null, nombre_completo: null, telefono: null, documento_identidad: null }}
+              userProfile={userProfile ?? { id: "", rol: "miembro", empresa_id: null, titular_id: null, nombre_completo: null, telefono: null, documento_identidad: null }}
               onSelect={(patch) =>
                 setWizard((w) => {
                   const merged = { ...w, ...patch };
