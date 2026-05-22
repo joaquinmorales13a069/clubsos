@@ -13,6 +13,7 @@ import { useRouter } from "@/i18n/routing";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 import DateTimeDisplay from "./DateTimeDisplay";
+import NotificacionesCampana from "./NotificacionesCampana";
 import TopbarAvisosPopover from "./TopbarAvisosPopover";
 
 export default function Topbar() {
@@ -65,6 +66,8 @@ export default function Topbar() {
         </a>
 
         <LanguageSwitcher />
+
+        <NotificacionesCampana />
 
         <TopbarAvisosPopover />
       </div>

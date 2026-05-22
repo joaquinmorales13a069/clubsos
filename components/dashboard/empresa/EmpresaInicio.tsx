@@ -172,7 +172,7 @@ export default function EmpresaInicio({ firstName, empresaId }: Props) {
       .select(`
         id, fecha_hora_cita, para_titular, paciente_nombre, created_at,
         paciente:users!paciente_id(nombre_completo),
-        servicio:servicios!citas_ea_service_id_fkey(nombre)
+        servicio:servicios!citas_servicio_id_fkey(nombre)
       `)
       .eq("estado_sync", "pendiente_empresa")
       .order("created_at", { ascending: false })
@@ -206,10 +206,8 @@ export default function EmpresaInicio({ firstName, empresaId }: Props) {
   const handleAprobar = async (citaId: string) => {
     setAprobandoIds((prev) => new Set(prev).add(citaId));
     try {
-      const res = await fetch("/api/ea/citas/aprobar", {
+      const res = await fetch(`/api/admin/citas/${citaId}/confirmar`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ citaId }),
       });
 
       if (res.ok) {
@@ -237,10 +235,10 @@ export default function EmpresaInicio({ firstName, empresaId }: Props) {
   const handleRechazar = async (citaId: string) => {
     setRechazandoIds((prev) => new Set(prev).add(citaId));
     try {
-      const res = await fetch(`/api/ea/citas/${citaId}/rechazar`, {
+      const res = await fetch(`/api/admin/citas/${citaId}/rechazar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ motivo: "" }),
       });
 
       if (res.ok) {

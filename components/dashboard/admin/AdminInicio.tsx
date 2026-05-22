@@ -161,7 +161,7 @@ export default function AdminInicio({ firstName }: Props) {
       .select(`
         id, fecha_hora_cita, para_titular, created_at,
         paciente:users!paciente_id(nombre_completo),
-        servicio:servicios!citas_ea_service_id_fkey(nombre),
+        servicio:servicios!citas_servicio_id_fkey(nombre),
         empresa:empresas!empresa_id(nombre)
       `)
       .in("estado_sync", ["pendiente", "pendiente_empresa", "pendiente_pago", "pendiente_admin"])
@@ -190,10 +190,8 @@ export default function AdminInicio({ firstName }: Props) {
   const handleAprobar = async (citaId: string) => {
     setAprobandoIds((prev) => new Set(prev).add(citaId));
     try {
-      const res = await fetch("/api/ea/citas/aprobar", {
+      const res = await fetch(`/api/admin/citas/${citaId}/confirmar`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ citaId }),
       });
       if (res.ok) {
         setCitas((prev) => prev.filter((c) => c.id !== citaId));

@@ -24,12 +24,12 @@ NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY
 SUPABASE_SERVICE_ROLE_KEY
 
-NEXT_PUBLIC_EA_API_URL     # Easy Appointment base URL (e.g. https://…/index.php/api/v1/)
-EA_API_KEY                 # EA Bearer token
-
 WHATSAPP_PHONE_NUMBER_ID
 WHATSAPP_API_TOKEN
 WHATSAPP_PAYMENT_URL_BASE  # Base URL for payment links sent via WhatsApp
+
+RESEND_API_KEY             # Resend API key (email notifications)
+EMAIL_FROM                 # From address used by procesar_eventos_cita edge function
 ```
 
 ## Architecture
@@ -106,15 +106,26 @@ pendiente → pendiente_admin → confirmado → completado
            ↘ cancelado
 ```
 
-- Members create citas (`pendiente`), optionally pay (`pendiente_admin`)
-- Admin approves (→ `confirmado`, synced to EA) or rejects (→ `rechazado`)
-- `para_titular: boolean` — if false, cita is for a family member; extra fields (`paciente_nombre`, `paciente_telefono`, `paciente_cedula`) are stored on the cita row
+- Members create citas via `POST /api/citas` → `crear_cita_atomic` RPC. The RPC validates slot availability with `pg_advisory_xact_lock` + partial unique index `(doctor_id, fecha_hora_cita) WHERE estado_sync NOT IN ('cancelado','rechazado')` to guarantee no double-booking under concurrency.
+- Admin confirms (→ `confirmado`) or rejects (→ `rechazado`) via the `confirmar_cita`/`rechazar_cita` RPCs. Empresa_admin can do the same for `pendiente_empresa` citas belonging to their empresa.
+- Cancellation (`cancelar_cita` RPC) checks a configurable window (`configuracion_sistema.ventana_cancelacion_horas`, default 24).
+- `para_titular: boolean` — if false, cita is for a family member; extra fields (`paciente_nombre`, `paciente_telefono`, `paciente_cedula`) are stored on the cita row.
+
+### Native Citas Module
+
+The appointments system is **fully native to Supabase** — no external booking provider. Key tables and helpers:
+
+- **Schema:** `citas` (with `doctor_id`, `servicio_id`, `ubicacion_id`, `fecha_hora_fin`, audit columns), `ubicaciones`, `doctores` (with `ubicacion_id`), `servicios` (with `slot_duracion`), `doctor_servicios` pivote, `horarios_doctores` (weekly recurrence), `excepciones_horario` (vacaciones/feriados), `cita_eventos` (notification queue), `notificaciones` (in-app bell).
+- **RPCs:** `crear_cita_atomic`, `obtener_slots_disponibles`, `obtener_dias_disponibles`, `confirmar_cita`, `rechazar_cita`, `cancelar_cita`. All `SECURITY DEFINER` with explicit role checks. Errors are raised with `ERRCODE = 'P0001'` and named codes (`SLOT_TAKEN`, `QUOTA_EXCEEDED`, etc.); the helper `lib/citas/errors.ts` maps them to HTTP status + i18n keys.
+- **Realtime:** the `citas` and `notificaciones` tables are part of `supabase_realtime`. The wizard's `PasoHorario` and the admin calendar subscribe to live changes.
+- **Notifications:** trigger `tr_cita_estado_change` writes to `cita_eventos`. Edge function `procesar_eventos_cita` (in `supabase/functions/`) drains the queue every minute (via `pg_cron`) and dispatches WhatsApp templates, email with `.ics` attachment (Resend), and in-app notifications. A 24h-before-cita reminder is scheduled via a separate `pg_cron` job.
+- **Calendar export:** `lib/calendar/ics.ts` and `lib/calendar/links.ts` power the `<AgregarACalendario />` dropdown in `CitaCard` (Google / Outlook / Apple / `.ics` download).
 
 ### External Integrations
 
-**Easy Appointment (EA)**: Third-party booking system at `NEXT_PUBLIC_EA_API_URL`. Admin approval (`/api/admin/citas/[id]/aprobar`) creates the appointment in EA via its REST API. All datetimes are converted to Nicaragua timezone (UTC-6). EA IDs are stored back on `citas.ea_appointment_id` / `users.ea_customer_id`.
+**WhatsApp Cloud API**: Used to notify members of appointment status changes and to send the 24h-before reminder. Outbound messages use `WHATSAPP_PHONE_NUMBER_ID` + `WHATSAPP_API_TOKEN`. Templates: `cita_confirmada`, `cita_rechazada`, `cita_cancelada`, `cita_recordatorio_24h` (Spanish, must be approved in Meta Business Manager).
 
-**WhatsApp Cloud API**: Used to notify members of appointment status changes. Outbound messages use `WHATSAPP_PHONE_NUMBER_ID` + `WHATSAPP_API_TOKEN`.
+**Resend (email)**: Confirmed citas send an email with `.ics` attachment. Uses `RESEND_API_KEY` + `EMAIL_FROM` configured on the edge function.
 
 **Reporting RPCs**: Admin reports call Postgres RPC functions (defined in migrations) rather than complex client-side joins.
 

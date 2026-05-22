@@ -64,7 +64,7 @@ export default function AdminPagoVerificacion() {
       const res = await fetch(`/api/admin/citas/${citaId}/rechazar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ citaId }),
+        body: JSON.stringify({ motivo: "" }),
       });
       if (!res.ok) throw new Error(((await res.json()) as { error?: string }).error ?? "Error");
       toast.success("Cita rechazada");

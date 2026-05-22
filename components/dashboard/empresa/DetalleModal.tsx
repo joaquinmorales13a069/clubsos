@@ -158,9 +158,6 @@ export default function DetalleModal({
               {cita.motivo_cita && (
                 <Field label={t("fieldMotivo")} value={cita.motivo_cita} />
               )}
-              {cita.ea_appointment_id && (
-                <Field label={t("fieldEaId")}   value={cita.ea_appointment_id} mono />
-              )}
             </div>
           </section>
         </div>

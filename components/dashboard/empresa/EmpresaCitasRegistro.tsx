@@ -8,7 +8,7 @@
  * - Client-side search on paciente name, servicio, doctor.
  * - Client-side pagination (20 per page).
  * - Row click → DetalleModal (Sheet panel).
- * - Approve: POST /api/ea/citas/aprobar | Reject: direct Supabase JS.
+ * - Approve: POST /api/admin/citas/[id]/confirmar | Reject: direct Supabase JS.
  */
 
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -53,7 +53,6 @@ export type CitaRegistro = {
   paciente_cedula:     string | null;
   motivo_cita:         string | null;
   estado_sync:         string;
-  ea_appointment_id:   string | null;
   created_at:          string;
   paciente: {
     nombre_completo:     string | null;
@@ -146,10 +145,10 @@ export default function EmpresaCitasRegistro() {
       .select(`
         id, fecha_hora_cita, para_titular, paciente_nombre,
         paciente_telefono, paciente_correo, paciente_cedula,
-        motivo_cita, estado_sync, ea_appointment_id, created_at,
+        motivo_cita, estado_sync, created_at,
         paciente:users!paciente_id(nombre_completo, telefono, documento_identidad),
-        servicio:servicios!citas_ea_service_id_fkey(nombre),
-        doctor:doctores!citas_ea_provider_id_fkey(nombre)
+        servicio:servicios!citas_servicio_id_fkey(nombre),
+        doctor:doctores!citas_doctor_id_fkey(nombre)
       `)
       .order("created_at", { ascending: false })
       .then(({ data, error }) => {
@@ -216,10 +215,8 @@ export default function EmpresaCitasRegistro() {
   const handleAprobar = async (citaId: string) => {
     setAprobandoId(citaId);
     try {
-      const res = await fetch("/api/ea/citas/aprobar", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ citaId }),
+      const res = await fetch(`/api/admin/citas/${citaId}/confirmar`, {
+        method: "POST",
       });
 
       if (res.ok) {
