@@ -29,22 +29,10 @@ export default async function CitasPage() {
       .single(),
   ]);
 
-  // The legacy ea_appointment_id / ea_customer_id fields were dropped from the
-  // schema by the citas native module migration. Phase 3 will refactor the
-  // wizard types to remove them entirely; until then we synthesise null values
-  // so the deferred CitaRow / WizardUserProfile shapes still compile.
-  const citasWithLegacy = (citasRes.data ?? []).map((c) => ({
-    ...c,
-    ea_appointment_id: null,
-  }));
-  const profileWithLegacy = profileRes.data
-    ? { ...profileRes.data, ea_customer_id: null }
-    : null;
-
   return (
     <MisCitas
-      citas={citasWithLegacy}
-      userProfile={profileWithLegacy}
+      citas={citasRes.data ?? []}
+      userProfile={profileRes.data ?? null}
       locale={locale}
     />
   );
