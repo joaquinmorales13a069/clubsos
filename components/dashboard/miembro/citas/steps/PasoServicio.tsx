@@ -9,16 +9,16 @@ import type { WizardState } from "../types";
 type ContratoServicioRow = { id: string };
 
 interface Servicio {
-  id: string;
-  ea_service_id: number;
-  nombre: string;
-  duracion: number | null;
-  precio: number | null;
-  descripcion: string | null;
+  id:            string;
+  nombre:        string;
+  duracion:      number | null;
+  precio:        number | null;
+  descripcion:   string | null;
+  slot_duracion: number;
 }
 
 interface PasoServicioProps {
-  categoriaId:  number;
+  ubicacionId:  string;
   empresaId:    string | null;
   titularRefId: string;
   onSelect: (patch: Partial<WizardState>) => void;
@@ -42,7 +42,6 @@ async function checkCoverage(
 
   if (!cs) return { contrato_servicio_id: null, cuota_disponible: null };
 
-  // Supabase returns nested joins as unknown type — safely extract id
   const csId = (cs as unknown as ContratoServicioRow).id;
 
   const { data: quota } = await supabase.rpc("check_cuota_disponible", {
@@ -56,7 +55,9 @@ async function checkCoverage(
   };
 }
 
-export default function PasoServicio({ categoriaId, empresaId, titularRefId, onSelect, onBack }: PasoServicioProps) {
+export default function PasoServicio({
+  ubicacionId, empresaId, titularRefId, onSelect, onBack,
+}: PasoServicioProps) {
   const t  = useTranslations("Dashboard.miembro.citas.wizard");
   const ts = useTranslations("Dashboard.miembro.citas.wizard.servicio");
   const [servicios, setServicios] = useState<Servicio[]>([]);
@@ -65,16 +66,32 @@ export default function PasoServicio({ categoriaId, empresaId, titularRefId, onS
 
   useEffect(() => {
     const supabase = createClient();
+    // Servicios activos que tienen al menos un doctor activo en la ubicación.
     supabase
       .from("servicios")
-      .select("id, ea_service_id, nombre, duracion, precio, descripcion")
-      .eq("ea_category_id", categoriaId)
+      .select(`
+        id, nombre, duracion, precio, descripcion, slot_duracion,
+        doctor_servicios!inner(
+          doctor:doctores!inner(id, activo, ubicacion_id)
+        )
+      `)
       .eq("activo", true)
+      .eq("doctor_servicios.doctor.activo", true)
+      .eq("doctor_servicios.doctor.ubicacion_id", ubicacionId)
+      .order("nombre")
       .then(({ data }) => {
-        setServicios(data ?? []);
+        const seen = new Set<string>();
+        const unique: Servicio[] = [];
+        for (const row of (data ?? []) as unknown as Servicio[]) {
+          if (!seen.has(row.id)) {
+            seen.add(row.id);
+            unique.push(row);
+          }
+        }
+        setServicios(unique);
         setLoading(false);
       });
-  }, [categoriaId]);
+  }, [ubicacionId]);
 
   async function handleSelect(s: Servicio) {
     setChecking(s.id);
@@ -90,7 +107,6 @@ export default function PasoServicio({ categoriaId, empresaId, titularRefId, onS
     }
 
     onSelect({
-      eaServiceId:          s.ea_service_id,
       servicioId:           s.id,
       servicioNombre:       s.nombre,
       servicioDuracion:     s.duracion ?? 30,
