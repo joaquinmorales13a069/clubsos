@@ -865,7 +865,8 @@
             "confirmar_ok": "Appointment confirmed",
             "rechazar_ok": "Appointment rejected",
             "cancelar_ok": "Appointment cancelled",
-            "cargando": "Loading..."
+            "cargando": "Loading...",
+            "error_cargar": "Could not load the appointment details"
           },
           "estados": {
             "pendiente": "Pending",

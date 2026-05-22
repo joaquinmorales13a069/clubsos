@@ -865,7 +865,8 @@
             "confirmar_ok": "Cita confirmada",
             "rechazar_ok": "Cita rechazada",
             "cancelar_ok": "Cita cancelada",
-            "cargando": "Cargando..."
+            "cargando": "Cargando...",
+            "error_cargar": "No se pudo cargar el detalle de la cita"
           },
           "estados": {
             "pendiente": "Pendiente",

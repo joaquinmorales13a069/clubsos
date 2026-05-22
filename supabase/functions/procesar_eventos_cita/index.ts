@@ -30,7 +30,7 @@ interface CitaDetalle {
   estado_sync: string;
   motivo_rechazo: string | null;
   motivo_cancelacion: string | null;
-  paciente: { nombre_completo: string | null; telefono: string | null; correo: string | null } | null;
+  paciente: { nombre_completo: string | null; telefono: string | null; email: string | null } | null;
   doctor: { nombre: string } | null;
   servicio: { nombre: string } | null;
   ubicacion: { nombre: string; direccion: string | null } | null;
@@ -54,7 +54,7 @@ async function fetchCita(citaId: string): Promise<CitaDetalle | null> {
     .select(`
       id, fecha_hora_cita, fecha_hora_fin, paciente_id, motivo_cita, estado_sync,
       motivo_rechazo, motivo_cancelacion,
-      paciente:users!paciente_id(nombre_completo, telefono, correo),
+      paciente:users!paciente_id(nombre_completo, telefono, email),
       doctor:doctores(nombre),
       servicio:servicios(nombre),
       ubicacion:ubicaciones(nombre, direccion)
@@ -117,7 +117,7 @@ async function procesar(evt: EventoRow): Promise<{ ok: boolean; error?: string }
         }));
       }
 
-      if (cita.paciente.correo && cita.fecha_hora_fin) {
+      if (cita.paciente.email && cita.fecha_hora_fin) {
         const ics = buildIcs({
           uid:         cita.id,
           start:       new Date(cita.fecha_hora_cita),
@@ -128,7 +128,7 @@ async function procesar(evt: EventoRow): Promise<{ ok: boolean; error?: string }
           organizer:   { name: "clubSOS", email: Deno.env.get("EMAIL_FROM") ?? "no-reply@clubsos.com" },
         });
         promises.push(sendEmail({
-          to:      cita.paciente.correo,
+          to:      cita.paciente.email,
           subject: "Tu cita ha sido confirmada",
           html: `
             <h2>Cita confirmada</h2>
@@ -212,9 +212,9 @@ async function procesar(evt: EventoRow): Promise<{ ok: boolean; error?: string }
           ],
         });
       }
-      if (cita.paciente.correo) {
+      if (cita.paciente.email) {
         await sendEmail({
-          to: cita.paciente.correo,
+          to: cita.paciente.email,
           subject: "Recordatorio: tu cita es mañana",
           html: `<p>Hola ${cita.paciente.nombre_completo ?? ""}, te recordamos tu cita mañana ${fechaTxt} (${servicioNombre} con ${doctorNombre}).</p>`,
         });
