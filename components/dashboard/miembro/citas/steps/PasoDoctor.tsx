@@ -8,13 +8,13 @@ import type { WizardState } from "../types";
 
 interface Doctor {
   id: string;
-  ea_provider_id: number;
   nombre: string;
   correo: string | null;
 }
 
 interface PasoDoctorProps {
-  eaServiceId: number;
+  ubicacionId: string;
+  servicioId: string;
   onSelect: (patch: Partial<WizardState>) => void;
   onBack: () => void;
 }
@@ -27,7 +27,7 @@ function getInitials(name: string): string {
     : (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-export default function PasoDoctor({ eaServiceId, onSelect, onBack }: PasoDoctorProps) {
+export default function PasoDoctor({ ubicacionId, servicioId, onSelect, onBack }: PasoDoctorProps) {
   const t  = useTranslations("Dashboard.miembro.citas.wizard");
   const td = useTranslations("Dashboard.miembro.citas.wizard.doctor");
   const [doctores, setDoctores] = useState<Doctor[]>([]);
@@ -37,14 +37,19 @@ export default function PasoDoctor({ eaServiceId, onSelect, onBack }: PasoDoctor
     const supabase = createClient();
     supabase
       .from("doctores")
-      .select("id, ea_provider_id, nombre, correo")
-      .contains("ea_servicios", [eaServiceId])
+      .select(`
+        id, nombre, correo,
+        doctor_servicios!inner(servicio_id)
+      `)
       .eq("activo", true)
+      .eq("ubicacion_id", ubicacionId)
+      .eq("doctor_servicios.servicio_id", servicioId)
+      .order("nombre")
       .then(({ data }) => {
-        setDoctores(data ?? []);
+        setDoctores((data ?? []) as unknown as Doctor[]);
         setLoading(false);
       });
-  }, [eaServiceId]);
+  }, [ubicacionId, servicioId]);
 
   return (
     <div className="space-y-4">
@@ -69,7 +74,7 @@ export default function PasoDoctor({ eaServiceId, onSelect, onBack }: PasoDoctor
             <button
               key={d.id}
               type="button"
-              onClick={() => onSelect({ eaProviderId: d.ea_provider_id, doctorNombre: d.nombre })}
+              onClick={() => onSelect({ doctorId: d.id, doctorNombre: d.nombre })}
               className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-4 text-left
                          shadow-sm transition-all hover:border-secondary/40 hover:shadow-md"
             >
