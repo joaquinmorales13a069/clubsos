@@ -168,6 +168,9 @@ export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) 
               onTransferenciaRequired={(citaId) =>
                 setWizard((w) => ({ ...w, cita_id: citaId, step: "transferencia" }))
               }
+              onSlotTaken={() =>
+                setWizard((w) => ({ ...w, step: "horario", fechaHoraCita: null }))
+              }
             />
           )}
           {wizard.step === "transferencia" && wizard.cita_id && (
