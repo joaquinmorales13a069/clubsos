@@ -33,6 +33,10 @@ import {
   UserCheck,
   SlidersHorizontal,
   CalendarCheck,
+  CalendarRange,
+  MapPin,
+  Stethoscope,
+  UserRound,
   UserCog,
   ShieldCheck,
   type LucideIcon,
@@ -98,14 +102,18 @@ function buildAdminNav(
 
   // "Administrar" — global admin management sections
   const administrarItems: NavItemConfig[] = [
-    { href: `${base}/admin/citas`,      label: t("nav.gestionarCitas"),      icon: CalendarCheck },
-    { href: `${base}/admin/beneficios`, label: t("nav.gestionarBeneficios"), icon: Gift },
-    { href: `${base}/admin/documentos`, label: t("nav.gestionarDocumentos"), icon: FileText },
-    { href: `${base}/admin/usuarios`,   label: t("nav.gestionarUsuarios"),   icon: UserCog },
-    { href: `${base}/admin/empresas`,   label: t("nav.gestionarEmpresas"),   icon: Building2 },
-    { href: `${base}/admin/reportes`,   label: t("nav.generarReportes"),     icon: BarChart3 },
-    { href: `${base}/admin/auditoria`,  label: t("nav.auditoria"),           icon: ShieldCheck },
-    { href: `${base}/admin/sistema`,    label: t("nav.ajustesSistema"),      icon: Settings },
+    { href: `${base}/admin/citas`,              label: t("nav.gestionarCitas"),       icon: CalendarCheck },
+    { href: `${base}/admin/citas/calendario`,   label: t("nav.calendarioCitas"),      icon: CalendarRange },
+    { href: `${base}/admin/ubicaciones`,        label: t("nav.gestionarUbicaciones"), icon: MapPin },
+    { href: `${base}/admin/servicios`,          label: t("nav.gestionarServicios"),   icon: Stethoscope },
+    { href: `${base}/admin/doctores`,           label: t("nav.gestionarDoctores"),    icon: UserRound },
+    { href: `${base}/admin/beneficios`,         label: t("nav.gestionarBeneficios"),  icon: Gift },
+    { href: `${base}/admin/documentos`,         label: t("nav.gestionarDocumentos"),  icon: FileText },
+    { href: `${base}/admin/usuarios`,           label: t("nav.gestionarUsuarios"),    icon: UserCog },
+    { href: `${base}/admin/empresas`,           label: t("nav.gestionarEmpresas"),    icon: Building2 },
+    { href: `${base}/admin/reportes`,           label: t("nav.generarReportes"),      icon: BarChart3 },
+    { href: `${base}/admin/auditoria`,          label: t("nav.auditoria"),            icon: ShieldCheck },
+    { href: `${base}/admin/sistema`,            label: t("nav.ajustesSistema"),       icon: Settings },
   ];
 
   return [
