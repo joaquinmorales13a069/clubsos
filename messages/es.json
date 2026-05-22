@@ -322,6 +322,8 @@
             "title": "Confirma tu cita",
             "subtitle": "Revisa los detalles antes de confirmar",
             "pendingNote": "Tu cita quedará pendiente de aprobación. El equipo médico la confirmará pronto.",
+            "aviso_concurrencia_titulo": "Este horario aún no está reservado.",
+            "aviso_concurrencia_body": "Otros usuarios pueden tomarlo en cualquier momento — confirma tu cita ahora para asegurarla.",
             "confirmBtn": "Confirmar Cita",
             "loading": "Agendando...",
             "success": "¡Cita agendada exitosamente!",
@@ -1337,6 +1339,24 @@
       "cancel": "Cancelar",
       "disableConfirmCTA": "Sí, desactivar",
       "enrollRefreshError": "Error al actualizar el estado del MFA."
+    }
+  },
+  "Errors": {
+    "citas": {
+      "slot_taken": "Ese horario ya fue reservado. Por favor elige otro.",
+      "slot_out_of_hours": "Ese horario no está dentro del horario de atención del doctor.",
+      "slot_in_exception": "El doctor no atiende ese día.",
+      "quota_exceeded": "Has alcanzado el límite de citas de este servicio.",
+      "invalid_doctor_service": "Este doctor no ofrece el servicio seleccionado.",
+      "cancel_too_late": "Las citas solo se pueden cancelar con suficiente anticipación.",
+      "invalid_state_transition": "No se puede realizar esta acción en el estado actual de la cita.",
+      "cita_not_found": "Cita no encontrada.",
+      "doctor_not_found": "Doctor no encontrado.",
+      "servicio_not_found": "Servicio no encontrado.",
+      "contrato_or_metodo_pago_required": "Debes elegir un método de pago.",
+      "unauthorized": "Sesión no válida.",
+      "forbidden": "No tienes permisos para esta acción.",
+      "unknown": "Ocurrió un error inesperado. Por favor intenta de nuevo."
     }
   }
 }
