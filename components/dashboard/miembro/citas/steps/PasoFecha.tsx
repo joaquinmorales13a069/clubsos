@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useEffect, useState, type CSSProperties } from "react";
+import { useTranslations, useLocale } from "next-intl";
 import { Info, Loader2 } from "lucide-react";
+import { es, enUS } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import type { WizardState } from "../types";
 
@@ -26,8 +27,10 @@ function nicaraguaCalendarDate(dayOffset = 0): Date {
 }
 
 export default function PasoFecha({ doctorId, onSelect, onBack }: PasoFechaProps) {
-  const t  = useTranslations("Dashboard.miembro.citas.wizard");
-  const tf = useTranslations("Dashboard.miembro.citas.wizard.fecha");
+  const t      = useTranslations("Dashboard.miembro.citas.wizard");
+  const tf     = useTranslations("Dashboard.miembro.citas.wizard.fecha");
+  const locale = useLocale();
+  const dateLocale = locale === "es" ? es : enUS;
   const [selected, setSelected]   = useState<Date | undefined>(undefined);
   const [month, setMonth]         = useState<Date>(() => nicaraguaCalendarDate(0));
   const [diasConSlots, setDias]   = useState<Set<string> | null>(null);
@@ -93,7 +96,7 @@ export default function PasoFecha({ doctorId, onSelect, onBack }: PasoFechaProps
         <p className="text-xs font-roboto text-secondary leading-relaxed">{tf("constraintInfo")}</p>
       </div>
 
-      <div className="flex justify-center relative">
+      <div className="relative rounded-2xl border border-gray-200 shadow-sm bg-white p-4 sm:p-6">
         <Calendar
           mode="single"
           selected={selected}
@@ -103,10 +106,12 @@ export default function PasoFecha({ doctorId, onSelect, onBack }: PasoFechaProps
           toDate={maxDate}
           month={month}
           onMonthChange={setMonth}
-          className="rounded-2xl border border-gray-200 shadow-sm bg-white"
+          locale={dateLocale}
+          style={{ "--cell-size": "3rem" } as CSSProperties}
+          className="w-full text-base [&_table]:w-full [&_[role=gridcell]]:text-base [&_.rdp-weekday]:text-sm [&_.rdp-month_caption]:text-base"
         />
         {loadingDias && (
-          <div className="absolute top-2 right-2">
+          <div className="absolute top-3 right-3">
             <Loader2 className="w-4 h-4 animate-spin text-neutral" />
           </div>
         )}
