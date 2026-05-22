@@ -7,7 +7,7 @@
  * empresa filter, or page changes. Search is client-side over the
  * current fetched page (CONTEXT §7.3: "sobre la página actual cargada").
  *
- * Approve: POST /api/admin/citas/[id]/confirmar (only when ea_appointment_id IS NULL)
+ * Approve: POST /api/admin/citas/[id]/confirmar
  * Reject:  direct Supabase JS update
  */
 

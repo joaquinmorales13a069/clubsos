@@ -3,7 +3,7 @@
 /**
  * DetalleModalAdmin — Detail sheet for admin citas (Step 7.3).
  * Extends DetalleModal with an "Empresa" field.
- * Approve button only shown when ea_appointment_id IS NULL (not yet synced to EA).
+ * Approve button is shown for any cita in "pendiente" state.
  */
 
 import { useTranslations } from "next-intl";
