@@ -3,6 +3,12 @@
     "title": "Welcome to Club SOS Medical",
     "description": "Your trusted medical platform."
   },
+  "Notificaciones": {
+    "aria_label": "Notifications",
+    "titulo": "Notifications",
+    "marcar_todas": "Mark all as read",
+    "vacio": "You have no notifications yet."
+  },
   "Auth": {
     "layout": {
       "title": "ClubSOS",
