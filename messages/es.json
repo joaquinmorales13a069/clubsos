@@ -167,7 +167,6 @@
         "ajustesEmpresa": "Ajustes de Empresa",
         "generarReportes": "Generar Reportes",
         "gestionarCitas": "Gestionar Citas",
-        "calendarioCitas": "Calendario de citas",
         "gestionarUbicaciones": "Ubicaciones",
         "gestionarServicios": "Servicios",
         "gestionarDoctores": "Doctores",
@@ -783,6 +782,12 @@
       "citas": {
         "titulo": "Gestionar Citas",
         "subtitle": "Vista global de todas las citas del sistema.",
+        "toggle": {
+          "lista": "Lista",
+          "calendario": "Calendario"
+        },
+        "seccion_pagos": "Verificación de Pagos",
+        "seccion_pendientes_admin": "Aprobaciones (Pago en Clínica)",
         "searchPlaceholder": "Buscar por paciente o empresa...",
         "filterEmpresaAll": "Todas las empresas",
         "filterTodas": "Todas",

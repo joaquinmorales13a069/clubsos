@@ -167,7 +167,6 @@
         "ajustesEmpresa": "Company Settings",
         "generarReportes": "Generate Reports",
         "gestionarCitas": "Manage Appointments",
-        "calendarioCitas": "Appointments calendar",
         "gestionarUbicaciones": "Locations",
         "gestionarServicios": "Services",
         "gestionarDoctores": "Doctors",
@@ -783,6 +782,12 @@
       "citas": {
         "titulo": "Manage Appointments",
         "subtitle": "Global view of all system appointments.",
+        "toggle": {
+          "lista": "List",
+          "calendario": "Calendar"
+        },
+        "seccion_pagos": "Payment Verification",
+        "seccion_pendientes_admin": "Approvals (In-Clinic Payment)",
         "searchPlaceholder": "Search by patient or company...",
         "filterEmpresaAll": "All companies",
         "filterTodas": "All",

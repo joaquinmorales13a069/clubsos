@@ -1,28 +1,12 @@
 /**
- * Admin — Calendario de Citas (Phase 4 · Step 8)
- *
- * Server Component: verifies admin role, then renders AdminCalendarioCitas
- * (client component wrapping FullCalendar).
+ * Legacy redirect — la vista calendario ahora vive en
+ * /admin/citas?view=calendario (toggle Lista/Calendario en la misma página).
+ * Cualquier link viejo a /admin/citas/calendario sigue funcionando.
  */
 import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
-import { createClient } from "@/utils/supabase/server";
-import AdminCalendarioCitas from "@/components/dashboard/admin/AdminCalendarioCitas";
 
-export default async function AdminCalendarioPage() {
-  const supabase = await createClient();
-  const locale   = await getLocale();
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect(`/${locale}/login`);
-
-  const { data: profile } = await supabase
-    .from("users")
-    .select("rol")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.rol !== "admin") redirect(`/${locale}/dashboard`);
-
-  return <AdminCalendarioCitas />;
+export default async function CalendarioRedirect() {
+  const locale = await getLocale();
+  redirect(`/${locale}/dashboard/admin/citas?view=calendario`);
 }

@@ -33,7 +33,6 @@ import {
   UserCheck,
   SlidersHorizontal,
   CalendarCheck,
-  CalendarRange,
   MapPin,
   Stethoscope,
   UserRound,
@@ -103,7 +102,6 @@ function buildAdminNav(
   // "Administrar" — global admin management sections
   const administrarItems: NavItemConfig[] = [
     { href: `${base}/admin/citas`,              label: t("nav.gestionarCitas"),       icon: CalendarCheck },
-    { href: `${base}/admin/citas/calendario`,   label: t("nav.calendarioCitas"),      icon: CalendarRange },
     { href: `${base}/admin/ubicaciones`,        label: t("nav.gestionarUbicaciones"), icon: MapPin },
     { href: `${base}/admin/servicios`,          label: t("nav.gestionarServicios"),   icon: Stethoscope },
     { href: `${base}/admin/doctores`,           label: t("nav.gestionarDoctores"),    icon: UserRound },
