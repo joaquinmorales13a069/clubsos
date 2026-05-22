@@ -442,7 +442,7 @@ function ReporteCitas() {
       supabase
         .from("citas")
         .select(`
-          servicio:servicios!citas_ea_service_id_fkey(nombre),
+          servicio:servicios!citas_servicio_id_fkey(nombre),
           paciente:users!paciente_id(id, nombre_completo, tipo_cuenta, titular_id)
         `)
         .gte("fecha_hora_cita", r.start)

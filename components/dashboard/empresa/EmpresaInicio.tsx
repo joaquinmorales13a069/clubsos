@@ -172,7 +172,7 @@ export default function EmpresaInicio({ firstName, empresaId }: Props) {
       .select(`
         id, fecha_hora_cita, para_titular, paciente_nombre, created_at,
         paciente:users!paciente_id(nombre_completo),
-        servicio:servicios!citas_ea_service_id_fkey(nombre)
+        servicio:servicios!citas_servicio_id_fkey(nombre)
       `)
       .eq("estado_sync", "pendiente_empresa")
       .order("created_at", { ascending: false })

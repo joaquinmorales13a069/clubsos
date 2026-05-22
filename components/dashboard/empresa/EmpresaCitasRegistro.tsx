@@ -53,7 +53,6 @@ export type CitaRegistro = {
   paciente_cedula:     string | null;
   motivo_cita:         string | null;
   estado_sync:         string;
-  ea_appointment_id:   string | null;
   created_at:          string;
   paciente: {
     nombre_completo:     string | null;
@@ -146,10 +145,10 @@ export default function EmpresaCitasRegistro() {
       .select(`
         id, fecha_hora_cita, para_titular, paciente_nombre,
         paciente_telefono, paciente_correo, paciente_cedula,
-        motivo_cita, estado_sync, ea_appointment_id, created_at,
+        motivo_cita, estado_sync, created_at,
         paciente:users!paciente_id(nombre_completo, telefono, documento_identidad),
-        servicio:servicios!citas_ea_service_id_fkey(nombre),
-        doctor:doctores!citas_ea_provider_id_fkey(nombre)
+        servicio:servicios!citas_servicio_id_fkey(nombre),
+        doctor:doctores!citas_doctor_id_fkey(nombre)
       `)
       .order("created_at", { ascending: false })
       .then(({ data, error }) => {

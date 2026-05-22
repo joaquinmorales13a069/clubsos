@@ -124,7 +124,7 @@ export default function EmpresaInicioCitasPorServicio() {
 
     supabase
       .from("citas")
-      .select("servicio:servicios!citas_ea_service_id_fkey(nombre)")
+      .select("servicio:servicios!citas_servicio_id_fkey(nombre)")
       .gte("fecha_hora_cita", start)
       .lt("fecha_hora_cita", end)
       .then(({ data: rows, error: err }) => {
