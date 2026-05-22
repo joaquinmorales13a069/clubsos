@@ -64,7 +64,7 @@ export default function DetalleModalAdmin({
 
   const status      = STATUS_BADGE[cita.estado_sync] ?? STATUS_BADGE.cancelado;
   const isPendiente  = cita.estado_sync === "pendiente";
-  const canAprobar   = isPendiente && !cita.ea_appointment_id;
+  const canAprobar   = isPendiente;
   const isBusy       = aprobando || rechazando;
 
   const creadoPor = cita.paciente?.nombre_completo ?? t("sinRegistro");
@@ -135,9 +135,6 @@ export default function DetalleModalAdmin({
               <Field label={t("fieldDoctor")}   value={cita.doctor?.nombre ?? t("sinRegistro")} />
               {cita.motivo_cita && (
                 <Field label={t("fieldMotivo")} value={cita.motivo_cita} />
-              )}
-              {cita.ea_appointment_id && (
-                <Field label={t("fieldEaId")}   value={cita.ea_appointment_id} mono />
               )}
             </div>
           </section>

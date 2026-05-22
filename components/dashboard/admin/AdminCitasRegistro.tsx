@@ -40,7 +40,6 @@ export type CitaRegistroAdmin = {
   paciente_cedula:     string | null;
   motivo_cita:         string | null;
   estado_sync:         string;
-  ea_appointment_id:   string | null;
   created_at:          string;
   paciente: {
     nombre_completo:     string | null;
@@ -175,10 +174,10 @@ export default function AdminCitasRegistro() {
       .select(
         `id, fecha_hora_cita, para_titular, paciente_nombre,
          paciente_telefono, paciente_correo, paciente_cedula,
-         motivo_cita, estado_sync, ea_appointment_id, created_at,
+         motivo_cita, estado_sync, created_at,
          paciente:users!paciente_id(nombre_completo, email, telefono, documento_identidad),
-         servicio:servicios!citas_ea_service_id_fkey(nombre),
-         doctor:doctores!citas_ea_provider_id_fkey(nombre),
+         servicio:servicios!citas_servicio_id_fkey(nombre),
+         doctor:doctores!citas_doctor_id_fkey(nombre),
          empresa:empresas!empresa_id(nombre)`,
         { count: "exact" },
       )
@@ -399,7 +398,7 @@ export default function AdminCitasRegistro() {
                     const empresa      = cita.empresa?.nombre ?? "—";
                     const fecha        = formatNiShort(cita.fecha_hora_cita);
                     const isPendiente  = cita.estado_sync === "pendiente";
-                    const canAprobar   = isPendiente && !cita.ea_appointment_id;
+                    const canAprobar   = isPendiente;
                     const isAprobando  = aprobandoId  === cita.id;
                     const isRechazando = rechazandoId === cita.id;
 
@@ -515,7 +514,7 @@ export default function AdminCitasRegistro() {
                 const empresa      = cita.empresa?.nombre ?? "—";
                 const fecha        = formatNiCompact(cita.fecha_hora_cita);
                 const isPendiente  = cita.estado_sync === "pendiente";
-                const canAprobar   = isPendiente && !cita.ea_appointment_id;
+                const canAprobar   = isPendiente;
                 const isBusy       = aprobandoId === cita.id || rechazandoId === cita.id;
 
                 return (

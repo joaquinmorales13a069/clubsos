@@ -161,7 +161,7 @@ export default function AdminInicio({ firstName }: Props) {
       .select(`
         id, fecha_hora_cita, para_titular, created_at,
         paciente:users!paciente_id(nombre_completo),
-        servicio:servicios!citas_ea_service_id_fkey(nombre),
+        servicio:servicios!citas_servicio_id_fkey(nombre),
         empresa:empresas!empresa_id(nombre)
       `)
       .in("estado_sync", ["pendiente", "pendiente_empresa", "pendiente_pago", "pendiente_admin"])
