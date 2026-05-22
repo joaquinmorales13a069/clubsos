@@ -810,7 +810,49 @@
         "aprobarBtn": "Aprobar",
         "rechazarBtn": "Rechazar",
         "verDetalle": "Ver detalle",
-        "errorCargar": "No se pudieron cargar las citas."
+        "errorCargar": "No se pudieron cargar las citas.",
+        "calendario": {
+          "title": "Calendario de citas",
+          "subtitle": "Vista en tiempo real de todas las citas del sistema.",
+          "filtros": {
+            "ubicacion": "Ubicación",
+            "doctor": "Doctor",
+            "servicio": "Servicio",
+            "estado": "Estado",
+            "todas": "Todas",
+            "todos": "Todos"
+          },
+          "modal": {
+            "title": "Detalle de la cita",
+            "paciente": "Paciente",
+            "doctor": "Doctor",
+            "servicio": "Servicio",
+            "ubicacion": "Ubicación",
+            "fecha": "Fecha",
+            "motivo": "Motivo",
+            "estado": "Estado",
+            "confirmar": "Confirmar cita",
+            "rechazar": "Rechazar cita",
+            "cancelar": "Cancelar cita",
+            "motivo_rechazo": "Motivo del rechazo (opcional)",
+            "motivo_cancelacion": "Motivo de la cancelación",
+            "cancelado_por_admin": "Cancelado por admin",
+            "confirmar_ok": "Cita confirmada",
+            "rechazar_ok": "Cita rechazada",
+            "cancelar_ok": "Cita cancelada",
+            "cargando": "Cargando..."
+          },
+          "estados": {
+            "pendiente": "Pendiente",
+            "pendiente_empresa": "Pendiente empresa",
+            "pendiente_pago": "Pendiente pago",
+            "pendiente_admin": "Pendiente admin",
+            "confirmado": "Confirmado",
+            "completado": "Completado",
+            "cancelado": "Cancelado",
+            "rechazado": "Rechazado"
+          }
+        }
       },
       "beneficios": {
         "titulo": "Gestionar Beneficios",

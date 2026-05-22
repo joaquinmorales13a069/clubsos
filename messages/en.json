@@ -810,7 +810,49 @@
         "aprobarBtn": "Approve",
         "rechazarBtn": "Reject",
         "verDetalle": "View detail",
-        "errorCargar": "Could not load appointments."
+        "errorCargar": "Could not load appointments.",
+        "calendario": {
+          "title": "Appointments calendar",
+          "subtitle": "Real-time view of all appointments in the system.",
+          "filtros": {
+            "ubicacion": "Location",
+            "doctor": "Doctor",
+            "servicio": "Service",
+            "estado": "Status",
+            "todas": "All",
+            "todos": "All"
+          },
+          "modal": {
+            "title": "Appointment detail",
+            "paciente": "Patient",
+            "doctor": "Doctor",
+            "servicio": "Service",
+            "ubicacion": "Location",
+            "fecha": "Date",
+            "motivo": "Reason",
+            "estado": "Status",
+            "confirmar": "Confirm appointment",
+            "rechazar": "Reject appointment",
+            "cancelar": "Cancel appointment",
+            "motivo_rechazo": "Rejection reason (optional)",
+            "motivo_cancelacion": "Cancellation reason",
+            "cancelado_por_admin": "Cancelled by admin",
+            "confirmar_ok": "Appointment confirmed",
+            "rechazar_ok": "Appointment rejected",
+            "cancelar_ok": "Appointment cancelled",
+            "cargando": "Loading..."
+          },
+          "estados": {
+            "pendiente": "Pending",
+            "pendiente_empresa": "Pending company",
+            "pendiente_pago": "Pending payment",
+            "pendiente_admin": "Pending admin",
+            "confirmado": "Confirmed",
+            "completado": "Completed",
+            "cancelado": "Cancelled",
+            "rechazado": "Rejected"
+          }
+        }
       },
       "beneficios": {
         "titulo": "Manage Benefits",
