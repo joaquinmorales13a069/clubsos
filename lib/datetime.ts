@@ -93,6 +93,24 @@ export function dateToCalendarLocal(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
+/**
+ * Convert a YYYY-MM-DD string into a JS Date at LOCAL midnight (the format
+ * react-day-picker and similar widgets use for their internal Date comparisons).
+ *
+ * Use this — not `calendarDateNI` — when constructing `fromDate`/`toDate`/`month`
+ * props for a calendar widget, or any Date value that will be compared against
+ * the widget's own cell Dates. Otherwise the noon-UTC values produced by
+ * `calendarDateNI` will mis-compare for users far east of Nicaragua, deshabilitando
+ * o habilitando celdas en el día equivocado.
+ */
+export function calendarDateLocal(yyyymmdd: string): Date {
+  const [y, m, d] = yyyymmdd.split("-").map(Number);
+  if (!y || !m || !d) {
+    throw new RangeError(`calendarDateLocal: invalid YYYY-MM-DD input "${yyyymmdd}"`);
+  }
+  return new Date(y, m - 1, d);
+}
+
 // ── Formatting (always in Nicaragua tz) ──────────────────────────────────
 
 function parseInput(input: Date | string | null | undefined): Date | null {

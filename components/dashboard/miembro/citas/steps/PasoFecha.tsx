@@ -6,7 +6,7 @@ import { Info, Loader2 } from "lucide-react";
 import { es, enUS } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import type { WizardState } from "../types";
-import { todayNI, calendarDateNI, dateToCalendarNI, dateToCalendarLocal } from "@/lib/datetime";
+import { todayNI, calendarDateLocal, dateToCalendarNI, dateToCalendarLocal } from "@/lib/datetime";
 
 interface PasoFechaProps {
   doctorId: string;
@@ -20,19 +20,22 @@ export default function PasoFecha({ doctorId, onSelect, onBack }: PasoFechaProps
   const locale = useLocale();
   const dateLocale = locale === "es" ? es : enUS;
   const [selected, setSelected]   = useState<Date | undefined>(undefined);
-  const [month, setMonth]         = useState<Date>(() => calendarDateNI(todayNI()));
+  // `month` and `tomorrow`/`maxDate` are passed to react-day-picker (or compared
+  // against its cell Dates), which works in browser local tz. Use
+  // `calendarDateLocal` so the comparisons line up with what the user sees.
+  const [month, setMonth]         = useState<Date>(() => calendarDateLocal(todayNI()));
   const [diasConSlots, setDias]   = useState<Set<string> | null>(null);
   const [loadingDias, setLoading] = useState(false);
 
   // Earliest selectable day: the Nicaragua calendar day that contains
   // (now + 24h). This matches the server-side BOOKING_TOO_SOON cutoff.
-  const cutoffNI = dateToCalendarNI(new Date(Date.now() + 24 * 60 * 60 * 1000));
-  const tomorrow = calendarDateNI(cutoffNI);
+  // Represented as a local-midnight Date for correct widget comparison.
+  const cutoffNIDay = dateToCalendarNI(new Date(Date.now() + 24 * 60 * 60 * 1000));
+  const tomorrow    = calendarDateLocal(cutoffNIDay);
 
-  // Max date: 3 months from today's NI calendar day.
-  const todayNICalendar = calendarDateNI(todayNI());
-  const maxDate = new Date(todayNICalendar);
-  maxDate.setUTCMonth(maxDate.getUTCMonth() + 3);
+  // Max date: 3 months from today's NI calendar day, in local-midnight form.
+  const maxDate = calendarDateLocal(todayNI());
+  maxDate.setMonth(maxDate.getMonth() + 3);
 
   // Fetch days with slots for the visible month.
   // `month` comes from react-day-picker (browser local tz). Use
