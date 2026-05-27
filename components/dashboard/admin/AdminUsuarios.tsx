@@ -26,6 +26,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AdminUsuarioContratosUsage from "./AdminUsuarioContratosUsage";
 import { createClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -201,8 +203,20 @@ function EditarUsuarioAdminModal({ usuario, empresas, onClose, onSaved }: EditMo
           </DialogTitle>
         </DialogHeader>
 
-        <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
-          {/* Auth email note */}
+        <div className="px-6 pt-3 pb-5 max-h-[70vh] overflow-y-auto">
+          <Tabs defaultValue="info">
+            <TabsList className="grid grid-cols-2 w-full mb-4">
+              <TabsTrigger value="info">{t("tabInfo")}</TabsTrigger>
+              <TabsTrigger
+                value="uso"
+                disabled={!usuario?.empresa_id}
+              >
+                {t("tabUsoCitas")}
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="info" className="space-y-4">
+              {/* Auth email note */}
           <div className="flex gap-2 p-3 bg-blue-50 rounded-xl text-xs text-blue-700 font-roboto">
             <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{t("authEmailNote")}</span>
@@ -322,6 +336,18 @@ function EditarUsuarioAdminModal({ usuario, empresas, onClose, onSaved }: EditMo
               </div>
             )}
           </div>
+            </TabsContent>
+
+            <TabsContent value="uso">
+              {usuario?.empresa_id && usuario?.id ? (
+                <AdminUsuarioContratosUsage userId={usuario.id} />
+              ) : (
+                <p className="text-sm text-gray-400 font-roboto py-6 text-center">
+                  {t("tabUsoNoAplica")}
+                </p>
+              )}
+            </TabsContent>
+          </Tabs>
         </div>
 
         {/* Footer */}

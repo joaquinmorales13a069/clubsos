@@ -145,6 +145,15 @@
         "titulo": "Avisos",
         "empty": "Sin avisos activos",
         "verTodos": "Ver todos los avisos"
+      },
+      "campana": {
+        "ariaLabel": "Notificaciones y avisos",
+        "title": "Notificaciones y avisos",
+        "pillNotificacion": "Notif.",
+        "pillAviso": "Aviso",
+        "empty": "Sin novedades por ahora.",
+        "marcarTodasLeidas": "Marcar todas como leídas",
+        "verAvisos": "Ver avisos"
       }
     },
     "sidebar": {
@@ -870,6 +879,9 @@
             "confirmar_ok": "Cita confirmada",
             "rechazar_ok": "Cita rechazada",
             "cancelar_ok": "Cita cancelada",
+            "no_regresar": "No, regresar",
+            "si_cancelar_cita": "Sí, cancelar cita",
+            "si_rechazar_cita": "Sí, rechazar cita",
             "cargando": "Cargando...",
             "error_cargar": "No se pudo cargar el detalle de la cita"
           },
@@ -1071,6 +1083,16 @@
         "actualizado": "Usuario actualizado correctamente.",
         "errorGuardar": "Error al guardar. Intenta de nuevo.",
         "errorCargar": "No se pudieron cargar los usuarios.",
+        "tabInfo": "Información",
+        "tabUsoCitas": "Uso de citas",
+        "tabUsoNoAplica": "Sin empresa asignada — el uso por contrato solo aplica a miembros con empresa.",
+        "contratosUsage": {
+          "loading": "Cargando uso de citas...",
+          "empty": "Este usuario no tiene contratos activos.",
+          "errorCargar": "No se pudo cargar el uso de citas.",
+          "remainingLabel": "{count} restante(s)",
+          "periodLabel": "Período desde {date}"
+        },
         "emptyFilter": "Sin resultados para los filtros actuales.",
         "empty": "No hay usuarios registrados aún.",
         "pageInfo": "{from}–{to} de {total} usuarios",
@@ -1616,6 +1638,7 @@
   "Errors": {
     "citas": {
       "slot_taken": "Ese horario ya fue reservado. Por favor elige otro.",
+      "patient_busy": "Ya tienes otra cita agendada que se traslapa con este horario. Revisa tus citas existentes antes de agendar.",
       "slot_out_of_hours": "Ese horario no está dentro del horario de atención del doctor.",
       "slot_in_exception": "El doctor no atiende ese día.",
       "quota_exceeded": "Has alcanzado el límite de citas de este servicio.",

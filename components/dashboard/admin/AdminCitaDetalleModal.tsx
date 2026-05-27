@@ -332,7 +332,7 @@ export default function AdminCitaDetalleModal({
                   disabled={!!busy}
                   className="inline-flex items-center justify-center px-4 py-2 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
-                  {t("cancelar")}
+                  {t("no_regresar")}
                 </button>
                 <button
                   type="button"
@@ -343,7 +343,7 @@ export default function AdminCitaDetalleModal({
                   {busy === "rechazar"
                     ? <Loader2 className="w-4 h-4 animate-spin" />
                     : <XCircle className="w-4 h-4" />}
-                  {t("rechazar")}
+                  {t("si_rechazar_cita")}
                 </button>
               </>
             )}
@@ -368,7 +368,7 @@ export default function AdminCitaDetalleModal({
                   disabled={!!busy}
                   className="inline-flex items-center justify-center px-4 py-2 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
-                  {t("cancelar")}
+                  {t("no_regresar")}
                 </button>
                 <button
                   type="button"
@@ -379,7 +379,7 @@ export default function AdminCitaDetalleModal({
                   {busy === "cancelar"
                     ? <Loader2 className="w-4 h-4 animate-spin" />
                     : <Ban className="w-4 h-4" />}
-                  {t("cancelar")}
+                  {t("si_cancelar_cita")}
                 </button>
               </>
             )}

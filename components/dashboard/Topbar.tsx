@@ -13,8 +13,7 @@ import { useRouter } from "@/i18n/routing";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 import DateTimeDisplay from "./DateTimeDisplay";
-import NotificacionesCampana from "./NotificacionesCampana";
-import TopbarAvisosPopover from "./TopbarAvisosPopover";
+import CampanaUnificada from "./CampanaUnificada";
 
 export default function Topbar() {
   const t = useTranslations("Dashboard.topbar");
@@ -67,9 +66,7 @@ export default function Topbar() {
 
         <LanguageSwitcher />
 
-        <NotificacionesCampana />
-
-        <TopbarAvisosPopover />
+        <CampanaUnificada />
       </div>
     </header>
   );

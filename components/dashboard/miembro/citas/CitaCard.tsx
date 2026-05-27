@@ -5,7 +5,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
-import { CalendarDays, Clock, X, Loader2 } from "lucide-react";
+import { CalendarDays, Clock, MapPin, X, Loader2 } from "lucide-react";
 import { cancelarCita } from "@/app/[locale]/(dashboard)/dashboard/citas/actions";
 import CitaEstadoBadge from "./CitaEstadoBadge";
 import AgregarACalendario from "./AgregarACalendario";
@@ -68,6 +68,23 @@ export default function CitaCard({ cita }: CitaCardProps) {
         <p className="text-xs font-roboto text-neutral bg-gray-50 px-3 py-1.5 rounded-lg truncate">
           {cita.servicio_asociado}
         </p>
+      )}
+
+      {/* Ubicación */}
+      {cita.ubicacion?.nombre && (
+        <div className="flex items-start gap-1.5 text-neutral">
+          <MapPin aria-hidden="true" className="w-3.5 h-3.5 shrink-0 mt-0.5 text-secondary" />
+          <div className="min-w-0">
+            <p className="text-xs font-roboto font-medium text-gray-700 truncate">
+              {cita.ubicacion.nombre}
+            </p>
+            {cita.ubicacion.direccion && (
+              <p className="text-[11px] font-roboto text-gray-400 truncate">
+                {cita.ubicacion.direccion}
+              </p>
+            )}
+          </div>
+        </div>
       )}
 
       {/* Patient (when not for self) */}

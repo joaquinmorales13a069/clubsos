@@ -145,6 +145,15 @@
         "titulo": "Announcements",
         "empty": "No active announcements",
         "verTodos": "View all announcements"
+      },
+      "campana": {
+        "ariaLabel": "Notifications and announcements",
+        "title": "Notifications & Announcements",
+        "pillNotificacion": "Notif.",
+        "pillAviso": "Announce",
+        "empty": "Nothing new for now.",
+        "marcarTodasLeidas": "Mark all as read",
+        "verAvisos": "View announcements"
       }
     },
     "sidebar": {
@@ -870,6 +879,9 @@
             "confirmar_ok": "Appointment confirmed",
             "rechazar_ok": "Appointment rejected",
             "cancelar_ok": "Appointment cancelled",
+            "no_regresar": "No, go back",
+            "si_cancelar_cita": "Yes, cancel appointment",
+            "si_rechazar_cita": "Yes, reject appointment",
             "cargando": "Loading...",
             "error_cargar": "Could not load the appointment details"
           },
@@ -1071,6 +1083,16 @@
         "actualizado": "User updated successfully.",
         "errorGuardar": "Failed to save. Please try again.",
         "errorCargar": "Could not load users.",
+        "tabInfo": "Information",
+        "tabUsoCitas": "Appointment usage",
+        "tabUsoNoAplica": "No assigned company — per-contract usage only applies to members with a company.",
+        "contratosUsage": {
+          "loading": "Loading appointment usage...",
+          "empty": "This user has no active contracts.",
+          "errorCargar": "Could not load appointment usage.",
+          "remainingLabel": "{count} remaining",
+          "periodLabel": "Period from {date}"
+        },
         "emptyFilter": "No results for current filters.",
         "empty": "No users registered yet.",
         "pageInfo": "{from}–{to} of {total} users",
@@ -1616,6 +1638,7 @@
   "Errors": {
     "citas": {
       "slot_taken": "That time slot was just booked. Please pick another one.",
+      "patient_busy": "You already have another appointment that overlaps with this time. Check your existing appointments before booking.",
       "slot_out_of_hours": "That time is outside the doctor's working hours.",
       "slot_in_exception": "The doctor is not available on that day.",
       "quota_exceeded": "You've reached the appointment limit for this service.",
