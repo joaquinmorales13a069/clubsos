@@ -179,6 +179,7 @@
         "gestionarUbicaciones": "Ubicaciones",
         "gestionarServicios": "Servicios",
         "gestionarDoctores": "Doctores",
+        "gestionarExcepciones": "Excepciones",
         "gestionarBeneficios": "Beneficios",
         "gestionarDocumentos": "Documentos",
         "gestionarEmpresas": "Empresas",
@@ -1359,6 +1360,77 @@
           "validPrecio": "El precio debe ser un número válido.",
           "errorGuardar": "No se pudo guardar el servicio."
         }
+      },
+      "excepciones": {
+        "title": "Excepciones de Horario",
+        "subtitle": "Bloquea fechas en que no se puede agendar (feriados, vacaciones, cierres).",
+        "newBtn": "Nueva excepción",
+        "editBtn": "Editar",
+        "deleteBtn": "Eliminar",
+        "deleteConfirm": "¿Eliminar esta excepción? Las citas afectadas no se modifican automáticamente.",
+        "view": {
+          "calendario": "Calendario",
+          "tabla": "Lista"
+        },
+        "scope": {
+          "global": "Global",
+          "doctor": "Por doctor",
+          "ubicacion": "Por ubicación",
+          "doctorYUbicacion": "Doctor + ubicación",
+          "all": "Todos los scopes"
+        },
+        "col": {
+          "scope": "Scope",
+          "doctor": "Doctor",
+          "ubicacion": "Ubicación",
+          "inicio": "Inicio",
+          "fin": "Fin",
+          "motivo": "Motivo",
+          "acciones": "Acciones"
+        },
+        "filter": {
+          "scope": "Scope",
+          "doctor": "Doctor",
+          "ubicacion": "Ubicación",
+          "desde": "Desde",
+          "hasta": "Hasta",
+          "todos": "Todos"
+        },
+        "form": {
+          "title_create": "Nueva excepción",
+          "title_edit": "Editar excepción",
+          "scopeLabel": "Aplica a",
+          "doctorLabel": "Doctor",
+          "ubicacionLabel": "Ubicación",
+          "selectDoctor": "Selecciona un doctor…",
+          "selectUbicacion": "Selecciona una ubicación…",
+          "fechaInicio": "Fecha y hora de inicio",
+          "fechaFin": "Fecha y hora de fin",
+          "motivo": "Motivo (opcional)",
+          "motivoPlaceholder": "Ej. Feriado nacional, vacaciones, cierre de clínica",
+          "submitCreate": "Crear excepción",
+          "submitEdit": "Guardar cambios",
+          "cancel": "Cancelar",
+          "validation": {
+            "endBeforeStart": "La fecha de fin debe ser posterior a la de inicio.",
+            "missingFields": "Completa las fechas de inicio y fin.",
+            "missingDoctor": "Selecciona un doctor para este scope.",
+            "missingUbicacion": "Selecciona una ubicación para este scope."
+          }
+        },
+        "empty": "No hay excepciones que coincidan con los filtros.",
+        "loading": "Cargando excepciones…",
+        "errorCargar": "No se pudieron cargar las excepciones.",
+        "toast": {
+          "creado": "Excepción creada.",
+          "eliminado": "Excepción eliminada.",
+          "actualizado": "Excepción actualizada.",
+          "errorCrear": "No se pudo crear la excepción.",
+          "errorEliminar": "No se pudo eliminar la excepción.",
+          "errorActualizar": "No se pudo actualizar la excepción."
+        },
+        "seeGlobalLink": "Ver excepciones globales y por ubicación que también afectan a este doctor →",
+        "multiScopeTooltip": "Las excepciones globales y por ubicación también afectan a este doctor, aunque solo veas las suyas aquí."
       },
       "reportes": {
         "titulo": "Reportes del sistema",
