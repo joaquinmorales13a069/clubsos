@@ -145,6 +145,15 @@
         "titulo": "Avisos",
         "empty": "Sin avisos activos",
         "verTodos": "Ver todos los avisos"
+      },
+      "campana": {
+        "ariaLabel": "Notificaciones y avisos",
+        "title": "Notificaciones y avisos",
+        "pillNotificacion": "Notif.",
+        "pillAviso": "Aviso",
+        "empty": "Sin novedades por ahora.",
+        "marcarTodasLeidas": "Marcar todas como leídas",
+        "verAvisos": "Ver avisos"
       }
     },
     "sidebar": {

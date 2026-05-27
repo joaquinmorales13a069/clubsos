@@ -145,6 +145,15 @@
         "titulo": "Announcements",
         "empty": "No active announcements",
         "verTodos": "View all announcements"
+      },
+      "campana": {
+        "ariaLabel": "Notifications and announcements",
+        "title": "Notifications & Announcements",
+        "pillNotificacion": "Notif.",
+        "pillAviso": "Announce",
+        "empty": "Nothing new for now.",
+        "marcarTodasLeidas": "Mark all as read",
+        "verAvisos": "View announcements"
       }
     },
     "sidebar": {
