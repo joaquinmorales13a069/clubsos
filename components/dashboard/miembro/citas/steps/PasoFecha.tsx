@@ -6,7 +6,7 @@ import { Info, Loader2 } from "lucide-react";
 import { es, enUS } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import type { WizardState } from "../types";
-import { todayNI, calendarDateNI, dateToCalendarNI } from "@/lib/datetime";
+import { todayNI, calendarDateNI, dateToCalendarNI, dateToCalendarLocal } from "@/lib/datetime";
 
 interface PasoFechaProps {
   doctorId: string;
@@ -34,16 +34,17 @@ export default function PasoFecha({ doctorId, onSelect, onBack }: PasoFechaProps
   const maxDate = new Date(todayNICalendar);
   maxDate.setUTCMonth(maxDate.getUTCMonth() + 3);
 
-  // Fetch days with slots for the visible month
+  // Fetch days with slots for the visible month.
+  // `month` comes from react-day-picker (browser local tz). Use
+  // dateToCalendarLocal so the visible month maps to the same calendar month
+  // the user sees in the calendar grid.
   useEffect(() => {
-    // month is a noon-UTC Date representing the visible month; derive the
-    // YYYY-MM-DD start/end of the calendar month in NI terms.
-    const monthStartNI = dateToCalendarNI(month).slice(0, 7) + "-01";
-    const [year, monthNum] = monthStartNI.split("-").map(Number);
+    const monthStartLocal = dateToCalendarLocal(month).slice(0, 7) + "-01";
+    const [year, monthNum] = monthStartLocal.split("-").map(Number);
     const nextMonthFirst = new Date(Date.UTC(year, monthNum, 1, 12)); // month is 1-indexed → next month
     const lastDayDate = new Date(nextMonthFirst.getTime() - 24 * 60 * 60 * 1000);
-    const start = monthStartNI;
-    const end   = dateToCalendarNI(lastDayDate);
+    const start = monthStartLocal;
+    const end   = dateToCalendarLocal(lastDayDate);
 
     let cancelled = false;
     setLoading(true);
@@ -69,13 +70,16 @@ export default function PasoFecha({ doctorId, onSelect, onBack }: PasoFechaProps
   function isDisabled(date: Date): boolean {
     if (date < tomorrow || date > maxDate || date.getDay() === 0) return true;
     // If we've loaded the set for this month and the date is not in it, disable.
-    if (diasConSlots !== null && !diasConSlots.has(dateToCalendarNI(date))) return true;
+    // `date` comes from react-day-picker (browser local tz); use local extraction.
+    if (diasConSlots !== null && !diasConSlots.has(dateToCalendarLocal(date))) return true;
     return false;
   }
 
   function handleContinue() {
     if (!selected) return;
-    onSelect({ fecha: dateToCalendarNI(selected) });
+    // `selected` is the Date from react-day-picker (local tz). Extract the
+    // calendar day the user actually saw and clicked, not the NI tz mapping.
+    onSelect({ fecha: dateToCalendarLocal(selected) });
   }
 
   return (

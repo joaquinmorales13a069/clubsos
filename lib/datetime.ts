@@ -75,6 +75,24 @@ export function dateToCalendarNI(d: Date): string {
   }).format(d);
 }
 
+/**
+ * Convert a Date from a calendar widget (react-day-picker, FullCalendar's
+ * dateClick, etc.) to YYYY-MM-DD using the BROWSER's local tz — matching what
+ * the user saw and clicked on the widget.
+ *
+ * NEVER use `dateToCalendarNI` on Dates that came from a calendar widget:
+ * those widgets construct Date objects at local midnight for each cell, so
+ * interpreting them in NI tz can shift the day backward for users east of
+ * Nicaragua (e.g. Australia: clicking "May 29" produces a Date that maps to
+ * "May 28" in NI tz). Use this helper instead.
+ */
+export function dateToCalendarLocal(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 // ── Formatting (always in Nicaragua tz) ──────────────────────────────────
 
 function parseInput(input: Date | string | null | undefined): Date | null {
