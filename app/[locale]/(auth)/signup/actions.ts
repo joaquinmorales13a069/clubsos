@@ -188,23 +188,47 @@ export async function completeSignupAction(
   // Set password, metadata, and optionally email in auth.users.
   // Email is set via admin client (service role) to skip the confirmation email flow —
   // phone is already the verified primary auth method.
-  const authUpdateData: {
-    password?: string;
-    data: { full_name: string; display_name: string; nombre_completo: string };
-  } = {
-    data: {
-      full_name: formData.nombreCompleto,
-      display_name: formData.nombreCompleto,
-      nombre_completo: formData.nombreCompleto,
-    },
+  //
+  // Idempotency: a previous failed attempt may have already persisted the
+  // password. Retrying with the same password makes Supabase Auth reject the
+  // update with "New password should be different from the old password".
+  // We treat that specific error as a no-op success so the retry can continue
+  // to update profile + email (the parts the user actually needs to finish).
+  const userMetadata = {
+    full_name:       formData.nombreCompleto,
+    display_name:    formData.nombreCompleto,
+    nombre_completo: formData.nombreCompleto,
   };
 
   if (formData.password) {
-    authUpdateData.password = formData.password;
+    const { error: pwError } = await supabase.auth.updateUser({
+      password: formData.password,
+      data:     userMetadata,
+    });
+    if (pwError) {
+      const msg = pwError.message.toLowerCase();
+      const isSamePassword =
+        msg.includes("different from the old password") ||
+        msg.includes("same as the old password") ||
+        msg.includes("same_password");
+      if (!isSamePassword) {
+        return { error: t("credentialsError", { message: pwError.message }) };
+      }
+      // Same-as-previous-password: a prior attempt already set this exact
+      // password. Treat as success and continue. Metadata may not have been
+      // updated in that case — write it now via a metadata-only call.
+      const { error: metaError } = await supabase.auth.updateUser({ data: userMetadata });
+      if (metaError) {
+        return { error: t("credentialsError", { message: metaError.message }) };
+      }
+    }
+  } else {
+    // No password change requested — still write metadata.
+    const { error: metaError } = await supabase.auth.updateUser({ data: userMetadata });
+    if (metaError) {
+      return { error: t("credentialsError", { message: metaError.message }) };
+    }
   }
-
-  const { error: pwError } = await supabase.auth.updateUser(authUpdateData);
-  if (pwError) return { error: t("credentialsError", { message: pwError.message }) };
 
   // Set email without requiring confirmation (phone is the primary auth method)
   if (formData.email) {

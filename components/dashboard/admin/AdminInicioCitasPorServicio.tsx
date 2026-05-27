@@ -12,7 +12,8 @@
  */
 
 import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { formatMonthYearNI } from "@/lib/datetime";
 import {
   BarChart,
   Bar,
@@ -33,14 +34,6 @@ type ChartRow = {
   servicio: string;
   total:    number;
 };
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function formatMonth(year: number, month: number): string {
-  return new Date(year, month, 1)
-    .toLocaleString("es-NI", { month: "long", year: "numeric" })
-    .replace(/^(.)/, (c) => c.toUpperCase());
-}
 
 // ── Custom Tooltip ────────────────────────────────────────────────────────────
 
@@ -81,7 +74,8 @@ function ChartSkeleton() {
 // ── Main Component ────────────────────────────────────────────────────────────
 
 export default function AdminInicioCitasPorServicio() {
-  const t = useTranslations("Dashboard.admin.inicio.graficoCitas");
+  const t      = useTranslations("Dashboard.admin.inicio.graficoCitas");
+  const locale = useLocale() as "es" | "en";
 
   // ── Month selector ───────────────────────────────────────────────────────
   const now = new Date();
@@ -179,7 +173,7 @@ export default function AdminInicioCitasPorServicio() {
           </button>
 
           <span className="min-w-[120px] text-center text-xs font-semibold font-roboto text-gray-700 px-1">
-            {formatMonth(year, month)}
+            {formatMonthYearNI(year, month + 1, locale)}
           </span>
 
           <button

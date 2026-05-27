@@ -8,7 +8,8 @@
  */
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { formatDateShortNI } from "@/lib/datetime";
 import { toast } from "sonner";
 import {
   Megaphone,
@@ -53,11 +54,9 @@ function extractStoragePath(publicUrl: string): string {
   return idx >= 0 ? decodeURIComponent(publicUrl.slice(idx + marker.length)) : publicUrl;
 }
 
-function formatDate(iso: string | null): string {
+function formatDate(iso: string | null, locale: "es" | "en"): string {
   if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("es-NI", {
-    day: "numeric", month: "short", year: "numeric",
-  });
+  return formatDateShortNI(iso, locale);
 }
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
@@ -90,7 +89,8 @@ interface Props {
 }
 
 export default function AvisosAdmin({ userId, empresas }: Props) {
-  const t = useTranslations("Dashboard.admin.sistema.avisos");
+  const t      = useTranslations("Dashboard.admin.sistema.avisos");
+  const locale = useLocale() as "es" | "en";
 
   // ── Data state ─────────────────────────────────────────────────────────────
   const [avisos,     setAvisos]     = useState<AvisoRow[]>([]);
@@ -269,7 +269,7 @@ export default function AvisosAdmin({ userId, empresas }: Props) {
 
                     {/* Fechas */}
                     <td className={cn(tdCls, "text-gray-500 whitespace-nowrap text-xs")}>
-                      {formatDate(aviso.fecha_inicio)} – {formatDate(aviso.fecha_fin)}
+                      {formatDate(aviso.fecha_inicio, locale)} – {formatDate(aviso.fecha_fin, locale)}
                     </td>
 
                     {/* Alcance */}

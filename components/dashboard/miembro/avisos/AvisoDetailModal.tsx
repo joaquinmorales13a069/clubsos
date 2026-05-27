@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { X, Megaphone, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDateLongNoWeekdayNI, calendarDateNI } from "@/lib/datetime";
 
 export type AvisoDetailData = {
   titulo:          string;
@@ -20,21 +21,23 @@ interface AvisoDetailModalProps {
   aviso:   AvisoDetailData | null;
 }
 
-function formatDate(dateStr: string | null): string | null {
+function formatDate(dateStr: string | null, locale: "es" | "en"): string | null {
   if (!dateStr) return null;
   const [y, m, d] = dateStr.slice(0, 10).split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString("es-NI", {
-    day: "numeric", month: "long", year: "numeric",
-  });
+  return formatDateLongNoWeekdayNI(
+    calendarDateNI(`${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`),
+    locale,
+  );
 }
 
 export default function AvisoDetailModal({ open, onClose, aviso }: AvisoDetailModalProps) {
-  const t = useTranslations("Dashboard.miembro.avisos");
+  const t      = useTranslations("Dashboard.miembro.avisos");
+  const locale = useLocale() as "es" | "en";
 
   if (!open || !aviso) return null;
 
-  const fechaInicio = formatDate(aviso.fecha_inicio);
-  const fechaFin    = formatDate(aviso.fecha_fin);
+  const fechaInicio = formatDate(aviso.fecha_inicio, locale);
+  const fechaFin    = formatDate(aviso.fecha_fin, locale);
 
   return (
     <div

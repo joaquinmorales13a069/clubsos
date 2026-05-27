@@ -12,7 +12,7 @@
  */
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import {
   Search,
@@ -27,6 +27,7 @@ import {
 import { createClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
 import DetalleModalAdmin from "./DetalleModalAdmin";
+import { formatDateShortNI, formatTimeNI, formatShortDateTimeNI, type Loc } from "@/lib/datetime";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -57,22 +58,6 @@ type EmpresaOption = { id: string; nombre: string };
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const PAGE_SIZE = 20;
-
-const NI_TZ = "America/Managua";
-
-function formatNiShort(isoStr: string): string {
-  const dt   = new Date(isoStr);
-  const date = dt.toLocaleDateString("es-NI", { timeZone: NI_TZ, day: "numeric", month: "short", year: "numeric" });
-  const time = dt.toLocaleTimeString("es-NI", { timeZone: NI_TZ, hour: "2-digit", minute: "2-digit", hour12: false });
-  return `${date} · ${time}`;
-}
-
-function formatNiCompact(isoStr: string): string {
-  const dt   = new Date(isoStr);
-  const date = dt.toLocaleDateString("es-NI", { timeZone: NI_TZ, day: "numeric", month: "short" });
-  const time = dt.toLocaleTimeString("es-NI", { timeZone: NI_TZ, hour: "2-digit", minute: "2-digit", hour12: false });
-  return `${date} · ${time}`;
-}
 
 type FilterKey = "todas" | "pendiente" | "pendiente_empresa" | "pendiente_pago" | "pendiente_admin" | "confirmado" | "completado" | "cancelado" | "rechazado";
 
@@ -122,6 +107,7 @@ function TableSkeleton() {
 export default function AdminCitasRegistro() {
   const t      = useTranslations("Dashboard.admin.citas");
   const tGlobal = useTranslations("Dashboard.empresa.citas");
+  const locale = useLocale() as Loc;
 
   // ── Server-fetched data ──────────────────────────────────────────────────
   const [citas,      setCitas]      = useState<CitaRegistroAdmin[]>([]);
@@ -396,7 +382,7 @@ export default function AdminCitasRegistro() {
                     const status       = STATUS_BADGE[cita.estado_sync] ?? STATUS_BADGE.cancelado;
                     const nombre       = cita.paciente?.nombre_completo ?? "—";
                     const empresa      = cita.empresa?.nombre ?? "—";
-                    const fecha        = formatNiShort(cita.fecha_hora_cita);
+                    const fecha        = `${formatDateShortNI(cita.fecha_hora_cita, locale)} · ${formatTimeNI(cita.fecha_hora_cita, locale)}`;
                     const isPendiente  = cita.estado_sync === "pendiente";
                     const canAprobar   = isPendiente;
                     const isAprobando  = aprobandoId  === cita.id;
@@ -512,7 +498,7 @@ export default function AdminCitasRegistro() {
                 const status       = STATUS_BADGE[cita.estado_sync] ?? STATUS_BADGE.cancelado;
                 const nombre       = cita.paciente?.nombre_completo ?? "—";
                 const empresa      = cita.empresa?.nombre ?? "—";
-                const fecha        = formatNiCompact(cita.fecha_hora_cita);
+                const fecha        = formatShortDateTimeNI(cita.fecha_hora_cita, locale);
                 const isPendiente  = cita.estado_sync === "pendiente";
                 const canAprobar   = isPendiente;
                 const isBusy       = aprobandoId === cita.id || rechazandoId === cita.id;

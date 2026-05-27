@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { logAction } from "@/utils/audit";
+import { NICARAGUA_TZ } from "@/lib/datetime";
 
 type Supa = Awaited<ReturnType<typeof createClient>>;
 
@@ -64,7 +65,7 @@ export async function POST(req: NextRequest) {
       nombre:       body.nombre.trim(),
       direccion:    body.direccion ?? null,
       telefono:     body.telefono ?? null,
-      zona_horaria: body.zona_horaria ?? "America/Managua",
+      zona_horaria: body.zona_horaria ?? NICARAGUA_TZ,
       activo:       body.activo ?? true,
     })
     .select("id, nombre, direccion, telefono, zona_horaria, activo, created_at")

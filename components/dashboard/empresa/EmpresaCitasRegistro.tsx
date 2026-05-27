@@ -12,21 +12,8 @@
  */
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { useTranslations } from "next-intl";
-/** Formats UTC ISO timestamp in Nicaragua time. Correct in any browser/server timezone. */
-const NI_TZ = "America/Managua";
-function formatNiShort(isoStr: string): string {
-  const dt   = new Date(isoStr);
-  const date = dt.toLocaleDateString("es-NI", { timeZone: NI_TZ, day: "numeric", month: "short", year: "numeric" });
-  const time = dt.toLocaleTimeString("es-NI", { timeZone: NI_TZ, hour: "2-digit", minute: "2-digit", hour12: false });
-  return `${date} · ${time}`;
-}
-function formatNiCompact(isoStr: string): string {
-  const dt   = new Date(isoStr);
-  const date = dt.toLocaleDateString("es-NI", { timeZone: NI_TZ, day: "numeric", month: "short" });
-  const time = dt.toLocaleTimeString("es-NI", { timeZone: NI_TZ, hour: "2-digit", minute: "2-digit", hour12: false });
-  return `${date} · ${time}`;
-}
+import { useTranslations, useLocale } from "next-intl";
+import { formatDateShortNI, formatTimeNI, formatShortDateTimeNI, type Loc } from "@/lib/datetime";
 import { toast } from "sonner";
 import {
   Search,
@@ -118,6 +105,7 @@ function TableSkeleton() {
 export default function EmpresaCitasRegistro() {
   const t      = useTranslations("Dashboard.empresa.registroCitas");
   const tCitas = useTranslations("Dashboard.empresa.citas");
+  const locale = useLocale() as Loc;
 
   // ── Data state ──────────────────────────────────────────────────────────
   const [citas,   setCitas]   = useState<CitaRegistro[]>([]);
@@ -384,7 +372,7 @@ export default function EmpresaCitasRegistro() {
                       ? (cita.paciente?.nombre_completo ?? "—")
                       : (cita.paciente_nombre ?? "—");
 
-                    const fecha = formatNiShort(cita.fecha_hora_cita);
+                    const fecha = `${formatDateShortNI(cita.fecha_hora_cita, locale)} · ${formatTimeNI(cita.fecha_hora_cita, locale)}`;
                     const isAprobando  = aprobandoId  === cita.id;
                     const isRechazando = rechazandoId === cita.id;
                     const isPendiente  = isPendienteEstado(cita.estado_sync);
@@ -496,7 +484,7 @@ export default function EmpresaCitasRegistro() {
                 const pacienteNombre = cita.para_titular
                   ? (cita.paciente?.nombre_completo ?? "—")
                   : (cita.paciente_nombre ?? "—");
-                const fecha  = formatNiCompact(cita.fecha_hora_cita);
+                const fecha  = formatShortDateTimeNI(cita.fecha_hora_cita, locale);
                 const isPend = isPendienteEstado(cita.estado_sync);
                 const isBusy = aprobandoId === cita.id || rechazandoId === cita.id;
 

@@ -293,6 +293,7 @@ export default function AdminCalendarioCitas() {
         <FullCalendar
           ref={calendarRef}
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+          timeZone="America/Managua"
           initialView="timeGridWeek"
           headerToolbar={{
             left:   "prev,next today",

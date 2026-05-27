@@ -8,7 +8,8 @@
  */
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { formatDateShortNI } from "@/lib/datetime";
 import { toast } from "sonner";
 import {
   Gift,
@@ -56,9 +57,9 @@ function extractStoragePath(publicUrl: string): string {
   return idx >= 0 ? decodeURIComponent(publicUrl.slice(idx + marker.length)) : publicUrl;
 }
 
-function formatDate(iso: string | null): string {
+function formatDate(iso: string | null, locale: "es" | "en"): string {
   if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("es-NI", { day: "numeric", month: "short", year: "numeric" });
+  return formatDateShortNI(iso, locale);
 }
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
@@ -87,7 +88,8 @@ interface Props {
 }
 
 export default function AdminBeneficios({ userId }: Props) {
-  const t = useTranslations("Dashboard.admin.beneficios");
+  const t      = useTranslations("Dashboard.admin.beneficios");
+  const locale = useLocale() as "es" | "en";
 
   // ── Data state ────────────────────────────────────────────────────────────
   const [beneficios,  setBeneficios]  = useState<BeneficioRow[]>([]);
@@ -313,7 +315,7 @@ export default function AdminBeneficios({ userId }: Props) {
                         </td>
                         {/* Vigencia */}
                         <td className="px-4 py-3.5 font-roboto text-xs text-gray-600 whitespace-nowrap">
-                          {formatDate(b.fecha_inicio)} – {formatDate(b.fecha_fin)}
+                          {formatDate(b.fecha_inicio, locale)} – {formatDate(b.fecha_fin, locale)}
                         </td>
                         {/* Empresas */}
                         <td className="px-4 py-3.5">
@@ -418,7 +420,7 @@ export default function AdminBeneficios({ userId }: Props) {
                           </span>
                         </div>
                         <p className="text-[10px] font-roboto text-gray-400">
-                          {formatDate(b.fecha_inicio)} – {formatDate(b.fecha_fin)}
+                          {formatDate(b.fecha_inicio, locale)} – {formatDate(b.fecha_fin, locale)}
                         </p>
                       </div>
                       <div className="shrink-0" onClick={(e) => e.stopPropagation()}>

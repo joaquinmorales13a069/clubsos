@@ -7,6 +7,7 @@
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { CalendarDays, ChevronRight, Clock } from "lucide-react";
+import { formatDateNI, formatTime12NI, type Loc } from "@/lib/datetime";
 
 type Cita = {
   id: string;
@@ -25,25 +26,8 @@ const ESTADO_BADGE: Record<string, string> = {
   confirmado: "bg-green-100 text-green-700",
 };
 
-/** Format TIMESTAMPTZ to date/time strings in Nicaragua local time. */
-function formatDateTime(dtStr: string) {
-  const dt = new Date(dtStr);
-  return {
-    date: dt.toLocaleDateString("es-NI", {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      timeZone: "America/Managua",
-    }),
-    time: dt.toLocaleTimeString("es-NI", {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "America/Managua",
-    }),
-  };
-}
-
 export default async function ProximaCitaCard({ cita, locale }: ProximaCitaCardProps) {
+  const loc = locale as Loc;
   const t = await getTranslations("Dashboard.miembro.inicio.proximaCita");
 
   return (
@@ -69,7 +53,7 @@ export default async function ProximaCitaCard({ cita, locale }: ProximaCitaCardP
           <div className="space-y-2">
             <div className="flex items-start justify-between gap-2">
               <p className="text-sm font-roboto font-medium text-gray-800 capitalize">
-                {formatDateTime(cita.fecha_hora_cita).date}
+                {formatDateNI(cita.fecha_hora_cita, loc)}
               </p>
               <span
                 className={`shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full ${ESTADO_BADGE[cita.estado_sync] ?? "bg-gray-100 text-gray-600"}`}
@@ -79,7 +63,7 @@ export default async function ProximaCitaCard({ cita, locale }: ProximaCitaCardP
             </div>
             <div className="flex items-center gap-1.5 text-neutral">
               <Clock className="w-3.5 h-3.5" />
-              <span className="text-sm font-roboto">{formatDateTime(cita.fecha_hora_cita).time}</span>
+              <span className="text-sm font-roboto">{formatTime12NI(cita.fecha_hora_cita, loc)}</span>
             </div>
             {cita.servicio_asociado && (
               <p className="text-xs font-roboto text-neutral bg-gray-50 px-3 py-1.5 rounded-lg truncate">

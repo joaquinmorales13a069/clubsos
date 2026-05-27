@@ -10,6 +10,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
+import { NICARAGUA_TZ } from "@/lib/datetime";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -43,7 +44,7 @@ export default function AdminUbicacionFormModal({
   const [nombre,      setNombre]      = useState("");
   const [direccion,   setDireccion]   = useState("");
   const [telefono,    setTelefono]    = useState("");
-  const [zonaHoraria, setZonaHoraria] = useState("America/Managua");
+  const [zonaHoraria, setZonaHoraria] = useState(NICARAGUA_TZ);
   const [activo,      setActivo]      = useState(true);
   const [saving,      setSaving]      = useState(false);
 
@@ -53,7 +54,7 @@ export default function AdminUbicacionFormModal({
       setNombre(ubicacion?.nombre ?? "");
       setDireccion(ubicacion?.direccion ?? "");
       setTelefono(ubicacion?.telefono ?? "");
-      setZonaHoraria(ubicacion?.zona_horaria ?? "America/Managua");
+      setZonaHoraria(ubicacion?.zona_horaria ?? NICARAGUA_TZ);
       setActivo(ubicacion?.activo ?? true);
     }
   }, [open, ubicacion]);
@@ -70,7 +71,7 @@ export default function AdminUbicacionFormModal({
       nombre:       nombre.trim(),
       direccion:    direccion.trim() || null,
       telefono:     telefono.trim() || null,
-      zona_horaria: zonaHoraria.trim() || "America/Managua",
+      zona_horaria: zonaHoraria.trim() || NICARAGUA_TZ,
       activo,
     };
 
@@ -153,7 +154,7 @@ export default function AdminUbicacionFormModal({
                 value={zonaHoraria}
                 onChange={(e) => setZonaHoraria(e.target.value)}
                 maxLength={64}
-                placeholder="America/Managua"
+                placeholder={NICARAGUA_TZ}
                 className={cn(inputCls, "font-mono")}
               />
             </div>

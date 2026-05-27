@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { Bell, Megaphone, BellRing, ImageIcon } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
+import { formatDateTimeNI, type Loc } from "@/lib/datetime";
 
 type NotifRow = {
   id:         string;
@@ -37,7 +38,7 @@ type FeedItem =
 
 export default function CampanaUnificada() {
   const t      = useTranslations("Dashboard.topbar.campana");
-  const locale = useLocale();
+  const locale = useLocale() as Loc;
   const [open,   setOpen]   = useState(false);
   const [notifs, setNotifs] = useState<NotifRow[]>([]);
   const [avisos, setAvisos] = useState<AvisoRow[]>([]);
@@ -175,7 +176,7 @@ export default function CampanaUnificada() {
                       {t("pillNotificacion")}
                     </span>
                     <span className="text-[10px] text-neutral">
-                      {new Date(item.data.created_at).toLocaleString(locale === "en" ? "en-US" : "es-NI", { timeZone: "America/Managua" })}
+                      {formatDateTimeNI(item.data.created_at, locale)}
                     </span>
                   </div>
                   <p className="text-sm font-semibold">{item.data.titulo}</p>
@@ -194,7 +195,7 @@ export default function CampanaUnificada() {
                       {t("pillAviso")}
                     </span>
                     <span className="text-[10px] text-neutral">
-                      {new Date(item.data.created_at).toLocaleString(locale === "en" ? "en-US" : "es-NI", { timeZone: "America/Managua" })}
+                      {formatDateTimeNI(item.data.created_at, locale)}
                     </span>
                   </div>
                   <div className="flex items-start gap-2">

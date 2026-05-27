@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useLocale } from "next-intl";
 import { toast } from "sonner";
 import { Loader2, Link2, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDateTimeNI, type Loc } from "@/lib/datetime";
 
 type PagoRow = {
   id: string;
@@ -26,6 +28,7 @@ type CitaConPago = {
 };
 
 export default function AdminPagoVerificacion() {
+  const locale               = useLocale() as Loc;
   const [citas, setCitas]     = useState<CitaConPago[]>([]);
   const [loading, setLoading] = useState(true);
   const [acting, setActing]   = useState<Record<string, boolean>>({});
@@ -93,7 +96,7 @@ export default function AdminPagoVerificacion() {
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-900">{c.user?.nombre_completo ?? "—"}</p>
-                    <p className="text-xs text-neutral">{c.servicio_asociado} · {new Date(c.fecha_hora_cita).toLocaleString("es-NI", { timeZone: "America/Managua" })}</p>
+                    <p className="text-xs text-neutral">{c.servicio_asociado} · {formatDateTimeNI(c.fecha_hora_cita, locale)}</p>
                   </div>
                   <span className={cn("text-xs px-2 py-0.5 rounded-full font-medium",
                     c.pago?.link_url ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700")}>

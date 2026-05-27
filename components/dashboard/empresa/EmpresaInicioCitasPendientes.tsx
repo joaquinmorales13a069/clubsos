@@ -6,16 +6,8 @@
  * Callbacks are handled by the parent EmpresaInicio to keep KPI counts in sync.
  */
 
-import { useTranslations } from "next-intl";
-/** Formats a UTC ISO timestamp as "27 abr 2026 · 09:00" in Nicaragua time.
- *  Uses Intl with explicit timeZone — correct in any browser/server timezone. */
-function formatNiShort(isoStr: string): string {
-  const dt   = new Date(isoStr);
-  const tz   = "America/Managua";
-  const date = dt.toLocaleDateString("es-NI", { timeZone: tz, day: "numeric", month: "short", year: "numeric" });
-  const time = dt.toLocaleTimeString("es-NI", { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
-  return `${date} · ${time}`;
-}
+import { useTranslations, useLocale } from "next-intl";
+import { formatDateShortNI, formatTimeNI, type Loc } from "@/lib/datetime";
 import {
   CalendarClock,
   Loader2,
@@ -84,8 +76,9 @@ export default function EmpresaInicioCitasPendientes({
   onRechazar,
   verTodasHref,
 }: Props) {
-  const t = useTranslations("Dashboard.empresa.inicio");
+  const t      = useTranslations("Dashboard.empresa.inicio");
   const tCitas = useTranslations("Dashboard.empresa.citas");
+  const locale = useLocale() as Loc;
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -127,7 +120,7 @@ export default function EmpresaInicioCitasPendientes({
                   ? (cita.paciente?.nombre_completo ?? "—")
                   : (cita.paciente_nombre ?? "—");
 
-              const fechaFormateada = formatNiShort(cita.fecha_hora_cita);
+              const fechaFormateada = `${formatDateShortNI(cita.fecha_hora_cita, locale)} · ${formatTimeNI(cita.fecha_hora_cita, locale)}`;
 
               const isAprobando  = aprobandoIds.has(cita.id);
               const isRechazando = rechazandoIds.has(cita.id);

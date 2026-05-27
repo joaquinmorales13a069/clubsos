@@ -339,7 +339,8 @@
             "subtitle": "Choose the time that works best for you",
             "loading": "Loading available slots...",
             "noSlots": "No available time slots",
-            "noSlotsSub": "Try selecting a different date"
+            "noSlotsSub": "Try selecting a different date",
+            "slotNotAvailable": "unavailable"
           },
           "paciente": {
             "title": "Who is the appointment for?",
@@ -1639,6 +1640,7 @@
     "citas": {
       "slot_taken": "That time slot was just booked. Please pick another one.",
       "patient_busy": "You already have another appointment that overlaps with this time. Check your existing appointments before booking.",
+      "booking_too_soon": "Appointments cannot be booked with less than 24 hours of notice.",
       "slot_out_of_hours": "That time is outside the doctor's working hours.",
       "slot_in_exception": "The doctor is not available on that day.",
       "quota_exceeded": "You've reached the appointment limit for this service.",

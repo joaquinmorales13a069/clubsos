@@ -8,7 +8,8 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { formatDateShortNI } from "@/lib/datetime";
 import { toast } from "sonner";
 import {
   Building2,
@@ -69,10 +70,8 @@ function generateCodigo(): string {
   ).join("");
 }
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("es-NI", {
-    day: "numeric", month: "short", year: "numeric",
-  });
+function formatDate(iso: string, locale: "es" | "en"): string {
+  return formatDateShortNI(iso, locale);
 }
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
@@ -428,7 +427,8 @@ interface Props {
 }
 
 export default function AdminEmpresas({ userId: _userId }: Props) {
-  const t = useTranslations("Dashboard.admin.empresas");
+  const t      = useTranslations("Dashboard.admin.empresas");
+  const locale = useLocale() as "es" | "en";
 
   // ── Data state ─────────────────────────────────────────────────────────────
   const [empresas,   setEmpresas]   = useState<EmpresaRow[]>([]);
@@ -675,7 +675,7 @@ export default function AdminEmpresas({ userId: _userId }: Props) {
 
                     {/* Created at */}
                     <td className={cn(tdCls, "text-gray-500 whitespace-nowrap")}>
-                      {formatDate(empresa.created_at)}
+                      {formatDate(empresa.created_at, locale)}
                     </td>
 
                     {/* Actions */}
