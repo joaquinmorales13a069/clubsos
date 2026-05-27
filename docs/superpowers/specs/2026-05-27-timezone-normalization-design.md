@@ -1,11 +1,12 @@
-# Timezone Normalization — Design
+# Timezone Normalization + Signup-Familiar Fix — Design
 
-**Branch:** `fix/timezone-normalization`
-**Trigger:** Two bugs reported while testing from Australia (UTC+11):
+**Branch:** `fix/timezone-normalization` (scope grew mid-brainstorming to include an unrelated signup auth bug; branch name retained)
+**Trigger:** Three bugs reported by the user:
 1. The wizard allowed booking an appointment with less than 24 hours of notice.
-2. An appointment scheduled for May 27 8:00 AM (Nicaragua time) appeared on May 28 in the admin calendar.
+2. An appointment scheduled for May 27 8:00 AM (Nicaragua time) appeared on May 28 in the admin calendar (user testing from Australia / UTC+11).
+3. Registering a *familiar* of a *titular* fails at "Completar Registro" with `Error al configurar credenciales: New password should be different from the old password`, leaving a zombie `Pendiente` row in `users` with no empresa, no correo, and wrong `tipo_cuenta`.
 
-**Goal:** All date/time display and validation across the app must operate in **Nicaragua time** (`America/Managua`, UTC-6, no DST) regardless of the user's browser timezone, and the 24h pre-booking cutoff must be enforced server-side as an exact 24-hour window.
+**Goal:** (a) all date/time display and validation across the app must operate in Nicaragua time (`America/Managua`, UTC-6, no DST) regardless of the user's browser timezone; (b) the 24h pre-booking cutoff must be enforced server-side as an exact 24-hour window; (c) signup must be idempotent so that retries succeed instead of leaving zombie rows.
 
 ---
 
@@ -26,6 +27,12 @@
 - **17 components** format dates without `timeZone: "America/Managua"`. They render in browser tz → cross-tz users see wrong values.
 - **15 components** already pass `timeZone: "America/Managua"` correctly. They show right values today but reinvent the formatting each time (string-literal `"America/Managua"` repeated, locale logic duplicated). They are a regression risk: a future change might drop the option.
 - The ad-hoc `nicaraguaCalendarDate()` helper inside `PasoFecha.tsx` mixes hardcoded `-6 * 60 * 60 * 1000` offsets with `Date` constructor side effects. Brittle and hard to reason about.
+
+### Bug C — Signup-familiar credentials retry
+- In `app/[locale]/(auth)/signup/actions.ts:206`, `completeSignupAction` calls `supabase.auth.updateUser({ password })` unconditionally on every submit.
+- The phone-OTP step (`verifySignupOtpAction`) already creates the auth.users row and the trigger `handle_new_user` inserts a default row in `public.users` with `tipo_cuenta = 'titular'` (the schema default).
+- If the **first** "Completar Registro" submission fails at a later step (email already in use, profile update DB error, network blip), the password update **does** succeed and is persisted. On retry with the **same password**, Supabase rejects with `New password should be different from the old password` and the whole action aborts.
+- The user is left as a zombie: `auth.users` row exists with a password, `public.users` shows `tipo_cuenta = 'titular'`, `estado = 'pendiente'`, `empresa_id = null`, `titular_id = null`. They cannot retry signup successfully and admin sees them as a broken `Titular Pendiente`.
 
 ---
 
@@ -158,6 +165,53 @@ After migration, **a grep for `"America/Managua"` should match only `lib/datetim
 
 Add an ESLint custom rule or a simple `no-restricted-syntax` rule to forbid `.toLocaleDateString(` / `.toLocaleTimeString(` / `.toLocaleString(` outside `lib/datetime.ts`. This prevents future regressions. Documented in spec but implementation is **out of scope for this PR** (added as a follow-up issue, would require ESLint config changes and possibly a custom plugin).
 
+### 8. Idempotent signup-familiar (fixes Bug C)
+
+Make `completeSignupAction` (in `app/[locale]/(auth)/signup/actions.ts`) tolerate retries so that a failed first attempt does not permanently brick the account.
+
+**Approach:** before calling `supabase.auth.updateUser({ password })`, check whether a password is already set on the user. If yes, **skip the password update** (the password the user typed must match what they used last time, or the user can use "Forgot password" later). If no, set it.
+
+How to detect: the Supabase auth user object includes a `user.app_metadata` flag, but the cleanest signal is `user.user_metadata` plus the presence of `last_sign_in_at` vs. `created_at`. Simpler: query the `auth.users` table via service-role to read `encrypted_password IS NOT NULL`. Cleanest of all: just wrap the password update in a try/catch that specifically swallows the `"New password should be different from the old password"` (and equivalent localized) error message — the password is already what they want.
+
+Chosen implementation (lowest-risk, no new auth API calls):
+
+```ts
+// In completeSignupAction, replace the password update block with:
+if (formData.password) {
+  const { error: pwError } = await supabase.auth.updateUser({
+    password: formData.password,
+    data: authUpdateData.data,  // metadata always written
+  });
+  if (pwError) {
+    const msg = pwError.message.toLowerCase();
+    const isSamePassword =
+      msg.includes("different from the old password") ||
+      msg.includes("same as the old password") ||
+      msg.includes("same_password");
+    if (!isSamePassword) {
+      return { error: t("credentialsError", { message: pwError.message }) };
+    }
+    // Same-as-previous-password: the password is already what the user typed.
+    // Treat as success and continue with the rest of the flow.
+  }
+} else {
+  // No password change requested — still write metadata
+  const { error: metaError } = await supabase.auth.updateUser({
+    data: authUpdateData.data,
+  });
+  if (metaError) return { error: t("credentialsError", { message: metaError.message }) };
+}
+```
+
+This change is **server-side only**, contained to one function. No schema change, no new RPC, no client change. No i18n changes (we use the existing `credentialsError` key — only the bypassed case adds no new toast).
+
+**Companion fix (the zombie row):** add a one-off SQL clean-up note in the PR description (not in the migration) suggesting the admin manually delete the test zombie user shown in the screenshot via the admin UI. No automated migration for this — it is a single test row, not a population.
+
+**Testing notes:**
+1. As a new familiar: complete signup normally → expect success.
+2. Trigger an intentional retry: type an email that's already used (forces step to fail at the `emailExists` check on line 184) → submit → expect `emailExists` error. Change the email and retry → expect success this time (previously failed because password update was rejected). The fix lets the second attempt continue past the password step.
+3. Multi-tab regression: open signup in two tabs after OTP, submit one, then submit the other with the same password → expect both to succeed (idempotent).
+
 ---
 
 ## Data flow
@@ -196,9 +250,10 @@ No automated test suite per CLAUDE.md. Verification = `pnpm build` (type-check) 
 
 ## Branch + PR
 
-- **Branch:** `fix/timezone-normalization`
-- **Single PR** with 4-6 commits (one per logical chunk: `lib/datetime.ts`, 24h RPC, FullCalendar fix, audit migration of the 17, refactor of the 15, optional grep gate).
+- **Branch:** `fix/timezone-normalization` (scope grew to also include Bug C — name kept for git continuity).
+- **Single PR** with ~6-7 commits (one per logical chunk: `lib/datetime.ts`, 24h RPC migration, FullCalendar fix, audit migration of the 17 files without tz, refactor of the 15 files already using tz, signup-familiar idempotent fix).
 - **Migration:** `supabase/migrations/20260528000000_citas_24h_cutoff.sql`.
+- **Suggested PR title:** `fix: timezone normalization + 24h cutoff + signup retry idempotency`.
 
 ---
 
@@ -209,6 +264,8 @@ No automated test suite per CLAUDE.md. Verification = `pnpm build` (type-check) 
 - Implementing the ESLint guard (filed as follow-up).
 - Translating the `nicaraguaCalendarDate` helper inside `PasoFecha.tsx` beyond replacing its callsite (the helper itself gets deleted).
 - DST handling (Nicaragua does not observe DST; the helpers use IANA tz which handles it anyway).
+- Automated cleanup of pre-existing zombie `Pendiente` rows from prior failed signup attempts (manual admin task; one-off, not worth a migration).
+- Broader refactor of the multi-step signup wizard (out of scope; we only fix the idempotency bug in `completeSignupAction`).
 
 ---
 
@@ -221,3 +278,5 @@ No automated test suite per CLAUDE.md. Verification = `pnpm build` (type-check) 
 - ✅ The data flow diagram makes the layering explicit: browser → helpers → DB.
 - ✅ The verification gate (`grep -r "America/Managua"` only matches `lib/datetime.ts` + 2 controlled exceptions) is concrete and falsifiable.
 - ✅ The scope statement (in/out) is explicit.
+- ✅ Bug C fix is server-side only, contained to one function in one file. The detection list of error-message substrings is explicit and uses English fallbacks because Supabase Auth does not localize.
+- ✅ Bug C testing notes include the retry scenario that actually reproduces the bug.
