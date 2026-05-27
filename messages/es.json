@@ -1639,6 +1639,7 @@
     "citas": {
       "slot_taken": "Ese horario ya fue reservado. Por favor elige otro.",
       "patient_busy": "Ya tienes otra cita agendada que se traslapa con este horario. Revisa tus citas existentes antes de agendar.",
+      "booking_too_soon": "No se puede agendar citas con menos de 24 horas de anticipación.",
       "slot_out_of_hours": "Ese horario no está dentro del horario de atención del doctor.",
       "slot_in_exception": "El doctor no atiende ese día.",
       "quota_exceeded": "Has alcanzado el límite de citas de este servicio.",
