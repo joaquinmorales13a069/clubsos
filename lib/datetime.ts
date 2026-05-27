@@ -109,6 +109,33 @@ export function formatDateShortNI(input: Date | string | null | undefined, local
   }).format(d);
 }
 
+/** "27 de mayo de 2026" / "May 27, 2026" — long month, no weekday. */
+export function formatDateLongNoWeekdayNI(input: Date | string | null | undefined, locale: Loc): string {
+  const d = parseInput(input);
+  if (!d) return "—";
+  return new Intl.DateTimeFormat(intlLocale(locale), {
+    timeZone: NICARAGUA_TZ,
+    day:      "numeric",
+    month:    "long",
+    year:     "numeric",
+  }).format(d);
+}
+
+/**
+ * "mayo 2026" / "May 2026" — month + year only. Accepts (year, month) where
+ * month is 1-12 (calendar style), not 0-11 (JS Date style). Used by report
+ * charts that bucket events by calendar month in Nicaragua.
+ */
+export function formatMonthYearNI(year: number, month: number, locale: Loc): string {
+  // Use day=15 to avoid any DST/edge-of-month issues. Noon UTC for tz-safety.
+  const d = new Date(Date.UTC(year, month - 1, 15, 12));
+  return new Intl.DateTimeFormat(intlLocale(locale), {
+    timeZone: NICARAGUA_TZ,
+    month:    "long",
+    year:     "numeric",
+  }).format(d);
+}
+
 /**
  * "08:00" (24h, no AM/PM). The `_locale` parameter is accepted for call-site
  * uniformity with the other format helpers but is intentionally unused —

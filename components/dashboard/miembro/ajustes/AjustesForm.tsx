@@ -12,7 +12,8 @@
  */
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { formatDateLongNoWeekdayNI, calendarDateNI } from "@/lib/datetime";
 import PhoneInput, { isPossiblePhoneNumber } from "react-phone-number-input";
 import { updateEmailAction } from "@/app/[locale]/(dashboard)/dashboard/ajustes/actions";
 import "react-phone-number-input/style.css";
@@ -54,13 +55,15 @@ type PhoneState = "idle" | "ingresando" | "enviando_otp" | "verificando" | "conf
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 
-function formatDate(dateStr: string | null): string {
+function formatDate(dateStr: string | null, locale: "es" | "en"): string {
   if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("es-NI", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+  // fecha_nacimiento is a YYYY-MM-DD date-only value; parse as calendar day to avoid tz shift
+  const yyyymmdd = dateStr.slice(0, 10);
+  const [y, m, d] = yyyymmdd.split("-").map(Number);
+  return formatDateLongNoWeekdayNI(
+    calendarDateNI(`${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`),
+    locale,
+  );
 }
 
 const ROL_BADGE: Record<string, string> = {
@@ -110,7 +113,8 @@ function ReadField({ label, value }: { label: string; value: React.ReactNode }) 
 // ── Main component ────────────────────────────────────────────────────────
 
 export default function AjustesForm({ profile }: AjustesFormProps) {
-  const t = useTranslations("Dashboard.miembro.ajustes");
+  const t      = useTranslations("Dashboard.miembro.ajustes");
+  const locale = useLocale() as "es" | "en";
 
   // ── Section 2: Datos personales ──────────────────────────────────────
   const [nombre,    setNombre]    = useState(profile.nombre_completo ?? "");
@@ -227,7 +231,7 @@ export default function AjustesForm({ profile }: AjustesFormProps) {
             }
           />
           <ReadField label={t("fieldUsername")}       value={profile.username ?? "—"} />
-          <ReadField label={t("fieldFechaNacimiento")} value={formatDate(profile.fecha_nacimiento)} />
+          <ReadField label={t("fieldFechaNacimiento")} value={formatDate(profile.fecha_nacimiento, locale)} />
         </div>
       </Section>
 

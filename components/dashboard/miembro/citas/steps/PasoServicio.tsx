@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Stethoscope, Loader2, Clock, DollarSign, Search, X } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import type { WizardState } from "../types";
@@ -58,8 +58,9 @@ async function checkCoverage(
 export default function PasoServicio({
   ubicacionId, empresaId, titularRefId, onSelect, onBack,
 }: PasoServicioProps) {
-  const t  = useTranslations("Dashboard.miembro.citas.wizard");
-  const ts = useTranslations("Dashboard.miembro.citas.wizard.servicio");
+  const t      = useTranslations("Dashboard.miembro.citas.wizard");
+  const ts     = useTranslations("Dashboard.miembro.citas.wizard.servicio");
+  const locale = useLocale() as "es" | "en";
   const [servicios, setServicios] = useState<Servicio[]>([]);
   const [loading, setLoading]     = useState(true);
   const [checking, setChecking]   = useState<string | null>(null);
@@ -204,7 +205,7 @@ export default function PasoServicio({
                   )}
                   {s.precio != null && (
                     <span className="flex items-center gap-1 text-xs text-neutral">
-                      <DollarSign className="w-3 h-3" /> {ts("price")}{s.precio.toLocaleString()}
+                      <DollarSign className="w-3 h-3" /> {ts("price")}{new Intl.NumberFormat(locale === "en" ? "en-US" : "es-NI").format(s.precio)}
                     </span>
                   )}
                 </div>

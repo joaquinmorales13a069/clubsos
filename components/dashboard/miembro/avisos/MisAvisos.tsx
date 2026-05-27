@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Megaphone, ChevronLeft, ChevronRight, ImageIcon } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
 import AvisoDetailModal from "./AvisoDetailModal";
+import { formatDateShortNI, calendarDateNI } from "@/lib/datetime";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -24,12 +25,13 @@ type AvisoRow = {
 
 const PAGE_SIZE = 12;
 
-function formatDate(iso: string | null): string {
+function formatDate(iso: string | null, locale: "es" | "en"): string {
   if (!iso) return "—";
   const [y, m, d] = iso.slice(0, 10).split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString("es-NI", {
-    day: "numeric", month: "short", year: "numeric",
-  });
+  return formatDateShortNI(
+    calendarDateNI(`${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`),
+    locale,
+  );
 }
 
 // ── Skeleton ──────────────────────────────────────────────────────────────────
@@ -50,7 +52,8 @@ function CardSkeleton() {
 // ── Main component ─────────────────────────────────────────────────────────────
 
 export default function MisAvisos() {
-  const t = useTranslations("Dashboard.miembro.avisos");
+  const t      = useTranslations("Dashboard.miembro.avisos");
+  const locale = useLocale() as "es" | "en";
 
   const [avisos,        setAvisos]        = useState<AvisoRow[]>([]);
   const [totalCount,    setTotalCount]    = useState(0);
@@ -164,7 +167,7 @@ export default function MisAvisos() {
 
                 {(aviso.fecha_inicio || aviso.fecha_fin) && (
                   <p className="text-xs font-roboto text-gray-400 mt-auto pt-1 border-t border-gray-50">
-                    {formatDate(aviso.fecha_inicio)} – {formatDate(aviso.fecha_fin)}
+                    {formatDate(aviso.fecha_inicio, locale)} – {formatDate(aviso.fecha_fin, locale)}
                   </p>
                 )}
               </div>

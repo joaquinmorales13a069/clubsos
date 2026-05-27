@@ -18,7 +18,8 @@
  */
 
 import { useState, useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { formatDateLongNoWeekdayNI } from "@/lib/datetime";
 import { toast } from "sonner";
 import {
   Building2,
@@ -130,7 +131,8 @@ function ReadField({ label, value, mono = false }: { label: string; value: strin
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function EmpresaAjustes({ empresa }: Props) {
-  const t = useTranslations("Dashboard.empresa.ajustesEmpresa");
+  const t      = useTranslations("Dashboard.empresa.ajustesEmpresa");
+  const locale = useLocale() as "es" | "en";
 
   // ── Form state ───────────────────────────────────────────────────────────
   const [nombre,          setNombre]          = useState(empresa.nombre);
@@ -238,10 +240,8 @@ export default function EmpresaAjustes({ empresa }: Props) {
   }
 
   // ── Derived display values ────────────────────────────────────────────────
-  const idShort = `${empresa.id.slice(0, 10)}…`;
-  const creadoEn = new Date(empresa.created_at).toLocaleDateString("es-NI", {
-    day: "numeric", month: "long", year: "numeric",
-  });
+  const idShort  = `${empresa.id.slice(0, 10)}…`;
+  const creadoEn = formatDateLongNoWeekdayNI(empresa.created_at, locale);
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (

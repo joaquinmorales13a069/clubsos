@@ -14,7 +14,8 @@
  */
 
 import { useState, useEffect } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { formatDateShortNI } from "@/lib/datetime";
 import { toast } from "sonner";
 import {
   Loader2,
@@ -115,7 +116,8 @@ function initials(name: string | null) {
 }
 
 export default function EditarUsuarioModal({ open, user, onClose, onSaved, currentUserId }: Props) {
-  const t = useTranslations("Dashboard.empresa.gestionarUsuarios");
+  const t      = useTranslations("Dashboard.empresa.gestionarUsuarios");
+  const locale = useLocale() as "es" | "en";
 
   // ── Form state (synced from user prop when it changes) ───────────────────
   const [nombre,    setNombre]    = useState("");
@@ -256,9 +258,7 @@ export default function EditarUsuarioModal({ open, user, onClose, onSaved, curre
               />
               <ReadField
                 label={t("fieldMiembroDesde")}
-                value={new Date(user.created_at).toLocaleDateString("es-NI", {
-                  day: "numeric", month: "short", year: "numeric",
-                })}
+                value={formatDateShortNI(user.created_at, locale)}
               />
             </div>
           </section>

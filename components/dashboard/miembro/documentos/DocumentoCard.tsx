@@ -8,7 +8,8 @@
  */
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { formatDateShortNI, calendarDateNI } from "@/lib/datetime";
 import { toast } from "sonner";
 import {
   FlaskConical,
@@ -56,23 +57,23 @@ const TIPO_CONFIG: Record<
   otro:           { icon: FileText,       badge: "bg-gray-100 text-gray-600",     bg: "bg-gray-50"   },
 };
 
-function formatFecha(dateStr: string | null): string | null {
+function formatFecha(dateStr: string | null, locale: "es" | "en"): string | null {
   if (!dateStr) return null;
   const [y, m, d] = dateStr.split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString("es-NI", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  return formatDateShortNI(
+    calendarDateNI(`${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`),
+    locale,
+  );
 }
 
 export default function DocumentoCard({ documento }: DocumentoCardProps) {
-  const t = useTranslations("Dashboard.miembro.documentos");
+  const t      = useTranslations("Dashboard.miembro.documentos");
+  const locale = useLocale() as "es" | "en";
   const [loading, setLoading] = useState<"view" | "download" | null>(null);
 
   const config = TIPO_CONFIG[documento.tipo_documento] ?? TIPO_CONFIG.otro;
   const Icon   = config.icon;
-  const fecha  = formatFecha(documento.fecha_documento);
+  const fecha  = formatFecha(documento.fecha_documento, locale);
 
   /** Generate one signed URL (300 s) and perform the action */
   async function getSignedUrl(): Promise<string | null> {

@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { X, Tag, Percent, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDateLongNoWeekdayNI, calendarDateNI } from "@/lib/datetime";
 
 export type BeneficioDetailData = {
   titulo: string;
@@ -30,23 +31,25 @@ const TIPO_CONFIG: Record<
   promocion: { cls: "bg-secondary/10 text-secondary", icon: Tag,     labelKey: "typePromotion" },
 };
 
-function formatDate(dateStr: string | null): string | null {
+function formatDate(dateStr: string | null, locale: "es" | "en"): string | null {
   if (!dateStr) return null;
   const [y, m, d] = dateStr.slice(0, 10).split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString("es-NI", {
-    day: "numeric", month: "long", year: "numeric",
-  });
+  return formatDateLongNoWeekdayNI(
+    calendarDateNI(`${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`),
+    locale,
+  );
 }
 
 export default function BeneficioDetailModal({ open, onClose, beneficio }: BeneficioDetailModalProps) {
-  const t = useTranslations("Dashboard.miembro.beneficios");
+  const t      = useTranslations("Dashboard.miembro.beneficios");
+  const locale = useLocale() as "es" | "en";
 
   if (!open || !beneficio) return null;
 
   const config  = TIPO_CONFIG[beneficio.tipo_beneficio] ?? TIPO_CONFIG.descuento;
   const Icon    = config.icon;
-  const fechaFin   = formatDate(beneficio.fecha_fin);
-  const fechaInicio = formatDate(beneficio.fecha_inicio ?? null);
+  const fechaFin   = formatDate(beneficio.fecha_fin, locale);
+  const fechaInicio = formatDate(beneficio.fecha_inicio ?? null, locale);
 
   return (
     <div

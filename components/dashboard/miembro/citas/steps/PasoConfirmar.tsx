@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { formatDateNI, formatTime12NI, calendarDateNI } from "@/lib/datetime";
 import { toast } from "sonner";
 import {
   MapPin, Stethoscope, User, CalendarDays, Clock,
@@ -20,38 +21,31 @@ interface PasoConfirmarProps {
 
 interface Slot { hora_inicio: string; disponible: boolean }
 
-/** Format "YYYY-MM-DD" to readable date */
-function formatDate(dateStr: string): string {
-  const [year, month, day] = dateStr.split("-");
-  const dt = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-  return dt.toLocaleDateString("es-NI", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+/** Format "YYYY-MM-DD" to readable date with weekday */
+function formatDate(dateStr: string, locale: "es" | "en"): string {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return formatDateNI(
+    calendarDateNI(`${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`),
+    locale,
+  );
 }
 
-/** Format ISO UTC to local Nicaragua hh:mm AM/PM */
-function isoTo12hLocal(isoUtc: string): string {
-  const niOffsetMs = -6 * 60 * 60 * 1000;
-  const local = new Date(new Date(isoUtc).getTime() + niOffsetMs);
-  const h = local.getUTCHours();
-  const m = String(local.getUTCMinutes()).padStart(2, "0");
-  const period = h >= 12 ? "PM" : "AM";
-  const h12 = h > 12 ? h - 12 : h === 0 ? 12 : h;
-  return `${h12}:${m} ${period}`;
-}
 
 export default function PasoConfirmar({
   wizard, userProfile, onBack, onSuccess, onTransferenciaRequired, onSlotTaken,
 }: PasoConfirmarProps) {
-  const t  = useTranslations("Dashboard.miembro.citas.wizard");
-  const tc = useTranslations("Dashboard.miembro.citas.wizard.confirmar");
-  const te = useTranslations("Errors.citas");
+  const t      = useTranslations("Dashboard.miembro.citas.wizard");
+  const tc     = useTranslations("Dashboard.miembro.citas.wizard.confirmar");
+  const te     = useTranslations("Errors.citas");
+  const locale = useLocale() as "es" | "en";
   const [loading, setLoading] = useState(false);
 
   const SUMMARY_ITEMS = [
     { icon: MapPin,       key: "ubicacion",  value: wizard.ubicacionNombre },
     { icon: Stethoscope,  key: "servicio",   value: wizard.servicioNombre  },
     { icon: User,         key: "doctor",     value: wizard.doctorNombre    },
-    { icon: CalendarDays, key: "fecha",      value: wizard.fecha ? formatDate(wizard.fecha) : "" },
-    { icon: Clock,        key: "horario",    value: wizard.fechaHoraCita ? isoTo12hLocal(wizard.fechaHoraCita) : "" },
+    { icon: CalendarDays, key: "fecha",      value: wizard.fecha ? formatDate(wizard.fecha, locale) : "" },
+    { icon: Clock,        key: "horario",    value: wizard.fechaHoraCita ? formatTime12NI(wizard.fechaHoraCita, locale) : "" },
     { icon: User,         key: "paciente",   value: wizard.paraTitular ? "Para mí" : wizard.pacienteNombre },
   ];
 

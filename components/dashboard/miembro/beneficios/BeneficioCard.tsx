@@ -6,9 +6,10 @@
  */
 
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Tag, Percent, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatDateShortNI, calendarDateNI } from "@/lib/datetime";
 
 export type BeneficioRow = {
   id: string;
@@ -42,24 +43,24 @@ const TIPO_CONFIG: Record<
   },
 };
 
-function formatFecha(dateStr: string | null): string | null {
+function formatFecha(dateStr: string | null, locale: "es" | "en"): string | null {
   if (!dateStr) return null;
   const [y, m, d] = dateStr.slice(0, 10).split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString("es-NI", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  return formatDateShortNI(
+    calendarDateNI(`${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`),
+    locale,
+  );
 }
 
 const MAX_DESC = 180;
 
 export default function BeneficioCard({ beneficio, onClick }: BeneficioCardProps) {
-  const t = useTranslations("Dashboard.miembro.beneficios");
+  const t      = useTranslations("Dashboard.miembro.beneficios");
+  const locale = useLocale() as "es" | "en";
   const config = TIPO_CONFIG[beneficio.tipo_beneficio] ?? TIPO_CONFIG.descuento;
   const Icon = config.icon;
-  const fechaInicio = formatFecha(beneficio.fecha_inicio);
-  const fechaFin    = formatFecha(beneficio.fecha_fin);
+  const fechaInicio = formatFecha(beneficio.fecha_inicio, locale);
+  const fechaFin    = formatFecha(beneficio.fecha_fin, locale);
 
   const descTruncated = beneficio.descripcion
     ? beneficio.descripcion.length > MAX_DESC
