@@ -1430,7 +1430,11 @@
           "errorActualizar": "No se pudo actualizar la excepción."
         },
         "seeGlobalLink": "Ver excepciones globales y por ubicación que también afectan a este doctor →",
-        "multiScopeTooltip": "Las excepciones globales y por ubicación también afectan a este doctor, aunque solo veas las suyas aquí."
+        "multiScopeTooltip": "Las excepciones globales y por ubicación también afectan a este doctor, aunque solo veas las suyas aquí.",
+        "pag": {
+          "prev": "Página anterior",
+          "next": "Página siguiente"
+        }
       },
       "reportes": {
         "titulo": "Reportes del sistema",

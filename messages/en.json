@@ -1430,7 +1430,11 @@
           "errorActualizar": "Could not update exception."
         },
         "seeGlobalLink": "View global and location exceptions that also affect this doctor →",
-        "multiScopeTooltip": "Global and per-location exceptions also affect this doctor, even though only its own exceptions appear here."
+        "multiScopeTooltip": "Global and per-location exceptions also affect this doctor, even though only its own exceptions appear here.",
+        "pag": {
+          "prev": "Previous page",
+          "next": "Next page"
+        }
       },
       "reportes": {
         "titulo": "System Reports",
