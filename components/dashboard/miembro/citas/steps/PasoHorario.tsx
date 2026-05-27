@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { formatTime12NI, isAtLeast24hAway } from "@/lib/datetime";
 import { Clock, Loader2, CalendarX } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createClient } from "@/utils/supabase/client";
@@ -21,22 +22,12 @@ interface PasoHorarioProps {
   onBack: () => void;
 }
 
-function to12hLocal(isoUtc: string): string {
-  const d = new Date(isoUtc);
-  const niOffsetMs = -6 * 60 * 60 * 1000;
-  const local = new Date(d.getTime() + niOffsetMs);
-  let h = local.getUTCHours();
-  const m = String(local.getUTCMinutes()).padStart(2, "0");
-  const period = h >= 12 ? "PM" : "AM";
-  const h12 = h > 12 ? h - 12 : h === 0 ? 12 : h;
-  return `${h12}:${m} ${period}`;
-}
-
 export default function PasoHorario({
   doctorId, servicioId, fecha, onSelect, onBack,
 }: PasoHorarioProps) {
   const t  = useTranslations("Dashboard.miembro.citas.wizard");
   const th = useTranslations("Dashboard.miembro.citas.wizard.horario");
+  const locale = useLocale() as "es" | "en";
   const [slots, setSlots]       = useState<Slot[]>([]);
   const [loading, setLoading]   = useState(true);
   const [selected, setSelected] = useState<string | null>(null);
@@ -103,14 +94,14 @@ export default function PasoHorario({
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
           {slots.map((slot) => {
             const isSelected  = selected === slot.hora_inicio;
-            const isAvailable = slot.disponible;
+            const isAvailable = slot.disponible && isAtLeast24hAway(slot.hora_inicio);
             return (
               <button
                 key={slot.hora_inicio}
                 type="button"
                 disabled={!isAvailable}
                 onClick={() => isAvailable && setSelected(slot.hora_inicio)}
-                aria-label={`${to12hLocal(slot.hora_inicio)}${isAvailable ? "" : " (no disponible)"}`}
+                aria-label={`${formatTime12NI(slot.hora_inicio, locale)}${isAvailable ? "" : ` (${th("slotNotAvailable")})`}`}
                 className={cn(
                   "flex items-center justify-center gap-1.5 rounded-xl border py-2.5 text-sm font-roboto font-medium transition-all",
                   isSelected && "bg-primary border-primary text-white shadow-md shadow-primary/20",
@@ -119,7 +110,7 @@ export default function PasoHorario({
                 )}
               >
                 <Clock className="w-3.5 h-3.5" />
-                {to12hLocal(slot.hora_inicio)}
+                {formatTime12NI(slot.hora_inicio, locale)}
               </button>
             );
           })}

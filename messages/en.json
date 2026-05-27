@@ -339,7 +339,8 @@
             "subtitle": "Choose the time that works best for you",
             "loading": "Loading available slots...",
             "noSlots": "No available time slots",
-            "noSlotsSub": "Try selecting a different date"
+            "noSlotsSub": "Try selecting a different date",
+            "slotNotAvailable": "unavailable"
           },
           "paciente": {
             "title": "Who is the appointment for?",

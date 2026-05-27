@@ -339,7 +339,8 @@
             "subtitle": "Elige el horario que más te convenga",
             "loading": "Cargando horarios disponibles...",
             "noSlots": "No hay horarios disponibles",
-            "noSlotsSub": "Intenta seleccionando otra fecha"
+            "noSlotsSub": "Intenta seleccionando otra fecha",
+            "slotNotAvailable": "no disponible"
           },
           "paciente": {
             "title": "¿Para quién es la cita?",

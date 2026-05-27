@@ -6,24 +6,12 @@ import { Info, Loader2 } from "lucide-react";
 import { es, enUS } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import type { WizardState } from "../types";
+import { todayNI, calendarDateNI, dateToCalendarNI } from "@/lib/datetime";
 
 interface PasoFechaProps {
   doctorId: string;
   onSelect: (patch: Partial<WizardState>) => void;
   onBack: () => void;
-}
-
-function toDateStr(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
-
-const NI_OFFSET_MS = -6 * 60 * 60 * 1000;
-function nicaraguaCalendarDate(dayOffset = 0): Date {
-  const ni = new Date(Date.now() + NI_OFFSET_MS);
-  return new Date(ni.getUTCFullYear(), ni.getUTCMonth(), ni.getUTCDate() + dayOffset);
 }
 
 export default function PasoFecha({ doctorId, onSelect, onBack }: PasoFechaProps) {
@@ -32,24 +20,30 @@ export default function PasoFecha({ doctorId, onSelect, onBack }: PasoFechaProps
   const locale = useLocale();
   const dateLocale = locale === "es" ? es : enUS;
   const [selected, setSelected]   = useState<Date | undefined>(undefined);
-  const [month, setMonth]         = useState<Date>(() => nicaraguaCalendarDate(0));
+  const [month, setMonth]         = useState<Date>(() => calendarDateNI(todayNI()));
   const [diasConSlots, setDias]   = useState<Set<string> | null>(null);
   const [loadingDias, setLoading] = useState(false);
 
-  const tomorrow = nicaraguaCalendarDate(1);
-  tomorrow.setHours(0, 0, 0, 0);
+  // Earliest selectable day: the Nicaragua calendar day that contains
+  // (now + 24h). This matches the server-side BOOKING_TOO_SOON cutoff.
+  const cutoffNI = dateToCalendarNI(new Date(Date.now() + 24 * 60 * 60 * 1000));
+  const tomorrow = calendarDateNI(cutoffNI);
 
-  const maxDate = nicaraguaCalendarDate(0);
-  maxDate.setMonth(maxDate.getMonth() + 3);
-  maxDate.setHours(23, 59, 59, 999);
+  // Max date: 3 months from today's NI calendar day.
+  const todayNICalendar = calendarDateNI(todayNI());
+  const maxDate = new Date(todayNICalendar);
+  maxDate.setUTCMonth(maxDate.getUTCMonth() + 3);
 
   // Fetch days with slots for the visible month
   useEffect(() => {
-    const year  = month.getFullYear();
-    const monthNum = month.getMonth() + 1;
-    const start = `${year}-${String(monthNum).padStart(2, "0")}-01`;
-    const lastDay = new Date(year, monthNum, 0).getDate();
-    const end   = `${year}-${String(monthNum).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+    // month is a noon-UTC Date representing the visible month; derive the
+    // YYYY-MM-DD start/end of the calendar month in NI terms.
+    const monthStartNI = dateToCalendarNI(month).slice(0, 7) + "-01";
+    const [year, monthNum] = monthStartNI.split("-").map(Number);
+    const nextMonthFirst = new Date(Date.UTC(year, monthNum, 1, 12)); // month is 1-indexed → next month
+    const lastDayDate = new Date(nextMonthFirst.getTime() - 24 * 60 * 60 * 1000);
+    const start = monthStartNI;
+    const end   = dateToCalendarNI(lastDayDate);
 
     let cancelled = false;
     setLoading(true);
@@ -75,13 +69,13 @@ export default function PasoFecha({ doctorId, onSelect, onBack }: PasoFechaProps
   function isDisabled(date: Date): boolean {
     if (date < tomorrow || date > maxDate || date.getDay() === 0) return true;
     // If we've loaded the set for this month and the date is not in it, disable.
-    if (diasConSlots !== null && !diasConSlots.has(toDateStr(date))) return true;
+    if (diasConSlots !== null && !diasConSlots.has(dateToCalendarNI(date))) return true;
     return false;
   }
 
   function handleContinue() {
     if (!selected) return;
-    onSelect({ fecha: toDateStr(selected) });
+    onSelect({ fecha: dateToCalendarNI(selected) });
   }
 
   return (
