@@ -4,6 +4,7 @@
 
 export type CitaErrorCode =
   | "SLOT_TAKEN"
+  | "PATIENT_BUSY"
   | "SLOT_OUT_OF_HOURS"
   | "SLOT_IN_EXCEPTION"
   | "QUOTA_EXCEEDED"
@@ -24,6 +25,7 @@ export interface CitaErrorMapping {
 
 const MAPPING: Record<CitaErrorCode, CitaErrorMapping> = {
   SLOT_TAKEN:                        { status: 409, i18nKey: "Errors.citas.slot_taken" },
+  PATIENT_BUSY:                      { status: 409, i18nKey: "Errors.citas.patient_busy" },
   SLOT_OUT_OF_HOURS:                 { status: 422, i18nKey: "Errors.citas.slot_out_of_hours" },
   SLOT_IN_EXCEPTION:                 { status: 422, i18nKey: "Errors.citas.slot_in_exception" },
   QUOTA_EXCEEDED:                    { status: 409, i18nKey: "Errors.citas.quota_exceeded" },
