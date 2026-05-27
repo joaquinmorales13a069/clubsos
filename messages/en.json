@@ -870,6 +870,9 @@
             "confirmar_ok": "Appointment confirmed",
             "rechazar_ok": "Appointment rejected",
             "cancelar_ok": "Appointment cancelled",
+            "no_regresar": "No, go back",
+            "si_cancelar_cita": "Yes, cancel appointment",
+            "si_rechazar_cita": "Yes, reject appointment",
             "cargando": "Loading...",
             "error_cargar": "Could not load the appointment details"
           },
