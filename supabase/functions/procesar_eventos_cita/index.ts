@@ -31,7 +31,7 @@ interface CitaDetalle {
   motivo_rechazo: string | null;
   motivo_cancelacion: string | null;
   paciente: { nombre_completo: string | null; telefono: string | null; email: string | null } | null;
-  doctor: { nombre: string } | null;
+  doctor: { nombre: string | null; correo: string | null } | null;
   servicio: { nombre: string } | null;
   ubicacion: { nombre: string; direccion: string | null } | null;
 }
@@ -55,7 +55,7 @@ async function fetchCita(citaId: string): Promise<CitaDetalle | null> {
       id, fecha_hora_cita, fecha_hora_fin, paciente_id, motivo_cita, estado_sync,
       motivo_rechazo, motivo_cancelacion,
       paciente:users!paciente_id(nombre_completo, telefono, email),
-      doctor:doctores(nombre),
+      doctor:doctores(nombre, correo),
       servicio:servicios(nombre),
       ubicacion:ubicaciones(nombre, direccion)
     `)
@@ -147,6 +147,39 @@ async function procesar(evt: EventoRow): Promise<{ ok: boolean; error?: string }
         }));
       }
 
+      // NEW: doctor receives the same .ics + a different email body.
+      if (cita.doctor?.correo && cita.fecha_hora_fin) {
+        const icsDoc = buildIcs({
+          uid:         cita.id,
+          start:       new Date(cita.fecha_hora_cita),
+          end:         new Date(cita.fecha_hora_fin),
+          summary:     `${servicioNombre} — ${cita.paciente.nombre_completo ?? "Paciente"}`,
+          description: cita.motivo_cita ?? undefined,
+          location:    `${ubicacionNombre}${cita.ubicacion?.direccion ? ` — ${cita.ubicacion.direccion}` : ""}`,
+          organizer:   { name: "clubSOS", email: Deno.env.get("EMAIL_FROM") ?? "no-reply@clubsos.com" },
+        });
+        promises.push(sendEmail({
+          to:      cita.doctor.correo,
+          subject: `Nueva cita: ${cita.paciente.nombre_completo ?? "Paciente"} — ${fechaTxt}`,
+          html: `
+            <h2>Nueva cita agendada</h2>
+            <p>Hola Dr(a). ${cita.doctor.nombre ?? ""},</p>
+            <p>Se confirmó una nueva cita en tu agenda:</p>
+            <ul>
+              <li><strong>Paciente:</strong> ${cita.paciente.nombre_completo ?? "—"}</li>
+              <li><strong>Teléfono:</strong> ${cita.paciente.telefono ?? "—"}</li>
+              <li><strong>Servicio:</strong> ${servicioNombre}</li>
+              <li><strong>Fecha:</strong> ${fechaTxt}</li>
+              <li><strong>Ubicación:</strong> ${ubicacionNombre}</li>
+              ${cita.motivo_cita ? `<li><strong>Motivo:</strong> ${cita.motivo_cita}</li>` : ""}
+            </ul>
+            <p>Adjuntamos un archivo .ics para que puedas agregarla a tu calendario.</p>
+            <p>— El equipo de clubSOS</p>
+          `,
+          icsContent: icsDoc,
+        }));
+      }
+
       const results = await Promise.allSettled(promises);
       const fulfilled = results.filter((r) => r.status === "fulfilled");
       if (fulfilled.length === 0 && results.length > 0) {
@@ -175,24 +208,77 @@ async function procesar(evt: EventoRow): Promise<{ ok: boolean; error?: string }
       }
       return { ok: true };
 
-    case "cancelada":
-      await insertInApp(
+    case "cancelada": {
+      const promises: Promise<unknown>[] = [];
+
+      promises.push(insertInApp(
         cita.paciente_id, "cita_cancelada",
         "Cita cancelada",
-        `Tu cita de ${servicioNombre} el ${fechaTxt} fue cancelada.`,
+        `Tu cita de ${servicioNombre} el ${fechaTxt} fue cancelada${cita.motivo_cancelacion ? `: ${cita.motivo_cancelacion}` : ""}.`,
         "/dashboard/citas",
-      );
+      ));
+
       if (cita.paciente.telefono) {
-        await sendWhatsappTemplate({
+        promises.push(sendWhatsappTemplate({
           to: cita.paciente.telefono, template: "cita_cancelada", languageCode: "es",
           params: [
             cita.paciente.nombre_completo ?? "",
             servicioNombre,
             fechaTxt,
           ],
-        });
+        }));
+      }
+
+      // Patient email with motivo (new — previously only WhatsApp + in-app).
+      if (cita.paciente.email) {
+        promises.push(sendEmail({
+          to:      cita.paciente.email,
+          subject: "Tu cita ha sido cancelada",
+          html: `
+            <h2>Cita cancelada</h2>
+            <p>Hola ${cita.paciente.nombre_completo ?? ""},</p>
+            <p>Te informamos que tu cita fue <strong>cancelada</strong>:</p>
+            <ul>
+              <li><strong>Servicio:</strong> ${servicioNombre}</li>
+              <li><strong>Doctor:</strong> ${doctorNombre}</li>
+              <li><strong>Fecha:</strong> ${fechaTxt}</li>
+              <li><strong>Ubicación:</strong> ${ubicacionNombre}</li>
+              ${cita.motivo_cancelacion ? `<li><strong>Motivo:</strong> ${cita.motivo_cancelacion}</li>` : ""}
+            </ul>
+            <p>Si tienes preguntas o necesitas reagendar, contáctanos.</p>
+            <p>— El equipo de clubSOS</p>
+          `,
+        }));
+      }
+
+      // NEW: doctor notification (no .ics — the cancellation is just informative).
+      if (cita.doctor?.correo) {
+        promises.push(sendEmail({
+          to:      cita.doctor.correo,
+          subject: `Cita cancelada: ${cita.paciente.nombre_completo ?? "Paciente"} — ${fechaTxt}`,
+          html: `
+            <h2>Cita cancelada</h2>
+            <p>Hola Dr(a). ${cita.doctor.nombre ?? ""},</p>
+            <p>La siguiente cita fue cancelada y el horario queda libre en tu agenda:</p>
+            <ul>
+              <li><strong>Paciente:</strong> ${cita.paciente.nombre_completo ?? "—"}</li>
+              <li><strong>Servicio:</strong> ${servicioNombre}</li>
+              <li><strong>Fecha:</strong> ${fechaTxt}</li>
+              <li><strong>Ubicación:</strong> ${ubicacionNombre}</li>
+              ${cita.motivo_cancelacion ? `<li><strong>Motivo:</strong> ${cita.motivo_cancelacion}</li>` : ""}
+            </ul>
+            <p>— El equipo de clubSOS</p>
+          `,
+        }));
+      }
+
+      const results = await Promise.allSettled(promises);
+      const fulfilled = results.filter((r) => r.status === "fulfilled");
+      if (fulfilled.length === 0 && results.length > 0) {
+        return { ok: false, error: "Todos los canales fallaron" };
       }
       return { ok: true };
+    }
 
     case "recordatorio_24h":
       await insertInApp(

@@ -1423,11 +1423,18 @@
         "errorCargar": "No se pudieron cargar las excepciones.",
         "toast": {
           "creado": "Excepción creada.",
+          "creadoConCancelaciones": "Excepción creada. {n} cita(s) cancelada(s).",
           "eliminado": "Excepción eliminada.",
           "actualizado": "Excepción actualizada.",
           "errorCrear": "No se pudo crear la excepción.",
           "errorEliminar": "No se pudo eliminar la excepción.",
           "errorActualizar": "No se pudo actualizar la excepción."
+        },
+        "affected": {
+          "loading": "Verificando citas afectadas…",
+          "none": "Ninguna cita existente se verá afectada por esta excepción.",
+          "count": "Esta excepción cancelará {n} cita(s) existente(s).",
+          "whatsappReminder": "Al crear la excepción, estas citas se cancelarán automáticamente y se enviará correo al paciente. Recuerda contactarlos también por WhatsApp para confirmar y reagendar si corresponde."
         },
         "seeGlobalLink": "Ver excepciones globales y por ubicación que también afectan a este doctor →",
         "multiScopeTooltip": "Las excepciones globales y por ubicación también afectan a este doctor, aunque solo veas las suyas aquí.",

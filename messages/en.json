@@ -1423,11 +1423,18 @@
         "errorCargar": "Could not load exceptions.",
         "toast": {
           "creado": "Exception created.",
+          "creadoConCancelaciones": "Exception created. {n} appointment(s) cancelled.",
           "eliminado": "Exception deleted.",
           "actualizado": "Exception updated.",
           "errorCrear": "Could not create exception.",
           "errorEliminar": "Could not delete exception.",
           "errorActualizar": "Could not update exception."
+        },
+        "affected": {
+          "loading": "Checking affected appointments…",
+          "none": "No existing appointments will be affected by this exception.",
+          "count": "This exception will cancel {n} existing appointment(s).",
+          "whatsappReminder": "When the exception is created, these appointments will be auto-cancelled and the patient will be emailed. Remember to also contact them via WhatsApp to confirm and reschedule if needed."
         },
         "seeGlobalLink": "View global and location exceptions that also affect this doctor →",
         "multiScopeTooltip": "Global and per-location exceptions also affect this doctor, even though only its own exceptions appear here.",
