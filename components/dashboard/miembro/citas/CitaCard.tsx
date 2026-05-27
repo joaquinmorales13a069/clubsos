@@ -3,24 +3,17 @@
 /** Displays a single cita with status badge and cancel action */
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import { CalendarDays, Clock, MapPin, X, Loader2 } from "lucide-react";
 import { cancelarCita } from "@/app/[locale]/(dashboard)/dashboard/citas/actions";
 import CitaEstadoBadge from "./CitaEstadoBadge";
 import AgregarACalendario from "./AgregarACalendario";
 import type { CitaEstado, CitaRow } from "./types";
+import { formatDateWeekdayShortNI, formatTime12NI, type Loc } from "@/lib/datetime";
 
 interface CitaCardProps {
   cita: CitaRow;
-}
-
-function formatDateTime(dtStr: string) {
-  const dt = new Date(dtStr);
-  return {
-    date: dt.toLocaleDateString("es-NI", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "America/Managua" }),
-    time: dt.toLocaleTimeString("es-NI", { hour: "2-digit", minute: "2-digit", timeZone: "America/Managua" }),
-  };
 }
 
 const CANCELABLE = new Set(["pendiente", "confirmado"]);
@@ -31,9 +24,11 @@ function isPastCutoff(fechaHoraCita: string): boolean {
 }
 
 export default function CitaCard({ cita }: CitaCardProps) {
-  const t = useTranslations("Dashboard.miembro.citas");
+  const t      = useTranslations("Dashboard.miembro.citas");
+  const locale = useLocale() as Loc;
   const [cancelling, setCancelling] = useState(false);
-  const { date, time } = formatDateTime(cita.fecha_hora_cita);
+  const date = formatDateWeekdayShortNI(cita.fecha_hora_cita, locale);
+  const time = formatTime12NI(cita.fecha_hora_cita, locale);
   const pastCutoff = isPastCutoff(cita.fecha_hora_cita);
 
   async function handleCancel() {

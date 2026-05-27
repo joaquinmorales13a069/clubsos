@@ -11,6 +11,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { formatDateTimeNI, type Loc } from "@/lib/datetime";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, XCircle, Ban } from "lucide-react";
 import {
@@ -81,7 +82,7 @@ export default function AdminCitaDetalleModal({
   const t       = useTranslations("Dashboard.admin.citas.calendario.modal");
   const tEstado = useTranslations("Dashboard.admin.citas.calendario.estados");
   const tErr    = useTranslations();
-  const locale  = useLocale();
+  const locale  = useLocale() as Loc;
 
   const [cita,    setCita]    = useState<CitaDetalle | null>(null);
   const [loading, setLoading] = useState(false);
@@ -126,15 +127,8 @@ export default function AdminCitaDetalleModal({
 
   const fechaFmt = useMemo(() => {
     if (!cita?.fecha_hora_cita) return "—";
-    try {
-      return new Intl.DateTimeFormat(locale === "en" ? "en-US" : "es-NI", {
-        dateStyle: "full",
-        timeStyle: "short",
-        timeZone:  "America/Managua",
-      }).format(new Date(cita.fecha_hora_cita));
-    } catch {
-      return cita.fecha_hora_cita;
-    }
+    const fmt = formatDateTimeNI(cita.fecha_hora_cita, locale);
+    return fmt === "—" ? cita.fecha_hora_cita : fmt;
   }, [cita?.fecha_hora_cita, locale]);
 
   const pacienteDisplay = cita?.para_titular

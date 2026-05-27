@@ -6,7 +6,8 @@
  * Approve button is shown for any cita in "pendiente" state.
  */
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { formatDateNI, formatTimeNI, type Loc } from "@/lib/datetime";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 import {
   Sheet,
@@ -17,14 +18,6 @@ import {
 import { cn } from "@/lib/utils";
 import type { CitaRegistroAdmin } from "./AdminCitasRegistro";
 
-const NI_TZ = "America/Managua";
-
-function formatNiFull(isoStr: string): string {
-  const dt   = new Date(isoStr);
-  const date = dt.toLocaleDateString("es-NI", { timeZone: NI_TZ, weekday: "long", day: "numeric", month: "long", year: "numeric" });
-  const time = dt.toLocaleTimeString("es-NI", { timeZone: NI_TZ, hour: "2-digit", minute: "2-digit", hour12: false });
-  return `${date} · ${time}`;
-}
 
 const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
   pendiente:  { label: "statusPendiente",  cls: "bg-amber-100 text-amber-700" },
@@ -58,7 +51,8 @@ interface Props {
 export default function DetalleModalAdmin({
   open, cita, aprobando, rechazando, onClose, onAprobar, onRechazar,
 }: Props) {
-  const t = useTranslations("Dashboard.admin.citas");
+  const t      = useTranslations("Dashboard.admin.citas");
+  const locale = useLocale() as Loc;
 
   if (!cita) return null;
 
@@ -130,7 +124,7 @@ export default function DetalleModalAdmin({
             </h4>
             <div className="grid grid-cols-1 gap-3 bg-gray-50 rounded-xl p-4">
               <Field label={t("fieldEmpresa")}  value={cita.empresa?.nombre ?? t("sinRegistro")} />
-              <Field label={t("fieldFecha")}    value={formatNiFull(cita.fecha_hora_cita)} />
+              <Field label={t("fieldFecha")}    value={`${formatDateNI(cita.fecha_hora_cita, locale)} · ${formatTimeNI(cita.fecha_hora_cita, locale)}`} />
               <Field label={t("fieldServicio")} value={cita.servicio?.nombre ?? t("sinRegistro")} />
               <Field label={t("fieldDoctor")}   value={cita.doctor?.nombre ?? t("sinRegistro")} />
               {cita.motivo_cita && (

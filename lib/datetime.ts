@@ -109,6 +109,19 @@ export function formatDateShortNI(input: Date | string | null | undefined, local
   }).format(d);
 }
 
+/** "lun., 27 abr. 2026" / "Mon, Apr 27, 2026" — short weekday + short month + year. */
+export function formatDateWeekdayShortNI(input: Date | string | null | undefined, locale: Loc): string {
+  const d = parseInput(input);
+  if (!d) return "—";
+  return new Intl.DateTimeFormat(intlLocale(locale), {
+    timeZone: NICARAGUA_TZ,
+    weekday:  "short",
+    day:      "numeric",
+    month:    "short",
+    year:     "numeric",
+  }).format(d);
+}
+
 /** "27 de mayo de 2026" / "May 27, 2026" — long month, no weekday. */
 export function formatDateLongNoWeekdayNI(input: Date | string | null | undefined, locale: Loc): string {
   const d = parseInput(input);

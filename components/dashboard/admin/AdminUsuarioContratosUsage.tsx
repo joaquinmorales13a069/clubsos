@@ -8,6 +8,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { formatDateShortNI, type Loc } from "@/lib/datetime";
 import { toast } from "sonner";
 import { Loader2, FileText } from "lucide-react";
 
@@ -35,7 +36,7 @@ function barColor(used: number, total: number): string {
 
 export default function AdminUsuarioContratosUsage({ userId }: Props) {
   const t      = useTranslations("Dashboard.admin.usuarios.contratosUsage");
-  const locale = useLocale();
+  const locale = useLocale() as Loc;
   const [items,   setItems]   = useState<UsageRow[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -88,10 +89,7 @@ export default function AdminUsuarioContratosUsage({ userId }: Props) {
         const pct = row.cuota_por_titular > 0
           ? Math.min(100, Math.round((row.used / row.cuota_por_titular) * 100))
           : 0;
-        const periodFmt = new Date(row.period_start).toLocaleDateString(
-          locale === "en" ? "en-US" : "es-NI",
-          { year: "numeric", month: "short", day: "numeric", timeZone: "America/Managua" },
-        );
+        const periodFmt = formatDateShortNI(row.period_start, locale);
         return (
           <div
             key={row.cs_id}

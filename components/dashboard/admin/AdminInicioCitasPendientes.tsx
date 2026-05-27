@@ -5,7 +5,8 @@
  * Same design as EmpresaInicioCitasPendientes but adds empresa.nombre per row.
  */
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { formatDateShortNI, formatTimeNI, type Loc } from "@/lib/datetime";
 import {
   CalendarClock,
   Loader2,
@@ -15,16 +16,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function formatNiShort(isoStr: string): string {
-  const dt   = new Date(isoStr);
-  const tz   = "America/Managua";
-  const date = dt.toLocaleDateString("es-NI", { timeZone: tz, day: "numeric", month: "short", year: "numeric" });
-  const time = dt.toLocaleTimeString("es-NI", { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
-  return `${date} · ${time}`;
-}
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -81,7 +72,8 @@ export default function AdminInicioCitasPendientes({
   onRechazar,
   verTodasHref,
 }: Props) {
-  const t = useTranslations("Dashboard.admin.inicio");
+  const t      = useTranslations("Dashboard.admin.inicio");
+  const locale = useLocale() as Loc;
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -121,7 +113,7 @@ export default function AdminInicioCitasPendientes({
               const nombre      = cita.paciente?.nombre_completo ?? "—";
               const empresa     = cita.empresa?.nombre ?? "—";
               const servicio    = cita.servicio?.nombre ?? "—";
-              const fecha       = formatNiShort(cita.fecha_hora_cita);
+              const fecha       = `${formatDateShortNI(cita.fecha_hora_cita, locale)} · ${formatTimeNI(cita.fecha_hora_cita, locale)}`;
               const isAprobando  = aprobandoIds.has(cita.id);
               const isRechazando = rechazandoIds.has(cita.id);
               const isBusy       = isAprobando || isRechazando;

@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useLocale } from "next-intl";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
+import { formatDateTimeNI, type Loc } from "@/lib/datetime";
 
 type CitaAdminRow = {
   id: string;
@@ -15,6 +17,7 @@ type CitaAdminRow = {
 };
 
 export default function AdminCitasPendientesAdmin() {
+  const locale               = useLocale() as Loc;
   const [citas, setCitas]     = useState<CitaAdminRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [acting, setActing]   = useState<Record<string, boolean>>({});
@@ -83,7 +86,7 @@ export default function AdminCitasPendientesAdmin() {
         <div key={c.id} className="rounded-xl border border-gray-200 bg-white p-4 space-y-3">
           <div>
             <p className="text-sm font-medium text-gray-900">{c.user?.nombre_completo ?? "—"}</p>
-            <p className="text-xs text-neutral">{c.servicio_asociado} · {new Date(c.fecha_hora_cita).toLocaleString("es-NI", { timeZone: "America/Managua" })}</p>
+            <p className="text-xs text-neutral">{c.servicio_asociado} · {formatDateTimeNI(c.fecha_hora_cita, locale)}</p>
             <p className="text-xs text-neutral mt-0.5">Pago en clínica{c.pago?.monto ? ` · C$${c.pago.monto}` : ""}</p>
           </div>
           <div className="flex gap-2">
