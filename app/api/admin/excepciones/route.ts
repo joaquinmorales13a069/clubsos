@@ -100,28 +100,52 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { data, error } = await supabase
-    .from("excepciones_horario")
-    .insert({
-      doctor_id:    body.doctor_id    ?? null,
-      ubicacion_id: body.ubicacion_id ?? null,
-      fecha_inicio: body.fecha_inicio,
-      fecha_fin:    body.fecha_fin,
-      motivo:       body.motivo ?? null,
-    })
-    .select("id, doctor_id, ubicacion_id, fecha_inicio, fecha_fin, motivo")
-    .single();
+  const { data, error } = await supabase.rpc("crear_excepcion_con_cancelaciones", {
+    p_doctor_id:    body.doctor_id    ?? null,
+    p_ubicacion_id: body.ubicacion_id ?? null,
+    p_fecha_inicio: body.fecha_inicio,
+    p_fecha_fin:    body.fecha_fin,
+    p_motivo:       body.motivo ?? null,
+  });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // RPC returns a one-row TABLE; supabase-js returns it as an array of objects.
+  const row = Array.isArray(data) ? data[0] : data;
+  const excepcionId       = row?.excepcion_id           ?? null;
+  const citasCanceladas   = row?.citas_canceladas_count ?? 0;
 
   await logAction(supabase, {
     actorId:      auth.user.id,
     actorRol:     "admin",
     accion:       "excepcion.crear",
     entidad:      "excepciones_horario",
-    entidadId:    data.id,
-    datosDespues: data,
+    entidadId:    excepcionId ?? "",
+    datosDespues: {
+      doctor_id:    body.doctor_id    ?? null,
+      ubicacion_id: body.ubicacion_id ?? null,
+      fecha_inicio: body.fecha_inicio,
+      fecha_fin:    body.fecha_fin,
+      motivo:       body.motivo ?? null,
+      citas_canceladas: citasCanceladas,
+    },
   });
 
-  return NextResponse.json({ ok: true, excepcion: data }, { status: 201 });
+  return NextResponse.json(
+    {
+      ok: true,
+      excepcion: {
+        id:           excepcionId,
+        doctor_id:    body.doctor_id    ?? null,
+        ubicacion_id: body.ubicacion_id ?? null,
+        fecha_inicio: body.fecha_inicio,
+        fecha_fin:    body.fecha_fin,
+        motivo:       body.motivo ?? null,
+      },
+      citas_canceladas: citasCanceladas,
+    },
+    { status: 201 },
+  );
 }
