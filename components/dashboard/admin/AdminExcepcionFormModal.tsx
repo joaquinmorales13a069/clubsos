@@ -9,7 +9,8 @@
  */
 
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { formatShortDateTimeNI } from "@/lib/datetime";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import {
@@ -31,6 +32,15 @@ export interface ExcepcionFormValue {
   fecha_inicio:  string;  // YYYY-MM-DDTHH:mm (datetime-local) or ISO
   fecha_fin:     string;
   motivo:        string;
+}
+
+interface AffectedCita {
+  id:                string;
+  fecha_hora_cita:   string;
+  paciente_nombre:   string;
+  paciente_telefono: string | null;
+  doctor_nombre:     string;
+  ubicacion_nombre:  string;
 }
 
 interface DoctorOption     { id: string; nombre: string; ubicacion_id: string | null }
@@ -71,6 +81,9 @@ export default function AdminExcepcionFormModal({
   const [value, setValue] = useState<ExcepcionFormValue>(EMPTY);
   const [busy, setBusy]   = useState(false);
   const [err, setErr]     = useState<string | null>(null);
+  const locale = useLocale() as "es" | "en";
+  const [affected,       setAffected]       = useState<AffectedCita[] | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -89,6 +102,44 @@ export default function AdminExcepcionFormModal({
     }
     setErr(null);
   }, [open, initial]);
+
+  // Debounced preview of affected citas. Re-runs when any field that affects
+  // the overlap changes. Skipped when validation would fail.
+  useEffect(() => {
+    if (!open) return;
+
+    // Pre-validate: skip preview if fields aren't ready.
+    if (!value.fecha_inicio || !value.fecha_fin) { setAffected(null); return; }
+    if (new Date(value.fecha_fin) <= new Date(value.fecha_inicio)) { setAffected(null); return; }
+    if ((value.scope === "doctor"    || value.scope === "both") && !value.doctor_id)    { setAffected(null); return; }
+    if ((value.scope === "ubicacion" || value.scope === "both") && !value.ubicacion_id) { setAffected(null); return; }
+
+    let cancelled = false;
+    setPreviewLoading(true);
+    const handle = setTimeout(async () => {
+      try {
+        const sp = new URLSearchParams({
+          fecha_inicio: new Date(value.fecha_inicio).toISOString(),
+          fecha_fin:    new Date(value.fecha_fin).toISOString(),
+        });
+        const docId = (value.scope === "doctor"    || value.scope === "both") ? value.doctor_id    : null;
+        const ubiId = (value.scope === "ubicacion" || value.scope === "both") ? value.ubicacion_id : null;
+        if (docId) sp.set("doctor_id",    docId);
+        if (ubiId) sp.set("ubicacion_id", ubiId);
+        const res = await fetch(`/api/admin/excepciones/preview-affected?${sp.toString()}`, { cache: "no-store" });
+        if (cancelled) return;
+        if (!res.ok) { setAffected([]); return; }
+        const j = await res.json() as { affected: AffectedCita[] };
+        setAffected(j.affected ?? []);
+      } catch {
+        if (!cancelled) setAffected([]);
+      } finally {
+        if (!cancelled) setPreviewLoading(false);
+      }
+    }, 300);
+
+    return () => { cancelled = true; clearTimeout(handle); };
+  }, [open, value.scope, value.doctor_id, value.ubicacion_id, value.fecha_inicio, value.fecha_fin]);
 
   const isEdit = Boolean(initial?.id);
 
@@ -130,12 +181,24 @@ export default function AdminExcepcionFormModal({
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify(payload),
       });
+      const body = await res.json().catch(() => ({})) as {
+        error?:            string;
+        citas_canceladas?: number;
+      };
       if (!res.ok) {
-        const j = await res.json().catch(() => ({})) as { error?: string };
-        throw new Error(j.error ?? "create failed");
+        throw new Error(body.error ?? "create failed");
       }
 
-      toast.success(t(isEdit ? "toast.actualizado" : "toast.creado"));
+      if (isEdit) {
+        toast.success(t("toast.actualizado"));
+      } else {
+        const cancelled = body.citas_canceladas ?? 0;
+        if (cancelled > 0) {
+          toast.success(t("toast.creadoConCancelaciones", { n: cancelled }));
+        } else {
+          toast.success(t("toast.creado"));
+        }
+      }
       onSaved();
       onClose();
     } catch {
@@ -237,6 +300,40 @@ export default function AdminExcepcionFormModal({
               className={fieldCls}
             />
           </div>
+
+          {previewLoading && (
+            <p className="text-xs font-roboto text-gray-400">{t("affected.loading")}</p>
+          )}
+          {!previewLoading && affected && affected.length > 0 && (
+            <div className="rounded-xl border border-red-200 bg-red-50 p-3 space-y-2">
+              <p className="text-sm font-roboto font-semibold text-red-700">
+                ⚠️ {t("affected.count", { n: affected.length })}
+              </p>
+              <ul className="space-y-1 max-h-40 overflow-y-auto">
+                {affected.map((c) => (
+                  <li
+                    key={c.id}
+                    className="text-xs font-roboto text-red-900 grid grid-cols-[auto_1fr] gap-2"
+                  >
+                    <span className="font-medium whitespace-nowrap">
+                      {formatShortDateTimeNI(c.fecha_hora_cita, locale)}
+                    </span>
+                    <span>
+                      {c.paciente_nombre}
+                      {c.paciente_telefono ? ` · ${c.paciente_telefono}` : ""}
+                      {" · "}{c.doctor_nombre} — {c.ubicacion_nombre}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs font-roboto text-red-700">
+                {t("affected.whatsappReminder")}
+              </p>
+            </div>
+          )}
+          {!previewLoading && affected && affected.length === 0 && (
+            <p className="text-xs font-roboto text-gray-500">{t("affected.none")}</p>
+          )}
 
           {err && (
             <p className="text-xs font-roboto text-red-600">{err}</p>
