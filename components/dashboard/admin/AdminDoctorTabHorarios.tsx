@@ -14,7 +14,8 @@
  */
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import Link from "next/link";
 import { Loader2, Plus, Trash2, CalendarX } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -80,7 +81,9 @@ function localInputToISO(v: string): string | null {
 export default function AdminDoctorTabHorarios({
   doctorId, horarios, excepciones, onChanged,
 }: Props) {
-  const t = useTranslations("Dashboard.admin.doctores.detalle.horarios");
+  const t    = useTranslations("Dashboard.admin.doctores.detalle.horarios");
+  const tEx  = useTranslations("Dashboard.admin.excepciones");
+  const locale = useLocale();
 
   // Modal state
   const [bloqueOpenForDay, setBloqueOpenForDay] = useState<number | null>(null);
@@ -218,6 +221,13 @@ export default function AdminDoctorTabHorarios({
             {t("addExcepcion")}
           </button>
         </div>
+
+        <Link
+          href={`/${locale}/dashboard/admin/excepciones?doctor_id=${doctorId}`}
+          className="block text-xs font-roboto text-secondary hover:underline"
+        >
+          {tEx("seeGlobalLink")}
+        </Link>
 
         <div className="space-y-2">
           {sortedExcepciones.length === 0 && (

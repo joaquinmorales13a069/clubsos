@@ -179,6 +179,7 @@
         "gestionarUbicaciones": "Locations",
         "gestionarServicios": "Services",
         "gestionarDoctores": "Doctors",
+        "gestionarExcepciones": "Exceptions",
         "gestionarBeneficios": "Benefits",
         "gestionarDocumentos": "Documents",
         "gestionarEmpresas": "Companies",
@@ -1358,6 +1359,81 @@
           "validDuracion": "Duration must be a valid integer.",
           "validPrecio": "Price must be a valid number.",
           "errorGuardar": "Failed to save service."
+        }
+      },
+      "excepciones": {
+        "title": "Schedule Exceptions",
+        "subtitle": "Block dates when bookings should not be allowed (holidays, vacation, closures).",
+        "newBtn": "New exception",
+        "editBtn": "Edit",
+        "deleteBtn": "Delete",
+        "deleteConfirm": "Delete this exception? Affected appointments will not be modified automatically.",
+        "view": {
+          "calendario": "Calendar",
+          "tabla": "List"
+        },
+        "scope": {
+          "global": "Global",
+          "doctor": "By doctor",
+          "ubicacion": "By location",
+          "doctorYUbicacion": "Doctor + location",
+          "all": "All scopes"
+        },
+        "col": {
+          "scope": "Scope",
+          "doctor": "Doctor",
+          "ubicacion": "Location",
+          "inicio": "Start",
+          "fin": "End",
+          "motivo": "Reason",
+          "acciones": "Actions"
+        },
+        "filter": {
+          "scope": "Scope",
+          "doctor": "Doctor",
+          "ubicacion": "Location",
+          "desde": "From",
+          "hasta": "To",
+          "todos": "All"
+        },
+        "form": {
+          "title_create": "New exception",
+          "title_edit": "Edit exception",
+          "scopeLabel": "Applies to",
+          "doctorLabel": "Doctor",
+          "ubicacionLabel": "Location",
+          "selectDoctor": "Select a doctor…",
+          "selectUbicacion": "Select a location…",
+          "fechaInicio": "Start date and time",
+          "fechaFin": "End date and time",
+          "motivo": "Reason (optional)",
+          "motivoPlaceholder": "e.g. National holiday, vacation, clinic closed",
+          "submitCreate": "Create exception",
+          "submitEdit": "Save changes",
+          "cancel": "Cancel",
+          "validation": {
+            "endBeforeStart": "End must be after start.",
+            "missingFields": "Fill in the start and end dates.",
+            "missingDoctor": "Select a doctor for this scope.",
+            "missingUbicacion": "Select a location for this scope."
+          }
+        },
+        "empty": "No exceptions match the current filters.",
+        "loading": "Loading exceptions…",
+        "errorCargar": "Could not load exceptions.",
+        "toast": {
+          "creado": "Exception created.",
+          "eliminado": "Exception deleted.",
+          "actualizado": "Exception updated.",
+          "errorCrear": "Could not create exception.",
+          "errorEliminar": "Could not delete exception.",
+          "errorActualizar": "Could not update exception."
+        },
+        "seeGlobalLink": "View global and location exceptions that also affect this doctor →",
+        "multiScopeTooltip": "Global and per-location exceptions also affect this doctor, even though only its own exceptions appear here.",
+        "pag": {
+          "prev": "Previous page",
+          "next": "Next page"
         }
       },
       "reportes": {

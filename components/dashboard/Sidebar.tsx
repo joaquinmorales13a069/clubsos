@@ -33,6 +33,7 @@ import {
   UserCheck,
   SlidersHorizontal,
   CalendarCheck,
+  CalendarX,
   MapPin,
   Stethoscope,
   UserRound,
@@ -101,10 +102,11 @@ function buildAdminNav(
 
   // "Citas" — booking module management
   const citasItems: NavItemConfig[] = [
-    { href: `${base}/admin/citas`,        label: t("nav.gestionarCitas"),       icon: CalendarCheck },
-    { href: `${base}/admin/ubicaciones`,  label: t("nav.gestionarUbicaciones"), icon: MapPin },
-    { href: `${base}/admin/servicios`,    label: t("nav.gestionarServicios"),   icon: Stethoscope },
-    { href: `${base}/admin/doctores`,     label: t("nav.gestionarDoctores"),    icon: UserRound },
+    { href: `${base}/admin/citas`,         label: t("nav.gestionarCitas"),        icon: CalendarCheck },
+    { href: `${base}/admin/ubicaciones`,   label: t("nav.gestionarUbicaciones"),  icon: MapPin },
+    { href: `${base}/admin/servicios`,     label: t("nav.gestionarServicios"),    icon: Stethoscope },
+    { href: `${base}/admin/doctores`,      label: t("nav.gestionarDoctores"),     icon: UserRound },
+    { href: `${base}/admin/excepciones`,   label: t("nav.gestionarExcepciones"),  icon: CalendarX },
   ];
 
   // "Clientes" — users + companies
