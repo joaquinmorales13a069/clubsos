@@ -1074,6 +1074,16 @@
         "actualizado": "Usuario actualizado correctamente.",
         "errorGuardar": "Error al guardar. Intenta de nuevo.",
         "errorCargar": "No se pudieron cargar los usuarios.",
+        "tabInfo": "Información",
+        "tabUsoCitas": "Uso de citas",
+        "tabUsoNoAplica": "Sin empresa asignada — el uso por contrato solo aplica a miembros con empresa.",
+        "contratosUsage": {
+          "loading": "Cargando uso de citas...",
+          "empty": "Este usuario no tiene contratos activos.",
+          "errorCargar": "No se pudo cargar el uso de citas.",
+          "remainingLabel": "{count} restante(s)",
+          "periodLabel": "Período desde {date}"
+        },
         "emptyFilter": "Sin resultados para los filtros actuales.",
         "empty": "No hay usuarios registrados aún.",
         "pageInfo": "{from}–{to} de {total} usuarios",

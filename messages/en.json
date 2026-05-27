@@ -1074,6 +1074,16 @@
         "actualizado": "User updated successfully.",
         "errorGuardar": "Failed to save. Please try again.",
         "errorCargar": "Could not load users.",
+        "tabInfo": "Information",
+        "tabUsoCitas": "Appointment usage",
+        "tabUsoNoAplica": "No assigned company — per-contract usage only applies to members with a company.",
+        "contratosUsage": {
+          "loading": "Loading appointment usage...",
+          "empty": "This user has no active contracts.",
+          "errorCargar": "Could not load appointment usage.",
+          "remainingLabel": "{count} remaining",
+          "periodLabel": "Period from {date}"
+        },
         "emptyFilter": "No results for current filters.",
         "empty": "No users registered yet.",
         "pageInfo": "{from}–{to} of {total} users",
