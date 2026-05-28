@@ -350,3 +350,156 @@ Genera una sola página de showcase con los 4 estados en grid 2x2.
 ```
 
 ---
+
+## 3. Auth
+
+### 3.1 Login
+
+**Ruta:** `/{locale}/login`
+**Rol:** público
+**Patrones referenciados:** Design System
+
+**Prompt:**
+
+```
+clubSOS es una plataforma médica multi-tenant. Brand: rojo #CD2129 +
+azul #2266A7. Poppins/Roboto.
+
+Diseña la pantalla de Login.
+
+OBJETIVO: usuario ingresa con email + password. Soporta login con
+Google. Si tiene MFA, redirige a /mfa/verificar después de auth.
+
+SECCIONES (split-screen lg+, stack móvil):
+- IZQUIERDA (form, 5/12 del ancho lg+, 100% móvil):
+  - Logo clubSOS arriba.
+  - h1 "Bienvenido de vuelta".
+  - Subtítulo "Ingresa para gestionar tus citas y beneficios".
+  - Botón "Continuar con Google" (outline + ícono Google) full-width.
+  - Divider "o continúa con email".
+  - Input email + input password (con toggle mostrar/ocultar).
+  - Link "¿Olvidaste tu contraseña?" alineado a la derecha, sm,
+    color secondary.
+  - Botón primary full-width "Ingresar".
+  - Texto pie: "¿No tienes cuenta? Regístrate" con link a /signup.
+
+- DERECHA (brand, 7/12 lg+, oculto <lg):
+  - Background gradient sutil primary→secondary o imagen médica
+    abstracta.
+  - Card flotante glass con quote testimonial o feature highlight:
+    "Agenda tus citas médicas con un solo toque" + ícono CalendarCheck.
+  - Footer pequeño con badges de seguridad (HIPAA-like).
+
+ESTADOS:
+- Loading: botón "Ingresar" muestra spinner + "Ingresando…", inputs
+  disabled.
+- Error: banner rojo arriba del form con mensaje
+  ("Credenciales inválidas") + form vuelve a estar editable.
+
+RESPONSIVE:
+- <md: solo columna izquierda, padding 24, logo arriba, todo
+  centrado verticalmente.
+- md a lg: igual a móvil pero max-w-md centrado.
+- lg+: split 5/7.
+
+REGLAS: sin modales. Toasts con sonner para success. Toggle de
+mostrar password con íconos Eye/EyeOff.
+```
+
+---
+
+### 3.2 Signup — overview wizard
+
+**Ruta:** `/{locale}/signup`
+**Rol:** público
+**Patrones referenciados:** Wizard, Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla overview del Signup wizard para clubSOS (los 5
+pasos individuales se detallan en § 7.6-7.10).
+
+OBJETIVO: usuario nuevo se registra como afiliado. 5 pasos cortos
+con validación en vivo y resumen editable al final.
+
+LAYOUT: split-screen como Login (5/7 lg+).
+
+IZQUIERDA (form column):
+- Logo clubSOS arriba.
+- Stepper horizontal (5 pasos) en sticky-top.
+- Contenido del paso actual (renderizado del prompt correspondiente
+  de § 7).
+- Footer "← Anterior" + "Continuar →".
+
+DERECHA (brand column, oculto <lg):
+- Visual con beneficios del programa:
+  1. ✓ Citas médicas en 24h
+  2. ✓ Beneficios exclusivos
+  3. ✓ Documentos digitales seguros
+  4. ✓ Familia incluida
+- Cada item con ícono lucide + texto.
+- Card flotante glass con resumen del progreso del usuario.
+
+RESPONSIVE:
+- <md: solo columna izquierda, stepper colapsa a barra de progreso
+  fina + "Paso X de 5".
+- md a lg: igual a móvil + max-w-xl.
+- lg+: split 5/7 con brand a la derecha.
+
+ESTADOS:
+- Loading global durante envío final: spinner + "Creando tu cuenta…".
+- Error: banner arriba del paso con mensaje.
+
+REGLAS: sin modales. Cada paso es un prompt individual de § 7.
+Stepper permite volver atrás (click) pero no saltar hacia adelante.
+```
+
+---
+
+### 3.3 MFA — Verificar / Enrolar
+
+**Ruta:** `/{locale}/mfa/verificar`
+**Rol:** público (post-login con MFA enrolado) / autenticado (para enrolar)
+**Patrones referenciados:** Design System
+
+**Prompt:**
+
+```
+Diseña 2 pantallas MFA para clubSOS:
+
+A. VERIFICAR (post-login si MFA enrolado)
+   - Layout centrado, max-w-md.
+   - Logo clubSOS arriba.
+   - h1 "Verificación en dos pasos".
+   - Subtítulo "Ingresa el código de 6 dígitos de tu app de
+     autenticación".
+   - Input OTP de 6 celdas (1 dígito por celda, auto-jump al
+     siguiente, paste detecta los 6 dígitos).
+   - Botón primary full-width "Verificar".
+   - Link sm "Usar código de respaldo" → muestra input alternativo.
+   - Link xs "Cerrar sesión" abajo en gris.
+
+B. ENROLAR (desde ajustes o post-signup)
+   - h1 "Activa autenticación en dos pasos".
+   - Subtítulo "Escanea el QR con tu app".
+   - QR code centrado (256px).
+   - Texto pequeño con código manual para copiar (monoespaciado).
+   - Input OTP de 6 dígitos para confirmar.
+   - Botón primary "Activar 2FA".
+   - Link "Saltar por ahora" en gris (solo en flujo post-signup).
+
+ESTADOS:
+- Loading: spinner en botón.
+- Error: input OTP se pone rojo + mensaje "Código incorrecto.
+  Intenta de nuevo".
+- Éxito: toast verde + redirect a /dashboard.
+
+RESPONSIVE:
+- <md: padding 16, OTP cells más pequeñas.
+- md+: max-w-md, padding 32.
+
+REGLAS: sin modales. Toast con sonner para success.
+```
+
+---
