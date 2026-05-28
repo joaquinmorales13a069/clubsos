@@ -503,3 +503,94 @@ REGLAS: sin modales. Toast con sonner para success.
 ```
 
 ---
+
+## 4. Miembro
+
+### 4.1 Home miembro
+
+**Ruta:** `/{locale}/dashboard`
+**Rol:** miembro
+**Patrones referenciados:** Layout shell, Design System
+
+**Prompt:**
+
+```
+Diseña el Home del miembro de clubSOS. Tres roles: admin, empresa_admin,
+miembro. Este es para miembro (el afiliado al plan de salud).
+
+OBJETIVO: dashboard personal con su carnet digital, próxima cita,
+quick actions y resúmenes de sus avisos/beneficios/documentos.
+
+SECCIONES (de arriba abajo):
+
+1. MFA BANNER (condicional, solo si no enrolado):
+   - Banner amarillo warning con ícono ShieldAlert.
+   - Texto "Protege tu cuenta con autenticación en dos pasos".
+   - Botón outline "Activar ahora" link a /mfa/verificar.
+
+2. HERO + CREDENTIAL CARD
+   - Layout grid (md): 7/12 hero + 5/12 credential card.
+   - Hero: "Hola, [Nombre]" h1 Poppins bold 32px con [Nombre]
+     en color primary. Subtítulo Roboto neutral.
+   - Credential card flotante (glass): tarjeta tipo carnet con
+     - Foto/iniciales del miembro (avatar 64px).
+     - Nombre completo.
+     - Empresa.
+     - Número de afiliado (badge sm).
+     - Background gradient primary→secondary muy sutil con
+       backdrop-blur. Rotación leve 1-2deg en hover.
+
+3. PRÓXIMA CITA (card destacada)
+   - Si existe: card grande con
+     - Ícono CalendarClock 40px en círculo primary/10.
+     - Badge de estado (pendiente, confirmado).
+     - Servicio + doctor + ubicación.
+     - Fecha y hora formato amigable.
+     - Acciones: "Ver detalles" + "Agregar a calendario" (dropdown
+       con Google/Outlook/Apple/.ics).
+   - Si no existe: empty state con "No tienes citas próximas" +
+     CTA "Pedir nueva cita" link a /citas/nueva.
+
+4. QUICK ACTIONS ROW (4 pills)
+   - Grid grid-cols-2 md:grid-cols-4 gap-4.
+   - Cada pill: card rounded-2xl con ícono lucide 32 + label
+     Poppins semibold.
+   - Acciones: Pedir cita (CalendarPlus), Ver beneficios (Gift),
+     Mis documentos (FileText), Mi familia (Users).
+
+5. GRID DE RESÚMENES (md+: 3 cols)
+   A. ÚLTIMOS AVISOS (2 items)
+      - Header con título + link "Ver todos →".
+      - Lista de cards mini con título + fecha relativa + dot status.
+   B. BENEFICIOS RECIENTES (3 items)
+      - Header + link.
+      - Mini cards horizontales con ícono + título + fecha fin.
+   C. DOCUMENTOS RECIENTES (3 items)
+      - Header + link.
+      - Lista con ícono tipo archivo + nombre + fecha + botón
+        descargar mini.
+
+6. MIS SERVICIOS CUBIERTOS (sección expandida)
+   - Header "Servicios incluidos en tu plan".
+   - Lista de cards horizontales con:
+     - Ícono del servicio.
+     - Nombre.
+     - Uso actual (ej: 3/12 visitas).
+     - Barra de progreso.
+   - Cada card clickeable a detalle del servicio.
+
+ESTADOS:
+- Skeleton independiente por sección (no skeleton global).
+- Empty state para Próxima cita y para cada lista vacía.
+- Error: cada bloque puede fallar sin romper los demás.
+
+RESPONSIVE:
+- <md: 1 columna stack, credential card debajo del hero.
+- md: 2 cols para hero+credential y para resúmenes (los 3 resúmenes
+  apilados de a 2).
+- lg+: layout completo con 3 cols en resúmenes.
+
+REGLAS: sin modales. Toasts con sonner. Mobile-first.
+```
+
+---
