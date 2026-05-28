@@ -2077,3 +2077,263 @@ REGLAS: sin modales.
 ```
 
 ---
+## 7. Wizards expandidos
+
+> Estos prompts detallan el contenido del paso ACTUAL dentro del shell del wizard (§ 2.3). Asume que el stepper, summary lateral y footer ya están renderizados — diseña solo el contenido principal del paso.
+
+### 7.1 Wizard Citas — Paso 1: Paciente
+
+**Ruta:** `/{locale}/dashboard/citas/nueva?step=1`
+**Rol:** miembro
+**Patrones referenciados:** Wizard, Design System
+
+**Prompt:**
+
+```
+Diseña el contenido del PASO 1 del wizard de nueva cita: PACIENTE.
+
+OBJETIVO: el miembro indica para quién es la cita — para sí mismo
+(titular) o para un familiar registrado.
+
+CONTENIDO:
+1. Título de paso: "¿Para quién es la cita?".
+2. Subtítulo: "Selecciona el paciente que recibirá la atención".
+
+3. TABS / TOGGLE GRANDE:
+   - 2 cards grandes lado a lado (md+) / stack (móvil):
+     - "Para mí (Titular)": avatar del miembro + nombre.
+     - "Para un familiar": ícono Users.
+   - Card activa: border-primary border-2 + bg-primary/5.
+
+4. SI "Para un familiar":
+   - Subsection "Selecciona el familiar":
+     - Grid de avatar cards con familiares registrados.
+     - Cada card: avatar + nombre + relación badge + edad.
+     - Card final: "+ Agregar nuevo familiar" link a /familia/nuevo
+       (NO modal — abre página).
+   - Si no hay familiares: empty state inline con CTA.
+
+5. SI "Para mí":
+   - Validación silenciosa: confirmar datos del miembro
+     (no editable).
+
+ESTADOS:
+- Skeleton si hay carga.
+- Error: banner.
+
+VALIDACIÓN: avanzar requiere selección (titular o un familiar).
+
+REGLAS: sin modales. Agregar familiar = página.
+```
+
+---
+
+### 7.2 Wizard Citas — Paso 2: Servicio + Ubicación
+
+**Ruta:** `/{locale}/dashboard/citas/nueva?step=2`
+**Rol:** miembro
+**Patrones referenciados:** Wizard, Design System
+
+**Prompt:**
+
+```
+Diseña el contenido del PASO 2 del wizard: SERVICIO + UBICACIÓN
+consolidados.
+
+OBJETIVO: elegir el servicio médico y la ubicación. Si solo hay
+1 ubicación disponible para el servicio, autoseleccionar y mostrar
+con badge "Sugerido".
+
+CONTENIDO:
+1. Título: "¿Qué servicio necesitas?".
+
+2. SERVICIOS — grid de cards (2 cols md, 3 cols lg):
+   Cada ServicioCard:
+   - Ícono lucide grande del servicio en círculo color primary/10.
+   - Nombre Poppins semibold.
+   - Descripción corta sm.
+   - Badge "Cubierto" si está en el plan.
+   - Hover: border-primary, shadow-md.
+   - Selected: border-primary border-2 + bg-primary/5 + check mark.
+
+3. CUANDO HAY SELECCIÓN DE SERVICIO:
+   - Aparece subsection "Ubicación":
+     - Si 1 sola ubicación disponible: card pre-seleccionada con
+       badge naranja "Sugerido" + nombre + dirección + botón
+       "Ver más opciones" (oculto si solo 1).
+     - Si > 1: grid de UbicacionCard con nombre + dirección +
+       distancia (opcional) + badge.
+
+ESTADOS:
+- Skeleton del grid.
+- Empty: "No hay servicios disponibles en tu plan" (raro, banner).
+- Error: banner.
+
+VALIDACIÓN: avanzar requiere servicio + ubicación seleccionados.
+
+REGLAS: sin modales. Smart defaults visibles con badge.
+```
+
+---
+
+### 7.3 Wizard Citas — Paso 3: Doctor + Fecha + Horario (UNIFICADO)
+
+**Ruta:** `/{locale}/dashboard/citas/nueva?step=3`
+**Rol:** miembro
+**Patrones referenciados:** Wizard, Design System
+
+**Prompt:**
+
+```
+Diseña el contenido del PASO 3 unificado del wizard: DOCTOR + FECHA
++ HORARIO en una sola vista.
+
+OBJETIVO: ver disponibilidad integrada de doctores compatibles con
+el servicio en una vista calendario+slots.
+
+CONTENIDO (lg+: 3 cols / 2/3 + 1/3, móvil: stack):
+
+1. Header del paso:
+   - Título: "Elige tu cita".
+   - Selector horizontal de doctores arriba (sticky):
+     - Avatars en row scroll-x con nombre debajo.
+     - Si solo 1 doctor disponible: card grande con info y badge
+       "Sugerido".
+     - Click cambia doctor y refresca slots (mantiene fecha
+       seleccionada).
+
+2. COLUMNA IZQUIERDA (calendario):
+   - Calendario mensual interactivo (date picker grande).
+   - Días con disponibilidad: dot indicator primary.
+   - Día sin disponibilidad: gris claro disabled.
+   - Día seleccionado: bg-primary text-white circular.
+   - Navegación de mes con flechas + label "Mayo 2026".
+   - Auto-selección: primera fecha con disponibilidad si no hay
+     selección previa, marcada con badge "Más próxima".
+
+3. COLUMNA DERECHA (slots):
+   - Header: fecha seleccionada formato amigable
+     "Miércoles, 28 de mayo".
+   - Grid de slot buttons (2-3 cols dentro de la columna):
+     - Cada slot: bloque rounded-xl con hora "09:00".
+     - Estados: disponible (border + hover bg-primary/10),
+       seleccionado (bg-primary text-white), no disponible
+       (gris disabled).
+   - Si día seleccionado no tiene slots: empty state
+     "No hay horarios disponibles este día. Prueba otra fecha."
+
+4. REALTIME: los slots se actualizan en vivo si alguien más reserva.
+
+ESTADOS:
+- Skeleton de calendario y slots.
+- Empty: doctor sin disponibilidad próxima.
+- Error.
+
+VALIDACIÓN: avanzar requiere doctor + fecha + slot seleccionados.
+
+RESPONSIVE:
+- <md: stack vertical: selector doctor → calendario → slots.
+- md+: row de doctores, 2 cols calendario+slots.
+- lg+: layout completo.
+
+REGLAS: sin modales. Realtime con sutiles transitions cuando un
+slot se ocupa por otro usuario.
+```
+
+---
+
+### 7.4 Wizard Citas — Paso 4: Pago
+
+**Ruta:** `/{locale}/dashboard/citas/nueva?step=4`
+**Rol:** miembro
+**Patrones referenciados:** Wizard, Design System
+
+**Prompt:**
+
+```
+Diseña el contenido del PASO 4 del wizard: PAGO.
+
+OBJETIVO: elegir método de pago. Si transferencia, subir
+comprobante inline.
+
+CONTENIDO:
+1. Título: "Método de pago".
+2. Si servicio cubierto 100%: banner verde "Esta cita está
+   cubierta por tu plan. No se requiere pago." + skip step
+   automático con badge.
+3. Si requiere pago:
+   - Total a pagar: card destacada con monto Poppins bold 32px +
+     desglose (servicio, IVA si aplica).
+   - Tabs de métodos:
+     - Tarjeta (placeholder Pasarela): logo + texto "Serás
+       redirigido a checkout seguro al confirmar".
+     - Transferencia bancaria: muestra datos de cuenta
+       (banco, número, beneficiario) + área upload
+       "Subir comprobante" (drag-and-drop o click) + input opcional
+       de referencia.
+     - Efectivo en sede (si aplica): card simple con instrucciones.
+
+ESTADOS:
+- Loading durante upload de comprobante.
+- Validación: si transferencia, requiere comprobante.
+- Error banner si upload falla.
+
+VALIDACIÓN: si requiere pago, método + (comprobante si
+transferencia) son obligatorios.
+
+REGLAS: sin modales. Comprobante se sube inline.
+```
+
+---
+
+### 7.5 Wizard Citas — Paso 5: Confirmar
+
+**Ruta:** `/{locale}/dashboard/citas/nueva?step=5`
+**Rol:** miembro
+**Patrones referenciados:** Wizard, Design System
+
+**Prompt:**
+
+```
+Diseña el contenido del PASO 5 final: CONFIRMAR.
+
+OBJETIVO: revisar todos los detalles, aceptar términos y enviar.
+
+CONTENIDO:
+1. Título: "Confirma tu cita".
+2. Subtítulo: "Revisa la información antes de confirmar".
+3. RESUMEN ESTRUCTURADO (card grande):
+   - Sección "Paciente": avatar + nombre + relación + edad +
+     botón "Editar" mini.
+   - Sección "Servicio y ubicación": ícono + nombre servicio +
+     ubicación + edit.
+   - Sección "Doctor": avatar + nombre + especialidad + edit.
+   - Sección "Fecha y horario": ícono CalendarClock + fecha
+     completa + hora + duración + edit.
+   - Sección "Pago": método + monto + edit (si aplica).
+
+4. AVISOS:
+   - Política de cancelación: "Puedes cancelar hasta 24 horas
+     antes" en card info azul.
+   - Confirmaciones: "Recibirás un email + WhatsApp con la
+     confirmación".
+
+5. Términos y condiciones:
+   - Checkbox "He leído y acepto los [términos y condiciones]"
+     con link a /terminos.
+   - Sin aceptar = botón Confirmar deshabilitado.
+
+6. Footer de wizard (heredado de § 2.3):
+   - "← Anterior" + "Confirmar y enviar" (primary grande).
+
+ESTADOS:
+- Loading durante envío: spinner + "Creando tu cita…".
+- Error: banner arriba con mensaje específico
+  (SLOT_TAKEN → "Ese horario ya no está disponible. Te llevamos
+  al paso 3 para elegir otro").
+- Éxito: redirect a /citas + toast verde + animación check.
+
+REGLAS: sin modales. Editar saltos a pasos previos.
+```
+
+---
