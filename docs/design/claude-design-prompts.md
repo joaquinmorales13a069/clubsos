@@ -2545,3 +2545,67 @@ REGLAS: sin modales. Edit redirige al paso correspondiente.
 ```
 
 ---
+
+## 8. Apéndices
+
+### 8.1 Tabla de migración modal → página
+
+| Modal actual (archivo) | Ruta nueva | Prompt que cubre el rediseño |
+|---|---|---|
+| `AdminDoctorFormModal.tsx` | `/admin/doctores/nuevo` y `/admin/doctores/[id]/editar` | § 6.5 |
+| `AdminServicioFormModal.tsx` | `/admin/servicios/nuevo` · `/admin/servicios/[id]/editar` | § 6.6 |
+| `AdminUbicacionFormModal.tsx` | `/admin/ubicaciones/nuevo` · `/admin/ubicaciones/[id]/editar` | § 6.7 |
+| `AdminExcepcionFormModal.tsx` | `/admin/excepciones/nuevo` · `/admin/excepciones/[id]/editar` | § 6.13 |
+| `BeneficioFormModal.tsx` | `/admin/beneficios/nuevo` · `/admin/beneficios/[id]/editar` | § 6.11 |
+| `SubirDocumentoModal.tsx` | `/admin/documentos/subir` | § 6.12 |
+| `AdminCitaDetalleModal.tsx` | Panel lateral 3:1 de `/admin/citas` | § 6.9 (Modo B) |
+| `EditarUsuarioModal.tsx` (empresa) | `/empresa/usuarios/[id]/editar` | § 5.3 |
+| `DetalleModal.tsx` (empresa) | Panel lateral 3:1 | § 5.2 / § 5.3 (Modo B) |
+| `AvisoDetailModal.tsx` (miembro) | `/avisos/[id]` | § 4.5 |
+| `BeneficioDetailModal.tsx` (miembro) | `/beneficios/[id]` | § 4.7 |
+| `AdminPagoVerificacion` (si modal) | `/admin/citas/[id]/verificar-pago` | § 6.9 (link) |
+
+**Excepciones permitidas (siguen siendo modal o no aplica):**
+
+- `HelpModal.tsx` (ayuda contextual — no es formulario).
+- Confirm-in-place inline (no es modal real).
+- Sheets móviles del patrón Tabla 3:1 (son sheets, no modales).
+- Pantallas de auth (login, signup) son páginas propias, no modales.
+
+### 8.2 Glosario de términos del dominio
+
+| Término | Significado |
+|---|---|
+| **Miembro** | Afiliado al plan de salud, empleado de una empresa cliente. Rol `miembro` en DB. |
+| **Empresa_admin** | Administrador de una empresa cliente. Gestiona sus miembros y reportes. Rol `empresa_admin`. |
+| **Admin** | Administrador global de la plataforma. Rol `admin`. |
+| **Cita** | Reserva de un servicio médico con un doctor en una ubicación y horario. Estados: `pendiente`, `pendiente_admin`, `pendiente_empresa`, `confirmado`, `rechazado`, `cancelado`, `completado`. |
+| **Servicio** | Tipo de atención médica (consulta general, pediatría, laboratorio, etc.) con duración por slot y tarifa. |
+| **Ubicación** | Clínica/sede física donde se atiende. |
+| **Doctor** | Profesional médico con especialidad, servicios habilitados, ubicaciones y horarios. |
+| **Beneficio** | Promoción o descuento ofrecido a los miembros de una o varias empresas. |
+| **Contrato** | Plan de servicio de una empresa con clubSOS, con vigencia y cupo de miembros. |
+| **Documento médico** | Archivo PDF/imagen asociado a un miembro (recetas, exámenes, informes). |
+| **Familia** | Familiares registrados por el miembro que también son beneficiarios del plan. |
+| **Excepción de horario** | Fecha o rango excluidos de la disponibilidad (vacaciones, feriados). |
+| **Slot** | Unidad de tiempo discreta (ej: 30 min) donde se puede agendar una cita. |
+| **Aviso** | Comunicado publicado por la empresa o el admin global a sus miembros. |
+| **`para_titular`** | Boolean en una cita: si es para el miembro titular o para un familiar. |
+| **`estado_sync`** | Campo de estado de la cita en la DB. |
+
+### 8.3 Componentes existentes referenciados
+
+- Sidebar: `components/dashboard/Sidebar.tsx`
+- Topbar: `components/dashboard/Topbar.tsx`
+- Campana notificaciones: `components/dashboard/CampanaUnificada.tsx`
+- DateTime display: `components/dashboard/DateTimeDisplay.tsx`
+- MFA banner: `components/dashboard/MfaBanner.tsx`
+- Login toast: `components/dashboard/LoginSuccessToast.tsx`
+- Nav item: `components/dashboard/NavItem.tsx`
+- Pending activation screen: `components/dashboard/PendingActivationScreen.tsx`
+- Help modal (permitido): `components/auth/HelpModal.tsx`
+
+---
+
+> **Fin del catálogo de prompts.**
+> Para añadir un nuevo prompt, copia la plantilla de spec § 6 y respeta las reglas duras del preámbulo § 0.3.
