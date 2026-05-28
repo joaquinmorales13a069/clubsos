@@ -1680,3 +1680,400 @@ contratos que se cierran).
 ```
 
 ---
+
+### 6.9 Citas admin (lista 3:1)
+
+**Ruta:** `/{locale}/dashboard/admin/citas`
+**Rol:** admin
+**Patrones referenciados:** Tabla 3:1, Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla global de citas para admin.
+
+USA EL PATRÓN TABLA 3:1.
+
+COLUMNAS:
+- ID corto.
+- Miembro (avatar + nombre + empresa chip).
+- Servicio.
+- Doctor.
+- Ubicación.
+- Fecha y hora.
+- Estado (badge color).
+- Pago (chip: pendiente/verificado/n.a.).
+- Acciones (ver, aprobar, rechazar).
+
+PANEL MODO A:
+- KPIs: Total mes / Pendientes / Confirmadas / Canceladas /
+  Verificación pago.
+- Filtros: estado, empresa, servicio, doctor, rango fechas, estado
+  pago.
+- Tab toggle: "Lista" · "Calendario" (calendario → § 6.10).
+- Exportar / Importar masivo.
+
+PANEL MODO B (reemplaza AdminCitaDetalleModal):
+- Header con avatar miembro + ID + estado badge grande.
+- Sección "Detalle":
+  - Servicio, doctor, ubicación, fecha, duración.
+  - Miembro: nombre, empresa, contacto.
+  - Paciente (si para_titular=false): nombre, teléfono, cédula.
+- Sección "Pago" (si aplica):
+  - Estado pago + monto + método + ver comprobante.
+- Sección "Notificaciones":
+  - Timeline de cita_eventos (creada → confirmada → recordatorio).
+- Acciones:
+  - Si pendiente_admin: Confirmar (primary) / Rechazar (outline
+    error) ambos confirm-in-place con campo mensaje opcional.
+  - Si pago pendiente: link "Verificar pago" a página dedicada
+    /admin/citas/[id]/verificar-pago.
+  - Cancelar (confirm-in-place).
+  - Editar (raro, link a página si aplica).
+
+ESTADOS / RESPONSIVE: heredan Tabla 3:1.
+
+REGLAS: confirmar/rechazar/cancelar = confirm-in-place. Verificar
+pago = página dedicada. Sin modales.
+```
+
+---
+
+### 6.10 Calendario de citas
+
+**Ruta:** `/{locale}/dashboard/admin/citas/calendario`
+**Rol:** admin
+**Patrones referenciados:** Design System
+
+**Prompt:**
+
+```
+Diseña la vista calendario de citas para admin.
+
+OBJETIVO: ver citas en vista calendario (día / semana / mes) con
+filtros y acciones rápidas.
+
+LAYOUT:
+- Header sticky:
+  - Tabs vista: Día · Semana · Mes (default semana).
+  - Selector fecha con flechas anterior/siguiente + botón Hoy.
+  - Filtros derecha: doctor, ubicación, estado.
+  - Botón "Nueva cita" (link a flujo admin de creación o redirect
+    al wizard del miembro impersonando).
+
+- Cuerpo calendario:
+  - VISTA SEMANAL: grid horario 7 cols (lun-dom), filas de 30 min
+    desde 06:00 hasta 22:00. Cada cita = bloque rounded en el slot
+    con color por estado, nombre miembro, servicio. Click sobre
+    bloque abre sheet lateral (md+) o sheet inferior (móvil) con
+    el detalle/acciones de la cita (reusa el panel B de § 6.9).
+  - VISTA DÍA: 1 columna grande con todo el día.
+  - VISTA MES: cells de día con dots/contadores de citas por estado.
+    Click en día → vista día.
+
+- Realtime: las citas se actualizan en vivo (subscripción).
+
+ESTADOS:
+- Skeleton del calendario.
+- Empty: día/semana sin citas con mensaje suave.
+- Error.
+
+RESPONSIVE:
+- <md: solo vista día (otras vistas opcionales con tabs).
+- md+: vistas completas.
+
+REGLAS: el detalle no abre modal — abre sheet lateral o panel
+flotante anclado a la celda. Sin modales.
+```
+
+---
+
+### 6.11 Beneficios admin (lista + crear/editar)
+
+**Ruta:** `/{locale}/dashboard/admin/beneficios` (+ /nuevo y /[id]/editar)
+**Rol:** admin
+**Patrones referenciados:** Tabla 3:1, Página-Formulario, Design System
+
+**Prompt:**
+
+```
+Diseña la gestión de beneficios para admin.
+
+USA EL PATRÓN TABLA 3:1.
+
+COLUMNAS:
+- Imagen mini + título.
+- Categoría (badge).
+- Empresas asignadas (multi: "Todas" o contador).
+- Vigencia (rango fechas).
+- Estado (activa, expirada, programada).
+- Reclamos (contador).
+
+PANEL MODO A:
+- KPIs: Total / Activos / Más reclamado.
+- Filtros: categoría, empresa, estado.
+
+PANEL MODO B:
+- Imagen + título.
+- Detalle: descripción corta, código (si aplica), vigencia.
+- Stats: vistas, reclamos, tasa de uso.
+- Acciones: Editar (link), Duplicar (link precargado), Pausar/
+  Reactivar (confirm-in-place), Eliminar (confirm-in-place).
+
+CREAR/EDITAR (página, reemplaza BeneficioFormModal):
+- Secciones:
+  1. Contenido: título, descripción larga (rich text), imagen upload
+     (aspect 16:9).
+  2. Categorización: categoría (select), tags.
+  3. Beneficiarios: "Todas las empresas" / "Empresas específicas"
+     (multi-select).
+  4. Vigencia: fecha inicio + fecha fin.
+  5. Mecánica: con código (input + generador) / sin código (botón
+     activar).
+  6. Estado: switch activo.
+
+RESPONSIVE: hereda Tabla 3:1.
+
+REGLAS: sin modales.
+```
+
+---
+
+### 6.12 Documentos admin (lista + subir)
+
+**Ruta:** `/{locale}/dashboard/admin/documentos` (+ /subir)
+**Rol:** admin
+**Patrones referenciados:** Tabla 3:1, Página-Formulario, Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla de gestión de documentos médicos del admin.
+
+USA EL PATRÓN TABLA 3:1.
+
+COLUMNAS:
+- Ícono tipo archivo + nombre.
+- Tipo (badge).
+- Usuario destinatario (avatar + nombre).
+- Empresa.
+- Fecha del documento.
+- Tamaño.
+- Acciones: descargar, previsualizar, eliminar.
+
+PANEL MODO A:
+- KPIs: Total / Por tipo top.
+- Filtros: tipo, empresa, usuario, rango fechas.
+- Botón primary toolbar: "+ Subir documento" link a
+  /admin/documentos/subir (página, NO modal — reemplaza
+  SubirDocumentoModal).
+
+PANEL MODO B:
+- Preview thumbnail.
+- Metadata completa.
+- Acciones: Descargar, Re-asignar (link a /editar),
+  Eliminar (confirm-in-place).
+
+SUBIR DOCUMENTO (página dedicada):
+- Drag-and-drop area grande (con fallback click).
+- Form de metadata: nombre, tipo, usuario destinatario (search),
+  fecha del documento.
+- Bulk: subir múltiples con metadata común editable por archivo.
+- Action bar: Cancelar / Subir.
+- Progress bar por archivo.
+
+RESPONSIVE: hereda Tabla 3:1.
+
+REGLAS: sin modales para subir. Drag-and-drop full-width móvil.
+```
+
+---
+
+### 6.13 Excepciones horario (lista + crear/editar)
+
+**Ruta:** `/{locale}/dashboard/admin/excepciones` (+ /nuevo y /[id]/editar)
+**Rol:** admin
+**Patrones referenciados:** Tabla 3:1, Página-Formulario, Design System
+
+**Prompt:**
+
+```
+Diseña la gestión de excepciones de horario (vacaciones, feriados).
+
+USA EL PATRÓN TABLA 3:1.
+
+COLUMNAS:
+- Título / motivo.
+- Scope (Global / Doctor / Ubicación / Servicio).
+- Fecha inicio.
+- Fecha fin.
+- Duración (días).
+- Estado (vigente, futura, pasada).
+- Citas afectadas (contador).
+
+PANEL MODO A:
+- KPIs: Total vigentes / Futuras / Citas afectadas próximos 30d.
+- Filtros: scope, rango.
+
+PANEL MODO B:
+- Detalle excepción.
+- Lista de citas afectadas con badge si fueron auto-canceladas.
+- Acciones: Editar (link), Eliminar (confirm-in-place).
+
+CREAR/EDITAR (página dedicada, reemplaza
+AdminExcepcionFormModal):
+- Secciones:
+  1. Tipo: select Global / Doctor específico / Ubicación específica
+     / Servicio específico.
+  2. Selector(es) según tipo (multi-select).
+  3. Fechas: rango (date range picker) o día completo + recurrencia
+     (semanal/mensual opcional).
+  4. Motivo (textarea) + tipo (vacaciones / feriado / capacitación
+     / otro).
+  5. Acciones automáticas: switch "Auto-cancelar citas afectadas y
+     notificar".
+- Banner amarillo arriba si selección afecta a > 0 citas mostrando
+  contador, antes de guardar.
+
+RESPONSIVE: hereda Tabla 3:1.
+
+REGLAS: sin modales.
+```
+
+---
+
+### 6.14 Reportes admin
+
+**Ruta:** `/{locale}/dashboard/admin/reportes`
+**Rol:** admin
+**Patrones referenciados:** Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla de reportes global de admin.
+
+OBJETIVO: KPIs y reportes ejecutivos globales con drill-down por
+sub-reportes.
+
+SECCIONES:
+1. Header h1 + selector rango fechas + botón "Exportar reporte".
+2. Tabs: "Resumen" · "Empresas" · "Citas" · "Documentos" ·
+   "Beneficios" · "Usuarios".
+
+3. RESUMEN:
+   - 6 KPIs grandes (empresas activas, usuarios activos, citas mes,
+     citas confirmadas, documentos, beneficios reclamados).
+   - Gráfica línea: crecimiento usuarios por mes.
+   - Donut: distribución de empresas por plan.
+   - Tabla top 5 empresas más activas.
+
+4. SUB-REPORTES (cada tab):
+   Cada uno = página interna con gráficas específicas (donut, bar,
+   line, heatmap, mini-tablas) y filtros propios.
+
+ESTADOS:
+- Skeleton por gráfica.
+- Empty si rango sin datos.
+- Error por sección.
+
+RESPONSIVE:
+- <md: gráficas apiladas.
+- md+: grids 2 cols.
+
+REGLAS: sin modales. Exportar genera PDF y dispara toast con link.
+```
+
+---
+
+### 6.15 Auditoría
+
+**Ruta:** `/{locale}/dashboard/admin/auditoria`
+**Rol:** admin
+**Patrones referenciados:** Tabla 3:1, Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla de auditoría del admin.
+
+USA EL PATRÓN TABLA 3:1 (modo lectura — no edit/delete inline).
+
+COLUMNAS:
+- Timestamp (relativo + tooltip absoluto).
+- Actor (avatar + nombre + rol).
+- Acción (badge: created / updated / deleted / login / etc.).
+- Recurso (badge tipo + ID).
+- IP / dispositivo.
+
+PANEL MODO A:
+- KPIs: Eventos hoy / Eventos semana / Actores únicos / Acciones
+  fallidas.
+- Filtros (panel expandido siempre):
+  - Actor (search).
+  - Acción (multi-select).
+  - Recurso (tipo).
+  - Rango fechas.
+  - Resultado (éxito/fallo).
+- Exportar JSON / CSV.
+
+PANEL MODO B (con selección):
+- Detalle completo del evento:
+  - Actor + rol + IP + user agent.
+  - Recurso + ID + nombre legible.
+  - Diff (si update): JSON viewer antes/después.
+  - Metadata adicional.
+- Acciones: copiar JSON, link al recurso afectado.
+
+ESTADOS: hereda Tabla 3:1.
+
+REGLAS: solo lectura. Sin modales.
+```
+
+---
+
+### 6.16 Sistema (configuración)
+
+**Ruta:** `/{locale}/dashboard/admin/sistema`
+**Rol:** admin
+**Patrones referenciados:** Página-Formulario, Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla de configuración del sistema (admin global).
+
+LAYOUT:
+- Sidebar interno con secciones (lg+) / tabs scroll-x (móvil):
+  "General", "Citas", "Notificaciones", "Integraciones",
+  "Mantenimiento".
+
+SECCIONES:
+1. GENERAL:
+   - Nombre de la plataforma, logo global, color brand (limitado).
+   - Idiomas habilitados.
+   - Términos y privacidad (link a páginas /terminos, /privacidad).
+2. CITAS:
+   - Ventana de cancelación (horas) input number.
+   - Auto-confirmación (switch).
+   - Recordatorio 24h (switch).
+3. NOTIFICACIONES:
+   - Templates WhatsApp habilitados (lista con estado approved).
+   - Email FROM, RESEND key (mask).
+   - Activar canales: email / WhatsApp / in-app.
+4. INTEGRACIONES:
+   - Status de Supabase, Resend, WhatsApp Cloud API.
+   - Edge functions estado.
+5. MANTENIMIENTO:
+   - Modo mantenimiento switch (banner global a usuarios).
+   - Limpieza de logs antiguos.
+   - Reindexar search.
+
+Cada sección guarda independiente con botón Guardar.
+
+ESTADOS: loading guardar, toast verde, error banner.
+
+REGLAS: sin modales.
+```
+
+---
