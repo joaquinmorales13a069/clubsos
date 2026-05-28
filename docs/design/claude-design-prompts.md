@@ -20,11 +20,15 @@
 
 ### 0.1 Cómo usar este archivo con Claude Design
 
-1. **Empieza por el prompt foundational** (§ 1). Pégalo en una sesión nueva de Claude Design para establecer el design system. Genera y guarda los componentes base.
-2. **Carga los patrones transversales** (§ 2) en la misma sesión o en una segunda sesión que herede el design system. Estos patrones son referenciados por nombre desde cada prompt de pantalla.
-3. **Genera pantallas individuales** en lotes por grupo (auth, miembro, empresa, admin, wizards). Cada prompt es autocontenido pero asume que los patrones de § 1 y § 2 ya están cargados en el contexto.
-4. **Itera** sobre los outputs con prompts cortos de refinamiento ("ajusta el espaciado a 24px", "usa el color secundary para el badge", etc.).
+Claude Design separa dos cosas: la **configuración del Design System** (un formulario "Set up your design system" que carga tokens, marca y código de referencia como contexto persistente) y los **prompts de chat** (mensajes que generan pantallas individuales). Este archivo cubre ambos.
+
+1. **Configura el Design System primero** usando el formulario de Claude Design. El § 1 de este documento contiene el mapeo campo-por-campo (Company blurb, Link code on GitHub, Add fonts/logos, Any other notes). **No pegues § 1 como mensaje de chat** — su contenido está pensado para los campos del formulario. Una vez guardado, ese contexto se hereda en todas las sesiones de chat siguientes.
+2. **Carga los patrones transversales** (§ 2). Abre una nueva conversación y pega los 5 prompts (§ 2.1 a § 2.5), uno por uno o en lote. Guarda cada mockup — son tu vocabulario visual.
+3. **Genera pantallas individuales** desde § 3 en adelante. Cada prompt es autocontenido y asume que el Design System (§ 1) y los patrones (§ 2) ya están en el contexto. Puedes pegar prompts uno por uno o agrupar "pantallas hermanas" (listadas al final de cada prompt) en la misma sesión.
+4. **Itera** con prompts cortos de refinamiento en la misma conversación ("aumenta el espaciado a 24px", "usa secondary para el badge", "haz el sidebar más estrecho").
 5. **Exporta** los mockups aprobados como referencia para la fase de implementación en código.
+
+**Si el formulario de Setup no está disponible o quieres prescindir de él**, el prompt extendido en § 1.2 (fallback) puede pegarse como primer mensaje de chat para que Claude Design genere el design system desde texto plano.
 
 ### 0.2 Convenciones globales
 
@@ -57,9 +61,121 @@
 
 ## 1. Design System foundational
 
-> Pega este prompt al inicio de tu sesión con Claude Design. Genera el sistema completo de tokens y componentes base que los siguientes prompts asumen ya existen.
+> El Design System NO se carga vía chat — se configura en el formulario **"Set up your design system"** de Claude Design (Company name, Link code, Fonts/logos, Notes). Esta sección mapea cada campo del formulario al contenido correspondiente de clubSOS. Si por algún motivo no puedes usar el formulario, el § 1.2 ofrece un prompt de chat equivalente.
 
-### Prompt 1.1 — Design System completo
+### Prompt 1.1 — Mapeo del formulario "Set up your design system"
+
+#### A. Company name and blurb (campo "Company name and blurb")
+
+```
+clubSOS — Plataforma médica multi-tenant para empresas y sus afiliados.
+Las empresas registran a sus empleados (miembros) como beneficiarios de
+un plan de salud; los miembros agendan citas médicas, gestionan documentos
+médicos y reclaman beneficios. Tres roles: admin global, empresa_admin,
+miembro. Stack: Next.js 16 App Router + React 19 + Tailwind v4 +
+shadcn/ui + Supabase.
+```
+
+#### B. Link code on GitHub (campo "Link code on GitHub")
+
+Pega la URL de tu repositorio. Esto le da acceso a `components/ui/` (shadcn), `tailwind.config.*`, `app/globals.css` y a las pantallas existentes — el redesign respetará las primitivas ya instaladas.
+
+#### C. Link code from your computer (alternativa si el repo es privado)
+
+Selecciona estos archivos/carpetas dentro del repo clubSOS:
+
+- `app/[locale]/layout.tsx` — para que detecte tipografías Google Fonts.
+- `app/globals.css` — tokens y variables CSS actuales.
+- `tailwind.config.*` y `components.json` — configuración shadcn.
+- `components/ui/` — primitivas instaladas.
+- `components/dashboard/` (un par representativos: `Sidebar.tsx`, `Topbar.tsx`, una card de cada rol) — estilo actual de referencia.
+
+#### D. Upload a .fig file
+
+Opcional. Subir el brandbook o un Figma del producto si existe. Si no hay, dejar vacío.
+
+#### E. Add fonts, logos and assets
+
+- **Logo clubSOS** — desde `public/` si está disponible.
+- **Tipografías**: Poppins (300-700) + Roboto (300-700). Si tienes los `.woff2` súbelos; de lo contrario las "Other notes" abajo declaran que Claude Design las cargue desde Google Fonts.
+- **Imágenes de marca** — banner/hero si las tienes.
+
+#### F. Any other notes? (campo "Any other notes?")
+
+```
+PALETA SEMÁNTICA
+- primary: #CD2129 (rojo brand, acciones principales)
+- primary-foreground: white
+- secondary: #2266A7 (azul, links, secondary actions)
+- secondary-foreground: white
+- neutral: #616161 (texto secundario)
+- background: #FAFAFA · surface: white · surface-elevated: white + shadow-sm
+- border: #E5E7EB · muted: #F3F4F6
+- success: #10B981 · warning: #F59E0B · error: #DC2626 · info: #2266A7
+
+TIPOGRAFÍA (Google Fonts)
+- Headers: Poppins (300-700)
+- Body: Roboto (300-700)
+- Escala: h1 32/40, h2 24/32, h3 20/28, h4 18/26, body 16/24, sm 14/20, xs 12/16
+
+RADIOS Y ESPACIADO
+- Radios: sm 6, md 8, xl 12, 2xl 16, full 9999
+- Espaciado base 4 (4/8/12/16/20/24/32/40/48/64/80/96)
+- Container padding: 16 móvil · 24 md · 32 lg+
+
+SOMBRAS
+- sm 0 1px 2px rgb(0 0 0 / .05)
+- md 0 4px 6px -1px rgb(0 0 0 / .1)
+- lg 0 10px 15px -3px rgb(0 0 0 / .1)
+- glass: backdrop-blur(12px) + bg-white/60 + border-white/40
+
+ICONOGRAFÍA: lucide-react.
+
+PRINCIPIOS Y REGLAS DURAS (aplicables a TODAS las pantallas)
+1. Mobile-first con breakpoints Tailwind (sm 640, md 768, lg 1024, xl 1280).
+2. Cero modales para formularios — crear/editar/subir = página dedicada.
+3. Patrón "Tabla 3:1": grid 4 cols (3 tabla + 1 panel contextual) solo en
+   xl+ (≥1280px). En md–xl el panel se apila debajo. En <md cards + sheet inferior.
+4. Wizards con stepper sticky-top + summary lateral sticky en lg+; en móvil
+   el summary colapsa a chip bottom con sheet.
+5. Confirmaciones destructivas = confirm-in-place inline (NO modal); para
+   flujos críticos = página dedicada /eliminar con resumen del impacto.
+6. Sheets móviles permitidos solo para detalles dentro del patrón 3:1.
+7. Skeleton independiente por sección. Empty/Loading/Error/Success siempre.
+8. Glassmorphism sutil reservado para cards flotantes (credential, hero).
+9. Toasts vía sonner (success/error/info) — nunca mensajes inline.
+10. Microinteracciones: transition-all duration-200 ease-out. Focus ring-2
+    ring-primary/40.
+
+COMPONENTES BASE QUE DEBEN EXISTIR
+Button (primary/secondary/outline/ghost/destructive · sm/md/lg ·
+default/hover/active/disabled/loading), Input (text/email/password/search/
+number con label arriba + helper + error inline), Select/Combobox con search,
+Checkbox/Radio/Switch, Textarea autoresize, Card (default/elevated/glass/
+interactive), Badge/Chip (default/success/warning/error/info/outline · sm/md),
+Avatar (con fallback iniciales · sm/md/lg), Tabs (horizontal y vertical),
+Stepper horizontal con números, Toast sonner-style, Sheet (derecha desktop,
+abajo móvil), Sidebar vertical colapsable con grupos, Topbar con search global
++ campana notificaciones + avatar dropdown, EmptyState (icono 64 + título +
+desc + CTA), Skeleton (texto/card/avatar/tabla), Progress + Spinner,
+Breadcrumbs, Pagination, DatePicker, TimePicker.
+
+IDIOMA: copy en español por defecto.
+```
+
+#### Flujo de Setup paso a paso
+
+1. Abre **Claude Design → New project → Set up your design system**.
+2. Completa "Company name and blurb" con A.
+3. Pega URL del repo en "Link code on GitHub" (B), o selecciona los archivos de C si es privado.
+4. Salta o llena D (Figma) según tengas.
+5. Sube logo y tipografías en E.
+6. Pega el bloque completo de F en "Any other notes?".
+7. Guarda. Claude Design queda preparado: el contexto persiste entre sesiones de chat.
+
+### Prompt 1.2 — Fallback chat prompt (solo si NO usas el formulario de Setup)
+
+> Pega esto como primer mensaje en un chat nuevo si por alguna razón no puedes usar el formulario "Set up your design system". Genera un mockup tipo "design system showcase" que sirve como contexto manual para los prompts posteriores.
 
 ```
 Quiero que generes el sistema de diseño visual para una plataforma médica
