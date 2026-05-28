@@ -594,3 +594,417 @@ REGLAS: sin modales. Toasts con sonner. Mobile-first.
 ```
 
 ---
+### 4.2 Mis citas (lista)
+
+**Ruta:** `/{locale}/dashboard/citas`
+**Rol:** miembro
+**Patrones referenciados:** Tabla 3:1 (variante simplificada para móvil), Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla "Mis citas" del miembro.
+
+OBJETIVO: ver todas las citas del miembro (pasadas, próximas,
+canceladas) con filtros y acción de pedir nueva cita.
+
+SECCIONES:
+1. Header de página:
+   - h1 "Mis citas" + subtítulo "Gestiona tus citas médicas".
+   - Botón primary derecha: "+ Pedir nueva cita" link a
+     /citas/nueva (NO modal — es página).
+
+2. Tabs de filtro: "Próximas" (default) · "Pasadas" · "Canceladas".
+   Tabs subrayadas en primary cuando activas. Cada tab muestra
+   contador.
+
+3. Lista de citas (card list, NO tabla — el miembro tiene pocas):
+   Cada card rounded-2xl con:
+   - Avatar/ícono del servicio (24px) en círculo color del estado.
+   - Servicio + doctor (Poppins semibold).
+   - Ubicación + fecha/hora (Roboto sm).
+   - Badge de estado a la derecha: pendiente (amarillo),
+     pendiente_admin (azul), confirmado (verde), completado (gris),
+     cancelado (rojo), rechazado (rojo).
+   - Acciones derecha: "Ver detalle" (link a /citas/[id]) +
+     dropdown "Agregar a calendario" (Google/Outlook/Apple/.ics) +
+     "Cancelar" (solo si dentro de ventana).
+
+ESTADOS:
+- Skeleton: 4 cards skeleton.
+- Empty (por tab): EmptyState con CTA "Pedir cita".
+- Error: ErrorState con reintentar.
+
+CANCELAR: confirm-in-place — botón "Cancelar" se transforma en
+"¿Confirmar cancelación? · [Sí] · [No]". NO modal. Validar ventana
+(default 24h antes) en cliente y mostrar mensaje si fuera.
+
+RESPONSIVE:
+- <md: cards full-width, acciones colapsan en menú "..." con sheet.
+- md+: cards en 1 columna max-w-4xl centradas.
+
+REGLAS: sin modales. Toasts con sonner.
+```
+
+---
+
+### 4.3 Wizard nueva cita (overview)
+
+**Ruta:** `/{locale}/dashboard/citas/nueva`
+**Rol:** miembro
+**Patrones referenciados:** Wizard, Design System
+
+**Prompt:**
+
+```
+Diseña el overview del wizard de "Pedir nueva cita" del miembro
+de clubSOS. 5 pasos consolidados (los detalles de cada paso están
+en § 7.1-7.5).
+
+OBJETIVO: agendar una cita médica nueva con stepper claro, summary
+sticky lateral y smart defaults.
+
+LAYOUT: usa el patrón Wizard de § 2.3.
+- Stepper 5 pasos arriba sticky:
+  1. Paciente · 2. Servicio + Ubicación · 3. Doctor + Fecha + Horario
+  · 4. Pago · 5. Confirmar.
+- Columna principal: contenido del paso (renderizado del prompt
+  correspondiente de § 7.1-7.5).
+- Columna lateral derecha (lg+): summary sticky con lista de pasos
+  completados + botones editar.
+- Footer "← Anterior" + "Continuar →" / "Confirmar y enviar".
+
+EXTRAS:
+- Badge "Sugerido" en items autoseleccionados (1 sola ubicación,
+  1 solo doctor, fecha más próxima).
+- Stepper permite volver a pasos completados con click.
+- En móvil el summary lateral colapsa a chip "Ver resumen ↑" en
+  bottom que abre sheet.
+
+ESTADOS:
+- Loading durante envío final: spinner en botón "Confirmar" +
+  "Creando tu cita…".
+- Error: banner arriba del paso (ej: "El horario ya no está
+  disponible. Selecciona otro.").
+- Éxito: redirect a /citas con toast "Cita creada exitosamente".
+
+REGLAS: sin modales. Validación en vivo. Smart defaults siempre.
+```
+
+---
+
+### 4.4 Mis avisos
+
+**Ruta:** `/{locale}/dashboard/avisos`
+**Rol:** miembro
+**Patrones referenciados:** Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla "Mis avisos" del miembro.
+
+OBJETIVO: ver avisos publicados por su empresa o por el admin global.
+
+SECCIONES:
+1. Header: h1 "Avisos" + subtítulo + chip contador "X sin leer".
+2. Tabs: "Todos" · "Sin leer" · "Archivados".
+3. Lista de avisos como cards:
+   - Card horizontal con:
+     - Indicator dot izquierda (primary si sin leer, gris si leído).
+     - Título Poppins semibold + extracto Roboto sm 2 líneas truncado.
+     - Fecha relativa abajo derecha.
+     - Click navega a /avisos/[id] (página, NO modal).
+4. Pagination si > 20.
+
+ESTADOS:
+- Skeleton 5 cards.
+- Empty: EmptyState "No tienes avisos aún".
+- Error: ErrorState.
+
+RESPONSIVE:
+- <md: cards full-width.
+- md+: lista max-w-4xl centrada.
+
+REGLAS: sin modales. Click va a página detalle.
+```
+
+---
+
+### 4.5 Aviso detalle (página, reemplaza modal)
+
+**Ruta:** `/{locale}/dashboard/avisos/[id]`
+**Rol:** miembro
+**Patrones referenciados:** Design System
+
+**Prompt:**
+
+```
+Diseña la página de detalle de un aviso (reemplaza el modal actual).
+
+OBJETIVO: leer un aviso completo con su contenido enriquecido.
+
+SECCIONES:
+1. Breadcrumb: "Avisos / [Título del aviso truncado]".
+2. Header:
+   - Botón outline "← Volver" arriba izquierda.
+   - h1 Título del aviso (Poppins bold 28px).
+   - Meta: autor (empresa o admin) + fecha + chip de categoría.
+3. Contenido principal (max-w-3xl):
+   - Body con prose tipography (paragraphs, lists, links).
+   - Imágenes embebidas si las hay.
+4. Sidebar (lg+ a la derecha):
+   - Card "Más avisos" con 3 avisos relacionados/recientes.
+   - Card "Acciones": marcar como archivado, compartir.
+
+ESTADOS:
+- Skeleton del contenido.
+- Error 404: "Aviso no encontrado" + link volver.
+
+RESPONSIVE:
+- <md: sin sidebar, sidebar al final del contenido.
+- md a lg: igual móvil.
+- lg+: layout con sidebar.
+
+REGLAS: sin modales. Marca como leído al cargar (cliente).
+```
+
+---
+
+### 4.6 Mis beneficios
+
+**Ruta:** `/{locale}/dashboard/beneficios`
+**Rol:** miembro
+**Patrones referenciados:** Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla "Mis beneficios" del miembro.
+
+OBJETIVO: explorar beneficios disponibles según su empresa.
+
+SECCIONES:
+1. Header h1 + subtítulo + chip "X beneficios activos".
+2. Toolbar:
+   - Search input "Buscar beneficio…".
+   - Filtros chip: "Todos", "Salud", "Bienestar", "Educación",
+     "Otros" (categorías).
+3. Grid de beneficios (3 cols md, 4 cols xl):
+   - BeneficioCard:
+     - Imagen del beneficio (aspect-video, rounded-t-2xl).
+     - Badge categoría arriba.
+     - Título Poppins semibold.
+     - Descripción Roboto sm 2 líneas truncada.
+     - Fecha fin "Vigente hasta X" sm gris.
+     - Botón outline "Ver detalles" link a /beneficios/[id].
+
+ESTADOS:
+- Skeleton de 8 cards.
+- Empty: EmptyState "No hay beneficios activos para tu empresa".
+- Error: ErrorState.
+
+RESPONSIVE:
+- <md: 1 col.
+- md: 2 cols.
+- lg: 3 cols.
+- xl: 4 cols.
+
+REGLAS: sin modales. Click va a /beneficios/[id].
+```
+
+---
+
+### 4.7 Beneficio detalle (página)
+
+**Ruta:** `/{locale}/dashboard/beneficios/[id]`
+**Rol:** miembro
+**Patrones referenciados:** Design System
+
+**Prompt:**
+
+```
+Diseña la página de detalle de un beneficio (reemplaza el modal
+actual).
+
+OBJETIVO: ver descripción completa, cómo usarlo y código/cupón si
+aplica.
+
+SECCIONES:
+1. Breadcrumb: "Beneficios / [Título]".
+2. Header con botón "← Volver".
+3. Layout (md+: 2 cols, 2/3 + 1/3):
+   - IZQ:
+     - Imagen grande del beneficio (aspect-video, rounded-2xl).
+     - Título h1.
+     - Descripción larga prose.
+     - Sección "¿Cómo usarlo?" con pasos numerados.
+     - Términos y condiciones (collapsible).
+   - DER (sidebar):
+     - Card "Información":
+       - Categoría (badge).
+       - Vigencia.
+       - Establecimiento/proveedor.
+     - Card "Tu beneficio":
+       - Si tiene código: código grande monoespaciado +
+         botón "Copiar" inline.
+       - Botón primary "Activar / Reclamar".
+     - Card "Ubicaciones" si aplica.
+
+ESTADOS:
+- Skeleton.
+- Error 404.
+- Beneficio expirado: banner gris arriba "Este beneficio venció el X".
+
+RESPONSIVE:
+- <md: sidebar al final, full-width.
+- md+: 2 cols.
+
+REGLAS: sin modales. Toast de éxito al copiar código.
+```
+
+---
+
+### 4.8 Mis documentos
+
+**Ruta:** `/{locale}/dashboard/documentos`
+**Rol:** miembro
+**Patrones referenciados:** Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla "Mis documentos" del miembro.
+
+OBJETIVO: ver y descargar documentos médicos personales.
+
+SECCIONES:
+1. Header h1 + subtítulo.
+2. Toolbar:
+   - Search "Buscar documento…".
+   - Filtros: tipo de documento (chips), año (select).
+3. Lista o grid (toggle):
+   - DocumentoCard:
+     - Ícono grande tipo archivo (PDF, imagen).
+     - Nombre del documento Poppins semibold.
+     - Tipo (badge) + fecha del documento.
+     - Acciones: descargar (ícono Download) + previsualizar (ícono
+       Eye) si es PDF/imagen.
+4. Pagination.
+
+ESTADOS:
+- Skeleton 6 cards.
+- Empty: EmptyState "Tu empresa aún no ha subido documentos".
+- Error: ErrorState.
+
+PREVIEW: cuando se hace click en preview de PDF/imagen, abre en una
+nueva pestaña o navega a /documentos/[id]/ver (NO modal). Para
+documentos pequeños se puede usar un sheet inferior móvil con
+viewer embedded.
+
+RESPONSIVE:
+- <md: 1 col cards.
+- md: 2 cols.
+- lg+: 3 cols.
+
+REGLAS: sin modales para subir (el miembro no sube — solo admin).
+```
+
+---
+
+### 4.9 Mi familia
+
+**Ruta:** `/{locale}/dashboard/familia`
+**Rol:** miembro
+**Patrones referenciados:** Página-Formulario, Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla "Mi familia" del miembro.
+
+OBJETIVO: gestionar familiares incluidos en el plan.
+
+SECCIONES:
+1. Header:
+   - h1 "Mi familia" + chip "X / Y miembros usados".
+   - Botón primary "+ Agregar familiar" navega a
+     /familia/nuevo (página, no modal).
+2. Barra de progreso de cupos usados (si el plan tiene límite).
+3. Grid de familiares (2 cols md, 3 cols lg):
+   - FamiliarCard:
+     - Avatar con iniciales 56px.
+     - Nombre completo Poppins semibold.
+     - Relación (Hijo/a, Cónyuge, Padre/Madre, etc.) badge.
+     - Fecha de nacimiento + edad.
+     - Acciones: Editar (link a /familia/[id]/editar) + Eliminar
+       (confirm-in-place).
+
+ESTADOS:
+- Skeleton 4 cards.
+- Empty: EmptyState "Agrega familiares para incluirlos en tu plan".
+- Error: ErrorState.
+- Cupo lleno: banner amarillo "Has alcanzado el límite de
+  familiares. Contacta a tu empresa para ampliar."
+
+RESPONSIVE:
+- <md: 1 col.
+- md+: 2-3 cols.
+
+REGLAS: agregar/editar van a páginas dedicadas. Eliminar es
+confirm-in-place.
+```
+
+---
+
+### 4.10 Mis ajustes
+
+**Ruta:** `/{locale}/dashboard/ajustes`
+**Rol:** miembro
+**Patrones referenciados:** Página-Formulario, Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla "Mis ajustes" del miembro (es una página de
+configuración personal, NO un modal).
+
+OBJETIVO: editar datos personales, contraseña, MFA, preferencias.
+
+LAYOUT:
+- Sidebar izquierdo (lg+): navegación interna de secciones
+  ("Perfil", "Seguridad", "Notificaciones", "Idioma").
+- Contenido principal: formulario de la sección actual.
+
+SECCIONES (cada una es un form en card propia):
+1. PERFIL:
+   - Avatar con botón "Cambiar foto" debajo.
+   - Nombre completo, cédula (readonly), email (readonly),
+     teléfono, fecha nacimiento, sexo.
+   - Botón "Guardar cambios" derecha del header de sección.
+2. SEGURIDAD:
+   - Cambiar contraseña: campos actual + nueva + confirmar +
+     medidor de fortaleza.
+   - MFA: estado actual + botón activar/desactivar (lleva a
+     /mfa/verificar para enrolar).
+   - Sesiones activas: lista con dispositivo + ubicación + última
+     actividad + botón "Cerrar".
+3. NOTIFICACIONES:
+   - Switches: Email · WhatsApp · In-app por categoría
+     (citas, avisos, beneficios).
+4. IDIOMA:
+   - Select: Español · English.
+
+ESTADOS:
+- Loading global al guardar: spinner en botón + disabled inputs.
+- Toast verde "Guardado" con sonner.
+- Error: banner rojo arriba del form.
+
+RESPONSIVE:
+- <md: navegación lateral colapsa a tabs horizontales con scroll-x.
+- md+: sidebar lateral + contenido.
+
+REGLAS: sin modales. Cada sección guarda independientemente.
+```
+
+---
