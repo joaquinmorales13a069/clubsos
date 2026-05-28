@@ -1008,3 +1008,290 @@ REGLAS: sin modales. Cada sección guarda independientemente.
 ```
 
 ---
+
+## 5. Empresa_admin
+
+### 5.1 Home empresa
+
+**Ruta:** `/{locale}/dashboard/empresa`
+**Rol:** empresa_admin
+**Patrones referenciados:** Layout shell, Design System
+
+**Prompt:**
+
+```
+Diseña el Home del empresa_admin de clubSOS. Es el administrador de
+una empresa cliente que gestiona a sus miembros afiliados.
+
+OBJETIVO: dashboard ejecutivo de la empresa con KPIs, uso de
+contratos, citas pendientes y miembros recientes.
+
+SECCIONES:
+1. Hero saludo:
+   - "Hola, [Nombre]" h1.
+   - Subtítulo "Panel de [Nombre Empresa]".
+
+2. CARD DESTACADA: Uso de contratos
+   - Background gradient sutil secondary→primary muy claro.
+   - Título "Uso del contrato".
+   - Métricas: Contratados X / Activos Y / Disponibles Z.
+   - Barra de progreso grande (h-4 rounded-full).
+   - Texto pequeño "Renovación: dd/mm/aaaa".
+
+3. ALERT BANNER (condicional, si citas_pendientes > 0):
+   - Banner amarillo warning con AlertTriangle + texto
+     "Tienes X citas pendientes de aprobación" + botón "Revisar".
+
+4. KPI CARDS (grid 2x2 móvil, 4x1 md+):
+   - Total miembros
+   - Miembros activos
+   - Miembros pendientes (color warning si > 0)
+   - Citas del mes
+   Cada card: ícono lucide 24 en círculo color/10, número 32px
+   Poppins bold, label sm Roboto neutral.
+
+5. QUICK ACTIONS ROW (3 pills):
+   - "Nuevo miembro" (UserPlus) link a /empresa/usuarios/nuevo
+   - "Ver reportes" (BarChart) link a /empresa/reportes
+   - "Ajustes" (Settings) link a /empresa/ajustes
+
+6. GRID 2 COLS (lg+):
+   A. Citas pendientes
+      - Header "Citas pendientes" + link "Ver todas →"
+      - Lista de 5 con: nombre miembro + servicio + fecha + badge
+        estado + acciones (Aprobar / Rechazar) confirm-in-place.
+   B. Miembros recientes
+      - Header + link.
+      - Lista de 5 con: avatar + nombre + email + chip estado.
+
+7. GRÁFICA "Citas por servicio"
+   - Donut o bar chart abajo, card propia.
+   - Leyenda lateral con colores y porcentajes.
+
+ESTADOS:
+- Skeleton independiente por sección.
+- Empty para cada lista vacía.
+- Error por bloque sin romper los demás.
+
+RESPONSIVE:
+- <md: stack 1 col.
+- md: KPIs 2x2, otras secciones 1 col.
+- lg+: KPIs 4x1, listas 2 cols.
+
+REGLAS: aprobar/rechazar citas son confirm-in-place. Sin modales.
+```
+
+---
+
+### 5.2 Citas empresa
+
+**Ruta:** `/{locale}/dashboard/empresa/citas`
+**Rol:** empresa_admin
+**Patrones referenciados:** Tabla 3:1, Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla de citas para empresa_admin de clubSOS.
+
+OBJETIVO: ver TODAS las citas de los miembros de la empresa y
+aprobar/rechazar las pendientes_empresa.
+
+USA EL PATRÓN TABLA 3:1 de § 2.2.
+
+COLUMNAS DE TABLA:
+- Miembro (avatar + nombre).
+- Servicio.
+- Doctor.
+- Fecha y hora.
+- Estado (badge: pendiente_empresa naranja, pendiente azul,
+  confirmado verde, completado gris, cancelado/rechazado rojo).
+- Acciones (icon buttons: ver, aprobar, rechazar).
+
+FILTROS DEL PANEL LATERAL (Modo A — sin selección):
+- KPIs mini: Total mes / Pendientes / Confirmadas / Canceladas.
+- Filtros expandidos:
+  - Estado (multi-select).
+  - Servicio (select).
+  - Rango de fechas (date range).
+  - Miembro (search).
+- Acciones: Exportar CSV.
+
+PANEL CON SELECCIÓN (Modo B):
+- Avatar miembro + nombre + email.
+- Servicio · Doctor · Ubicación · Fecha · Cita ID.
+- Estado actual badge grande.
+- Acciones contextuales:
+  - Si pendiente_empresa: "Aprobar" (primary) + "Rechazar" (outline,
+    error). Ambas son confirm-in-place con mensaje opcional.
+  - Si otros estados: solo "Ver historial" + "Contactar miembro".
+
+ESTADOS:
+- Skeleton de 8 filas.
+- Empty: "No hay citas que coincidan con los filtros".
+- Error.
+
+RESPONSIVE: hereda del patrón Tabla 3:1.
+
+REGLAS: aprobar/rechazar = confirm-in-place inline con campo de
+mensaje opcional. Sin modales.
+```
+
+---
+
+### 5.3 Usuarios empresa
+
+**Ruta:** `/{locale}/dashboard/empresa/usuarios`
+**Rol:** empresa_admin
+**Patrones referenciados:** Tabla 3:1, Página-Formulario, Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla de gestión de usuarios (miembros) de la empresa.
+
+OBJETIVO: lista de miembros con búsqueda, filtros, crear/editar/
+suspender.
+
+USA EL PATRÓN TABLA 3:1.
+
+COLUMNAS:
+- Avatar + nombre.
+- Email.
+- Cédula.
+- Rol (miembro / empresa_admin) badge.
+- Estado (activo / pendiente / suspendido) badge.
+- Fecha registro.
+- Acciones: ver, editar, suspender/activar.
+
+PANEL MODO A (sin selección):
+- KPIs: Total / Activos / Pendientes / Suspendidos.
+- Filtros: estado, rol, búsqueda nombre/email/cédula.
+- Botones: Exportar CSV, Importar masivo (link a página
+  /empresa/usuarios/importar, NO modal).
+
+PANEL MODO B (con selección):
+- Avatar + datos resumen.
+- Acciones: Editar (link a /empresa/usuarios/[id]/editar, NO modal),
+  Ver historial de citas, Suspender/Activar (confirm-in-place),
+  Reenviar invitación.
+
+CREAR NUEVO USUARIO:
+- Botón primary toolbar "+ Nuevo miembro" link a
+  /empresa/usuarios/nuevo (página dedicada usando patrón
+  Página-Formulario § 2.4).
+- Esa página tiene form con: nombre, email, cédula, teléfono, rol,
+  contrato asignado (select). Botones Cancelar / Crear.
+
+ESTADOS: hereda Tabla 3:1.
+
+RESPONSIVE: hereda Tabla 3:1.
+
+REGLAS: editar/crear = página. Suspender = confirm-in-place. Sin
+modales.
+```
+
+---
+
+### 5.4 Reportes empresa
+
+**Ruta:** `/{locale}/dashboard/empresa/reportes`
+**Rol:** empresa_admin
+**Patrones referenciados:** Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla de reportes para empresa_admin.
+
+OBJETIVO: visualizaciones agregadas sobre uso del plan por sus
+miembros.
+
+SECCIONES:
+1. Header h1 "Reportes" + subtítulo.
+2. Toolbar global:
+   - Selector de rango de fechas (date range picker).
+   - Tabs: "Resumen" · "Citas" · "Beneficios" · "Documentos".
+
+3. RESUMEN (tab default):
+   - 4 KPIs grandes arriba (grid 2x2 móvil, 4x1 md+).
+   - Gráfica de línea: Citas por mes (12 meses).
+   - Donut: Distribución por servicio.
+   - Tabla compacta: Top 5 miembros activos.
+
+4. CITAS:
+   - KPIs específicos.
+   - Heatmap calendar (citas por día).
+   - Stacked bar: estados por mes.
+   - Tabla por servicio con métricas.
+
+5. BENEFICIOS:
+   - Beneficios más usados (top 10 horizontal bar).
+   - Total reclamos / Tasa de uso / Beneficios activos.
+
+6. DOCUMENTOS:
+   - Total documentos / Promedio por miembro.
+   - Tabla por tipo.
+
+7. Footer fixed: botón outline "Exportar reporte (PDF)" derecha.
+
+ESTADOS:
+- Skeleton por gráfica.
+- Empty si rango sin datos.
+- Error por sección.
+
+RESPONSIVE:
+- <md: gráficas full-width apiladas.
+- md+: grids 2 cols donde aplique.
+
+REGLAS: sin modales. Exportar genera PDF y dispara toast con link.
+```
+
+---
+
+### 5.5 Ajustes empresa
+
+**Ruta:** `/{locale}/dashboard/empresa/ajustes`
+**Rol:** empresa_admin
+**Patrones referenciados:** Página-Formulario, Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla de ajustes de la empresa.
+
+OBJETIVO: editar datos generales de la empresa, contrato, logo,
+preferencias de notificación.
+
+LAYOUT:
+- Sidebar interno con secciones (lg+): "Datos generales",
+  "Contrato", "Branding", "Notificaciones".
+- En móvil: tabs horizontales con scroll-x.
+
+SECCIONES:
+1. DATOS GENERALES:
+   - Logo upload (avatar 96px + botón cambiar).
+   - Nombre legal, RUC, dirección, teléfono contacto, email contacto.
+2. CONTRATO (readonly mostly):
+   - Tipo de plan, total contratado, fecha inicio/fin.
+   - Si admin global permite: botón "Solicitar ampliación".
+3. BRANDING:
+   - Color primario opcional (color picker) — solo para
+     personalización dentro de límites.
+4. NOTIFICACIONES:
+   - Switches por tipo: nuevo miembro, cita pendiente, etc.
+   - Configurar destinatarios (multi-email input).
+
+ESTADOS:
+- Loading guardar.
+- Toast verde "Guardado".
+- Error banner.
+
+RESPONSIVE:
+- <md: tabs scroll-x.
+- md+: sidebar + contenido.
+
+REGLAS: sin modales. Cada sección guarda independientemente.
+```
+
+---
