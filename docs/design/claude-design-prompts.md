@@ -54,3 +54,92 @@
 7. **Estados a diseñar siempre:** loading, vacío, error, éxito.
 
 ---
+
+## 1. Design System foundational
+
+> Pega este prompt al inicio de tu sesión con Claude Design. Genera el sistema completo de tokens y componentes base que los siguientes prompts asumen ya existen.
+
+### Prompt 1.1 — Design System completo
+
+```
+Quiero que generes el sistema de diseño visual para una plataforma médica
+llamada clubSOS. Es una app multi-tenant donde empresas registran a sus
+empleados (miembros) como afiliados a un plan de salud, y los miembros
+agendan citas médicas. Tres roles: admin global, empresa_admin, miembro.
+
+Genera, en este orden:
+
+A. PALETA DE COLORES (semántica)
+   - primary: #CD2129 (rojo brand, acciones principales)
+   - primary-foreground: white
+   - secondary: #2266A7 (azul, links, secondary actions)
+   - secondary-foreground: white
+   - neutral: #616161 (texto secundario)
+   - background: #FAFAFA
+   - surface: white
+   - surface-elevated: white con shadow-sm
+   - border: #E5E7EB
+   - muted: #F3F4F6
+   - success: #10B981
+   - warning: #F59E0B
+   - error: #DC2626
+   - info: #2266A7
+
+B. TIPOGRAFÍA
+   - Headers: Poppins (300, 400, 500, 600, 700)
+   - Body: Roboto (300, 400, 500, 700)
+   - Escala: h1 32px/40, h2 24px/32, h3 20px/28, h4 18px/26,
+     body 16px/24, sm 14px/20, xs 12px/16
+
+C. RADIOS Y ESPACIADO
+   - Radios: sm 6px, md 8px, xl 12px, 2xl 16px, full 9999px
+   - Espaciado: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96 px
+   - Container padding: 16px móvil, 24px md, 32px lg+
+
+D. SOMBRAS
+   - sm: 0 1px 2px rgb(0 0 0 / 0.05)
+   - md: 0 4px 6px -1px rgb(0 0 0 / 0.1)
+   - lg: 0 10px 15px -3px rgb(0 0 0 / 0.1)
+   - glass: backdrop-blur(12px) + bg-white/60 + border-white/40
+
+E. COMPONENTES BASE (diseña una página showcase con todos)
+   1. Button — variantes: primary, secondary, outline, ghost, destructive
+      Tamaños: sm, md, lg. Estados: default, hover, active, disabled, loading
+   2. Input — text, email, password, search, number; con label arriba,
+      helper text debajo, error state con color y mensaje
+   3. Select / Combobox — con search interno
+   4. Checkbox / Radio / Switch
+   5. Textarea con autoresize
+   6. Card — variantes: default, elevated, glass, interactive (hover)
+   7. Badge / Chip — variantes: default, success, warning, error, info,
+      outline; tamaños sm/md
+   8. Avatar — con fallback de iniciales, tamaños sm/md/lg
+   9. Tabs — horizontal y vertical
+  10. Stepper — horizontal con números, estados completado/actual/pendiente
+  11. Toast (sonner-style) — success, error, info, warning
+  12. Sheet — desliza desde derecha (desktop) y abajo (móvil)
+  13. Sidebar — vertical colapsable con grupos y íconos lucide-react
+  14. Topbar — con búsqueda global, campana notificaciones, avatar dropdown
+  15. EmptyState — ícono grande + título + descripción + CTA
+  16. Skeleton — para texto, card, avatar, tabla row
+  17. Progress bar y Spinner
+  18. Breadcrumbs
+  19. Pagination
+  20. DatePicker y TimePicker (móvil-friendly)
+
+F. PRINCIPIOS DE INTERACCIÓN
+   - Mobile-first siempre
+   - Foco visible accesible (ring-2 ring-primary/40)
+   - Microinteracciones: transition-all duration-200 ease-out
+   - Estados de hover sutiles (no agresivos)
+   - Loading inmediato con skeletons (nunca spinner full-screen
+     excepto para auth)
+
+Iconografía: lucide-react. Glassmorphism sutil en cards flotantes
+(credential card del miembro, modales móviles tipo sheet).
+
+Entrega un mockup tipo "design system showcase" en una sola página
+larga que muestre todos los tokens y componentes con sus estados.
+```
+
+---
