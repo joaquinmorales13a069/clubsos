@@ -2337,3 +2337,211 @@ REGLAS: sin modales. Editar saltos a pasos previos.
 ```
 
 ---
+
+### 7.6 Wizard Signup — Paso 1: Datos personales
+
+**Ruta:** `/{locale}/signup?step=1`
+**Rol:** público
+**Patrones referenciados:** Wizard, Design System
+
+**Prompt:**
+
+```
+Diseña el contenido del PASO 1 del signup: DATOS PERSONALES.
+
+OBJETIVO: capturar identidad básica del nuevo miembro.
+
+CONTENIDO:
+1. Título: "Cuéntanos sobre ti".
+2. Subtítulo: "Esta información nos ayuda a personalizar tu cuenta".
+3. Campos (2 cols md+, 1 col móvil):
+   - Nombre completo (texto, requerido).
+   - Cédula / DNI (texto con máscara según país, requerido).
+   - Fecha de nacimiento (date picker, requerido, no futuro,
+     edad mínima 18 o señalar si menor).
+   - Sexo (select: Femenino / Masculino / Otro / Prefiero no decir).
+
+VALIDACIÓN EN VIVO:
+- Nombre: mínimo 2 palabras.
+- Cédula: formato + verificar único (debounce 500ms, spinner inline,
+  check verde si disponible).
+- Fecha: en rango razonable.
+
+ESTADOS:
+- Cada input muestra success/error en tiempo real.
+- Banner si hay errores generales.
+
+REGLAS: sin modales.
+```
+
+---
+
+### 7.7 Wizard Signup — Paso 2: Contacto
+
+**Ruta:** `/{locale}/signup?step=2`
+**Rol:** público
+**Patrones referenciados:** Wizard, Design System
+
+**Prompt:**
+
+```
+Diseña el contenido del PASO 2 del signup: CONTACTO.
+
+OBJETIVO: capturar email y teléfono validados.
+
+CONTENIDO:
+1. Título: "¿Cómo te contactamos?".
+2. Campos:
+   - Email (requerido):
+     - Validación formato.
+     - Verificar único (debounce, spinner inline).
+     - Si ya existe: link "¿Ya tienes cuenta? Inicia sesión".
+   - Teléfono (requerido):
+     - Input con selector de país (bandera + código).
+     - Validación formato.
+     - Texto helper "Te enviaremos confirmaciones por WhatsApp".
+   - Dirección (opcional):
+     - Calle, ciudad, código postal.
+3. CHECKBOX:
+   - "Quiero recibir notificaciones por WhatsApp" (default ON).
+   - "Quiero recibir newsletters" (default OFF).
+
+VALIDACIÓN: en vivo por campo. Email único validado contra Supabase.
+
+REGLAS: sin modales.
+```
+
+---
+
+### 7.8 Wizard Signup — Paso 3: Empresa / Contrato
+
+**Ruta:** `/{locale}/signup?step=3`
+**Rol:** público
+**Patrones referenciados:** Wizard, Design System
+
+**Prompt:**
+
+```
+Diseña el contenido del PASO 3 del signup: EMPRESA / CONTRATO.
+
+OBJETIVO: asociar al usuario con su empresa y validar contrato/
+código.
+
+CONTENIDO:
+1. Título: "¿Cuál es tu empresa?".
+2. Campos:
+   - Empresa:
+     - Input con autocompletado (search) buscando empresas activas.
+     - Cada opción: logo + nombre + tipo plan.
+     - Si solo 1 empresa preseleccionada por código de invitación
+       (URL param): mostrarla como card preseleccionada con
+       badge "Sugerido" y opción "Cambiar empresa".
+   - Código de invitación / contrato (opcional o requerido según
+     empresa):
+     - Input texto monoespaciado.
+     - Validar en vivo (debounce): si válido → muestra preview
+       del beneficio "Plan: X, Cobertura: Y" en card verde.
+     - Si inválido: error rojo.
+
+3. SI NO HAY EMPRESA:
+   - Banner azul info "¿Tu empresa no aparece? Habla con
+     RRHH para que se registre en clubSOS".
+
+VALIDACIÓN: empresa requerida. Código validado si la empresa
+requiere uno.
+
+REGLAS: sin modales.
+```
+
+---
+
+### 7.9 Wizard Signup — Paso 4: Seguridad
+
+**Ruta:** `/{locale}/signup?step=4`
+**Rol:** público
+**Patrones referenciados:** Wizard, Design System
+
+**Prompt:**
+
+```
+Diseña el contenido del PASO 4 del signup: SEGURIDAD.
+
+OBJETIVO: definir password y opcionalmente activar MFA.
+
+CONTENIDO:
+1. Título: "Asegura tu cuenta".
+2. Campos:
+   - Password (requerido):
+     - Input con toggle mostrar/ocultar.
+     - Medidor de fortaleza en vivo (barra horizontal con segmentos
+       débil/medio/fuerte/excelente coloreados).
+     - Checklist de requisitos debajo en vivo (cada uno con check
+       o cross): mínimo 8 caracteres, una mayúscula, un número,
+       un símbolo.
+   - Confirmar password (debe coincidir, validación inline).
+
+3. SECCIÓN MFA (opcional):
+   - Switch "Activar autenticación en dos pasos (recomendado)".
+   - Si ON: texto "Lo configurarás al iniciar sesión por primera
+     vez".
+
+4. CHECKBOX (requerido para continuar):
+   - "Acepto los términos y condiciones y política de privacidad"
+     con links a /terminos y /privacidad.
+
+VALIDACIÓN: password cumple todos los requisitos + match +
+términos aceptados.
+
+REGLAS: sin modales.
+```
+
+---
+
+### 7.10 Wizard Signup — Paso 5: Resumen editable
+
+**Ruta:** `/{locale}/signup?step=5`
+**Rol:** público
+**Patrones referenciados:** Wizard, Design System
+
+**Prompt:**
+
+```
+Diseña el contenido del PASO 5 final del signup: RESUMEN EDITABLE.
+
+OBJETIVO: revisar todo lo capturado con posibilidad de editar
+cada sección antes de crear la cuenta.
+
+CONTENIDO:
+1. Título: "Confirma tus datos".
+2. Subtítulo: "Revisa que todo esté correcto antes de crear tu
+   cuenta".
+
+3. CARDS RESUMEN (uno por paso, scroll vertical):
+   Cada card:
+   - Header con número de paso + título + botón "Editar" mini
+     (link al paso correspondiente).
+   - Contenido: lista key-value de los campos capturados.
+     Datos sensibles (password) ocultos con bullets.
+   - Border-l-4 primary cuando el paso está completo.
+
+4. Sección final:
+   - Card destacada "Tu plan":
+     - Empresa + tipo de plan + beneficios incluidos.
+   - Mini-banner: "Al crear tu cuenta, recibirás un email de
+     confirmación".
+
+5. Footer de wizard:
+   - "← Anterior" + "Crear mi cuenta" (primary grande con
+     ícono check).
+
+ESTADOS:
+- Loading durante creación: spinner + "Creando tu cuenta…" en botón.
+- Error: banner arriba con código de error específico
+  (email duplicado → te llevamos al paso 2).
+- Éxito: redirect a /dashboard + toast verde "¡Bienvenido a
+  clubSOS!" + tour onboarding opcional.
+
+REGLAS: sin modales. Edit redirige al paso correspondiente.
+```
+
+---
