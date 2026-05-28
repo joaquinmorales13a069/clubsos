@@ -34,28 +34,121 @@ Claude Design separa dos cosas: la **configuración del Design System** (un form
 
 | Convención | Valor |
 |---|---|
-| **Identidad** | clubSOS — plataforma médica multi-tenant (empresas + afiliados). |
-| **Brand primario** | `#CD2129` rojo (acciones, énfasis, estado activo). |
-| **Brand secundario** | `#2266A7` azul (links, info, secondary buttons). |
-| **Neutro** | `#616161` gris medio (texto secundario). |
-| **Tipografía headers** | Poppins (semibold/bold). |
-| **Tipografía body** | Roboto (regular/medium). |
-| **Radios** | `rounded-xl` (12px) para cards, `rounded-2xl` (16px) para contenedores grandes. |
-| **Sombras** | shadow-sm para cards estándar, glassmorphism sutil (`backdrop-blur` + bg-white/60) para cards flotantes. |
-| **Toasts** | Vía `sonner` (success/error/info). Nunca mensajes inline. |
-| **Iconos** | `lucide-react`. |
-| **Mobile-first** | Breakpoints estándar Tailwind: `sm 640`, `md 768`, `lg 1024`, `xl 1280`, `2xl 1536`. |
-| **Idioma** | Copy en español por defecto. Los strings reales viven en `messages/{es,en}.json`. |
+| **Identidad** | clubSOS — capa digital sobre SOS Medical Nicaragua. Multi-tenant: empresas + afiliados (miembros). |
+| **Mercado** | Nicaragua. Locale por defecto `es-NI`; locale alterno `en`. |
+| **Logo en sidebar** | Wordmark `logo-SOSMedical.webp` (NO el badge clubSOS — el badge solo va en favicon / app icon). |
+| **Brand primario** | `#CD2129` rojo SOS — "act now". Botones primarios, brand mark, gradiente top del carnet. |
+| **Brand primario hover** | `#B81D24`. |
+| **Brand secundario** | `#2266A7` azul "trust" — links, secondary CTAs, info, gradiente bottom del carnet. |
+| **Brand secundario hover** | `#1D5A93`. |
+| **Neutro** | `#616161` body-secondary. |
+| **Background app** | `#FAFAFA` — **nunca pure white a nivel de página**. |
+| **Surface** | `#FFFFFF` cards / sheets / sidebar. |
+| **Border hairline** | `#E5E7EB` (`border-gray-100/200`). |
+| **Tipografía headers** | Poppins (300-700), `leading-tight`, `letter-spacing: -0.01em`. |
+| **Tipografía body** | Roboto (300-700), 16/24. |
+| **Mono** | Stack `ui-monospace` — solo para ID de miembro en el carnet (`tracking-[0.2em] font-mono font-bold`). |
+| **Eyebrows** | `10/14`, UPPERCASE, `tracking-widest`, opacity 60% — ej: `FECHA DE NACIMIENTO`, `N° DE MIEMBRO`. |
+| **Radios** | Cards = `rounded-2xl` (16). Buttons / inputs / chips = `rounded-xl` (12). Pills y badges = `rounded-full`. |
+| **Toasts** | Vía `sonner` (`toast.success/error/info`). **Nunca** mensajes inline. |
+| **Iconos** | `lucide-react`, stroke-only. Toman color del padre (`text-primary` / `text-secondary` / `text-neutral`). |
+| **Mobile-first** | Breakpoints Tailwind: `sm 640`, `md 768`, `lg 1024`, `xl 1280`, `2xl 1536`. |
+| **Fechas** | `DD/MM/YYYY` (convención NI). |
+| **Horas** | 12h con `a.m./p.m.` (helper `formatTime12NI`). |
+| **Teléfonos** | Internacional, default `+505`. |
+| **Idioma del copy** | Español NI por defecto. Strings reales en `messages/{es,en}.json`. |
+
+#### Voz y tono
+
+- **Tuteo**, nunca *usted*. Mensajes a miembros como recepcionista de clínica: *"Hola, Joaquín"*, *"Tu carnet digital, citas y beneficios — todo en un solo lugar."*.
+- **Sentence case** para títulos y labels (*"Mis citas"*). Title Case se acepta en botones de acción (*"Recibir Código por WhatsApp"*).
+- **UPPERCASE + tracked** solo para meta-labels pequeñas (eyebrows del carnet, status chips).
+- **Tono por superficie:**
+  - **Miembro** — friendly, reassuring. Saludos cortos.
+  - **Admin / Empresa_admin** — operacional, denso, neutral.
+  - **Sistema / errores** — directo, accionable: *"Por favor ingresa un número de teléfono válido (mínimo 8 dígitos)."*.
+  - **Success** — ¡! con moderación: *"¡Bienvenido de vuelta!"*, *"Código enviado a tu WhatsApp."*.
+- **Puntuación**: Spanish inverted (`¿`, `¡`). Em dash (`—`) para asides. Sin Oxford commas.
+- **Emoji**: **no se usan**. Única excepción: el glifo `⚠` inline en errores de validación.
+- **Unicode**: `—` como fallback de valor nulo, `·` (middle dot) como separador inline (`"Enviado a +505 · cambiar número"`).
+
+#### Vocabulario (usa estas palabras exactas)
+
+| Usa | NO uses |
+|---|---|
+| Cita / Citas | Reserva, Booking |
+| Miembro | Usuario, Cliente |
+| Empresa | Compañía, Organización |
+| Carnet digital | Tarjeta, ID |
+| Beneficio | Promoción, Descuento |
+| Documento médico | Archivo |
+| Recibir Código por WhatsApp | Send OTP, Enviar SMS |
+| Ingresar / Iniciar Sesión | Loguear, Sign in |
+| Familia / Mi Familia | Dependientes |
+| Avisos | Notificaciones, News |
 
 ### 0.3 Reglas duras (aplican a TODOS los prompts)
 
+#### Layout y navegación
+
 1. **Cero modales para formularios.** Crear/editar/subir = página dedicada con ruta propia.
-2. **Patrón tabla 3:1** (§ 2.2) para todas las listas con detalle. El layout lado a lado se activa solo en `xl+` (≥1280px).
-3. **Wizards con stepper sticky-top + summary lateral sticky** en `lg+`. En móvil el summary colapsa a chip bottom + sheet.
-4. **Confirmaciones destructivas** = confirm-in-place inline (no modal). Para flujos críticos = página dedicada `/eliminar`.
-5. **Sheets móviles** permitidos solo para detalles dentro del patrón 3:1.
-6. **Skeleton independiente por sección** en homes y listas (cada bloque carga y muestra skeleton de forma autónoma).
-7. **Estados a diseñar siempre:** loading, vacío, error, éxito.
+2. **Patrón tabla 3:1** (§ 2) para todas las listas con detalle. Grid lado a lado solo en `xl+` (≥1280px); en `md`–`xl` el panel se apila debajo; en `<md` lista de cards + sheet inferior.
+3. **Wizards** con stepper sticky-top + summary lateral sticky en `lg+`. En móvil el summary colapsa a chip bottom + sheet.
+4. **Confirmaciones destructivas** = confirm-in-place inline (no modal). Para flujos críticos = página dedicada `/eliminar` con resumen del impacto.
+5. **Sheets móviles** permitidos solo para detalle contextual dentro del patrón 3:1.
+6. **Mobile-first** siempre. Container padding **16 móvil · 24 md · 32 lg+**.
+
+#### Estados y feedback
+
+7. **Skeleton independiente por sección** en homes y listas (cada bloque carga / muestra skeleton de forma autónoma).
+8. **Estados obligatorios** en cada componente con datos: Loading · Empty · Error · Success.
+9. **Toasts vía sonner** (`toast.success/error/info`). Nunca mensajes inline.
+
+#### Superficies (glass discipline)
+
+10. **Glass es garnish, no salsa.** Solo en: sidebar desktop (`aside.hidden md:flex`), topbar sticky, sheet móvil overlay, hamburger button móvil. **Receta:** `bg-white/80 backdrop-blur-xl border-gray-200/70`.
+11. **NO glass dentro del content area** ni en cards normales. El carnet del miembro tampoco — es un gradiente sólido.
+12. **App background** `#FAFAFA` — nunca pure white a nivel de página. Cards = `#FFFFFF` con `border-gray-100` y `shadow-sm`.
+
+#### Gradientes y ornamentación
+
+13. **Único gradiente permitido**: el carnet digital — `linear-gradient(to bottom right, #CD2129 → #A41B22 → #2266A7)`, más dos círculos `bg-white/5` como decoración interna.
+14. **Nada de gradientes en texto, iconos, botones o headers.**
+15. **No patterns, no textures, no grain, no full-bleed imagery en producto.** La única foto del producto es `login-image.webp` (mitad de viewport en `lg+` solo en auth).
+
+#### Sombras
+
+16. **Cards reposo** `shadow-sm`. **Cards hover interactivas** `shadow-md` + `hover:-translate-y-0.5`.
+17. **Sidebar desktop** sombra solo borde derecho: `shadow-[2px_0_20px_rgba(0,0,0,0.04)]`.
+18. **Topbar** sombra solo borde inferior: `shadow-[0_2px_12px_rgba(0,0,0,0.04)]`.
+19. **Carnet digital** `shadow-lg`.
+20. **No sombras de color.** Siempre negro a alpha bajo.
+
+#### Motion e interacción
+
+21. **Default transition** `transition-all duration-200 ease-out`.
+22. **Hover de card** `hover:-translate-y-0.5` + `hover:shadow-md`.
+23. **Press** `active:translate-y-px` (base-ui Button default).
+24. **Page enter del login**: `animate-in fade-in slide-in-from-bottom-4 duration-500`.
+25. **No bouncy easings, no springs.** Solo `ease-out`.
+26. **Focus visible** `ring-2 ring-primary/40` (o `ring-destructive/20` para destructive). Solo `:focus-visible`.
+
+#### Hover/press de elementos clave
+
+| Elemento | Hover | Press |
+|---|---|---|
+| Primary button | `bg-primary/90` | `translate-y-px` |
+| Secondary button | `bg-secondary/80` | `translate-y-px` |
+| Outline button | `bg-muted` | `translate-y-px` |
+| Ghost / nav item | `bg-muted` (gray-100) | — |
+| Link | `text-secondary/80` + `underline-offset-4 hover:underline` | — |
+| Interactive card | `shadow-md` + `-translate-y-0.5` | (return to rest) |
+| Topbar CTA pill (blue) | `bg-secondary/90` + arrow `translate-x-0.5 -translate-y-0.5` | — |
+
+#### Iconografía
+
+27. **Tamaños:** `w-3.5` (chevrons secundarios), `w-4` (inline / button), `w-5` (nav, topbar), `w-8` (empty state, tinted `text-gray-200`).
+28. **Iconos comunes ya en uso:** `LayoutDashboard, CalendarDays, CalendarCheck, CalendarX, Gift, Megaphone, FileText, Users, Building2, BarChart3, Settings, SlidersHorizontal, MapPin, Stethoscope, UserRound, UserCog, ShieldCheck, UserCheck, Menu, X, ChevronRight, ArrowUpRight, RefreshCw, Eye, EyeOff, Bell, Search, Clock, Shield`.
 
 ---
 
@@ -262,2402 +355,1509 @@ larga que muestre todos los tokens y componentes con sus estados.
 
 ## 2. Patrones transversales
 
-> Estos 5 patrones son referenciados por nombre desde cada prompt de pantalla. Genera mockups de referencia para cada uno antes de las pantallas.
+> **Un único prompt** para generar los 5 patrones que se referencian desde cada pantalla. Pégalo en una conversación nueva (con el Design System ya configurado en el Setup). Claude Design devolverá 5 mockups en serie. Guárdalos — son tu vocabulario UI base para todas las pantallas posteriores.
 
-### Prompt 2.1 — Layout shell (Sidebar + Topbar)
+### Prompt § 2 — Generar los 5 patrones transversales
 
 ```
-Diseña el layout shell de la app clubSOS. Asume el design system ya
-cargado (paleta CD2129/2266A7, Poppins/Roboto, rounded-xl).
+Necesito que generes 5 mockups de referencia para clubSOS, en serie y en
+este orden. Cada uno debe ser un mockup HTML responsive completo
+(móvil <md, md–xl, xl+). Aplica el design system ya cargado (paleta
+SOS red #CD2129 + trust blue #2266A7, Poppins/Roboto, rounded-xl/2xl,
+glass = bg-white/80 backdrop-blur-xl border-gray-200/70, copy en
+español NI con tuteo, lucide-react, sin emoji, sin gradientes excepto
+el carnet).
 
-ESTRUCTURA:
-- Sidebar fijo a la izquierda (240px en lg+, 64px colapsado, drawer
-  off-canvas en <md).
-  Grupos colapsables con divisores sutiles. Cada item: ícono lucide
-  18px + label + opcional badge de contador (citas pendientes).
-  Item activo: fondo bg-primary/10 + texto primary + barra lateral
-  izquierda primary 3px.
-- Topbar de 64px alto: búsqueda global (al centro en lg+, ícono en md),
-  campana de notificaciones con badge contador, avatar dropdown con
-  nombre + rol + logout.
-- Contenido principal: padding 16/24/32 según breakpoint,
-  max-w-screen-2xl centrado.
+═══════════════════════════════════════════════════════════════════
+MOCKUP 1 — LAYOUT SHELL (Sidebar + Topbar)
+═══════════════════════════════════════════════════════════════════
 
-RESPONSIVE:
-- <md: sidebar oculto, botón hamburguesa en topbar abre drawer.
-- md a lg: sidebar colapsado por defecto, expandible.
+Estructura:
+- Sidebar fijo izquierda 240px en lg+ (glass:
+  bg-white/80 backdrop-blur-xl border-gray-200/70 +
+  shadow-[2px_0_20px_rgba(0,0,0,0.04)] solo borde derecho).
+  Versión colapsada 64px. En <md = drawer off-canvas + botón
+  hamburguesa flotante (cápsula bg-white/90).
+  - Wordmark logo-SOSMedical arriba (NO el badge clubSOS).
+  - Grupos colapsables con divisores hairline. Cada item: ícono lucide
+    20px + label Poppins 14 + opcional badge contador.
+  - Item activo: bg-primary/10 + text-primary + barra lateral izquierda
+    primary 3px.
+  - Footer del sidebar: avatar + nombre + rol-badge en blue + logout.
+
+- Topbar sticky-top 64px (glass:
+  bg-white/80 backdrop-blur-xl + shadow-[0_2px_12px_rgba(0,0,0,0.04)]
+  solo borde inferior).
+  - Botón refresh (RefreshCw) con animate-spin cuando pending.
+  - Search global al centro en lg+, ícono en md.
+  - Pill blue "Ir a sosmedical.com.ni" con ArrowUpRight (hover:
+    bg-secondary/90, arrow translate-x-0.5 -translate-y-0.5).
+  - Switch idioma ES/EN.
+  - Campana Bell con badge contador.
+  - Avatar dropdown con nombre + rol + logout.
+
+- Content area: max-w-screen-2xl centrado.
+  Padding 16 móvil · 24 md · 32 lg+.
+
+Responsive:
+- <md: sidebar oculto, botón hamburguesa abre drawer overlay glass.
+- md–lg: sidebar colapsado por defecto.
 - lg+: sidebar expandido por defecto.
 
-Genera 3 vistas: móvil cerrado, móvil con drawer abierto, desktop.
-```
+Genera 3 vistas: móvil con drawer abierto, md colapsado, lg+ expandido.
 
-### Prompt 2.2 — Patrón Tabla 3:1 (lista + panel contextual)
+═══════════════════════════════════════════════════════════════════
+MOCKUP 2 — PATRÓN TABLA 3:1 (lista + panel contextual stateful)
+═══════════════════════════════════════════════════════════════════
 
-```
-Diseña el patrón maestro de "tabla con panel contextual" que clubSOS
-usa en todas sus listas de admin/empresa.
-
-ESTRUCTURA (xl+, ≥1280px):
-Grid de 4 columnas con gap-6.
-- Columnas 1-3: tabla.
-  - Toolbar arriba: campo search (lupa izquierda), chips de filtros
-    activos, botón "Filtros avanzados", botón primario "+ Nuevo".
-  - Tabla con headers sticky, filas seleccionables (radio o checkbox
-    para multi), zebra muy sutil, hover bg-muted, fila seleccionada
+Layout xl+ (≥1280px): grid grid-cols-4 gap-6.
+- Cols 1–3: tabla.
+  - Toolbar: search (ícono Search izquierda), chips de filtros activos,
+    botón "Filtros avanzados" (SlidersHorizontal), botón primary
+    "+ Nuevo".
+  - Tabla headers sticky, filas seleccionables (radio o checkbox),
+    zebra muy sutil, hover bg-muted, fila seleccionada
     bg-primary/5 + border-l-4 border-primary.
   - Paginación abajo derecha.
-- Columna 4: panel sticky (top-24, h-fit), bg-surface, rounded-2xl,
-  border, padding 24. STATEFUL — tiene 2 modos:
+- Col 4: panel sticky (top-24, h-fit), bg-surface, rounded-2xl,
+  border, shadow-sm, padding 24. STATEFUL:
 
   MODO A (sin selección):
-   - Header: "Resumen" + ícono BarChart.
-   - 2-3 KPI mini-cards stack vertical (ej: Total, Activos, Pendientes).
-   - Divider.
-   - Sección "Filtros avanzados" siempre expandida: selects, date
-     pickers, switches.
-   - Divider.
-   - Botones: "Exportar CSV", "Importar".
+  - Header "Resumen" + ícono BarChart3.
+  - 2–3 KPI mini-cards stack vertical.
+  - Divider hairline.
+  - Sección "Filtros avanzados" expandida siempre: selects,
+    date pickers, switches.
+  - Divider.
+  - Botones "Exportar CSV", "Importar".
 
   MODO B (con selección de una fila):
-   - Header: ícono + nombre del registro + botón X cerrar selección.
-   - Meta info (4-6 líneas key-value).
-   - Divider.
-   - Lista vertical de acciones contextuales (cada una con ícono +
-     label): Editar, Ver historial, Duplicar, Eliminar (color error).
-   - Si la acción Editar requiere página dedicada, navegar a
-     /recurso/[id]/editar (NO abrir modal).
+  - Header: ícono + nombre del registro + botón X cerrar.
+  - 4–6 líneas key-value de metadata.
+  - Divider.
+  - Lista vertical de acciones contextuales (ícono + label):
+    Editar (link a /recurso/[id]/editar, NUNCA modal),
+    Ver historial, Duplicar,
+    Eliminar (color destructive, confirm-in-place inline).
 
-RESPONSIVE:
-- <md: tabla se vuelve lista de cards verticales (cada fila = card
-  rounded-xl con info principal). Toolbar de búsqueda + botón "Filtros"
-  arriba. Al tocar una card aparece un sheet inferior (no modal) que
-  cubre 70% del viewport con el detalle + acciones contextuales.
-- md a xl: tabla ancho completo. KPIs y filtros arriba (en una fila
-  horizontal). Cuando hay selección, panel de detalle se ubica debajo
-  de la tabla como sección sticky.
+  MODO C (multi-selección):
+  - Bulk-actions + conteo de seleccionados.
+
+Responsive:
+- <md: tabla se vuelve lista de cards rounded-xl shadow-sm. Al tocar
+  una card aparece sheet inferior (bg-white/90 backdrop-blur-xl)
+  cubriendo 70% del viewport con detalle + acciones. Toolbar search
+  y botón "Filtros" arriba.
+- md–xl: tabla ancho completo. KPIs en fila horizontal arriba.
+  Cuando hay selección, panel detalle debajo de la tabla como
+  sección sticky.
 - xl+: layout 3:1 lado a lado.
 
-ELIMINAR: usa confirm-in-place — el botón "Eliminar" se transforma en
-"¿Confirmar? · Sí · No" en línea. Para flujos críticos (eliminar
-empresa, eliminar usuario activo), navegar a página dedicada
-/recurso/[id]/eliminar con resumen del impacto.
+Eliminar = confirm-in-place. El botón "Eliminar" se transforma in-place
+en "¿Confirmar eliminación? · [Sí, eliminar] · [Cancelar]". Para
+flujos críticos (eliminar empresa, eliminar usuario activo) navegar
+a /recurso/[id]/eliminar con resumen del impacto.
 
 Genera 4 vistas: móvil sin selección, móvil con sheet abierto,
-desktop xl sin selección (modo A), desktop xl con selección (modo B).
-```
+desktop xl Modo A, desktop xl Modo B.
 
-### Prompt 2.3 — Wizard genérico (stepper + sticky summary)
+═══════════════════════════════════════════════════════════════════
+MOCKUP 3 — WIZARD GENÉRICO (stepper + sticky summary)
+═══════════════════════════════════════════════════════════════════
 
-```
-Diseña el patrón maestro de wizard que clubSOS usa para signup y para
-agendar citas.
+Layout lg+: grid 3 cols (2fr + 1fr).
 
-ESTRUCTURA (lg+):
-Grid de 3 columnas en md+ (2fr 1fr o 3fr 1fr para summary).
+Top sticky stepper horizontal:
+- Bullets numeradas conectadas con líneas.
+- Estados: completado (primary + check), actual (primary outline +
+  número), pendiente (gris).
+- Click en pasos completados navega de vuelta. Bajo el stepper:
+  "Paso 3 de 5: Doctor + Fecha + Horario".
 
-- Top sticky stepper horizontal:
-  Bullets numeradas (1, 2, 3, 4, 5) conectadas con líneas.
-  Estados: completado (primary lleno + check), actual (primary outline
-  + número), pendiente (gris). Click en pasos completados navega de
-  vuelta. Below: "Paso 3 de 5: Doctor + Fecha + Horario".
+Columna principal (2/3):
+- Card grande rounded-2xl shadow-sm, padding 32.
+- Inputs grandes, labels Poppins semibold, helper text Roboto.
+- Validación en vivo: check verde a la derecha del input cuando válido;
+  mensaje rojo + glifo ⚠ debajo cuando inválido.
+- Smart defaults con badge "Sugerido" o "Más frecuente" (color primary).
 
-- Columna principal (izquierda, 2/3 o 3/4 del ancho):
-  Card grande rounded-2xl, padding 32. Contiene el contenido del paso
-  actual. Inputs grandes, labels Poppins semibold, helper text Roboto.
-  Validación en vivo: ícono check verde a la derecha del input cuando
-  válido; mensaje de error en rojo debajo cuando inválido.
-  Smart defaults aplicados con badge "Sugerido" o "Más frecuente".
+Columna lateral (1/3):
+- Sticky summary card. Header "Resumen de tu cita" / "Resumen de
+  registro".
+- Lista de pasos: check verde + label + valor + botón "Editar" que
+  salta al paso. Pasos pendientes en gris claro con "—".
 
-- Columna derecha (1/3 o 1/4 del ancho):
-  Sticky summary card. Header "Resumen de tu cita" / "Resumen de
-  registro". Lista de pasos completados con: ícono check verde +
-  label del paso + valor seleccionado + botón "Editar" pequeño
-  que salta al paso. Pasos pendientes en gris claro con "—".
+Footer sticky-bottom interno:
+- Botón secundario "← Anterior" (oculto en paso 1) + spacer +
+  botón primary "Continuar →". Último paso: "Confirmar y enviar".
 
-- Footer sticky-bottom dentro del contenedor:
-  Botón secundario "← Anterior" (oculto en paso 1) + spacer +
-  botón primario "Continuar →". Botón principal del último paso
-  cambia a "Confirmar y enviar" en color primary.
-
-RESPONSIVE:
-- <md: stepper colapsa a barra de progreso fina + label "Paso 3 de 5".
-  Summary lateral se vuelve chip fijo en bottom: "Ver resumen ↑" con
-  contador de pasos completos; al tocar abre sheet inferior con el
-  summary completo. Footer de navegación pegado al bottom edge.
-- md a lg: summary lateral se mueve debajo del contenido principal
-  (no sticky lateral); stepper completo arriba.
+Responsive:
+- <md: stepper colapsa a barra de progreso fina + "Paso 3 de 5".
+  Summary se vuelve chip fijo bottom: "Ver resumen ↑" + contador,
+  al tocar abre sheet inferior con summary completo.
+- md–lg: summary debajo del contenido (no sticky lateral).
 - lg+: summary lateral sticky a la derecha.
 
 Genera 3 vistas: móvil con sheet de summary abierto, md sin summary
-sidebar, lg+ con summary sticky a la derecha.
-```
+lateral, lg+ completo.
 
-### Prompt 2.4 — Página-Formulario (reemplaza modal)
+═══════════════════════════════════════════════════════════════════
+MOCKUP 4 — PÁGINA-FORMULARIO (reemplaza modal de form)
+═══════════════════════════════════════════════════════════════════
 
-```
-Diseña el patrón "página-formulario" que clubSOS usa en lugar de
-modales para crear/editar entidades.
-
-ESTRUCTURA:
-- Breadcrumb arriba: "Doctores / Crear nuevo" con separadores ›.
-- Header de página: h1 Poppins bold + subtítulo gris + acciones a la
-  derecha (botón "Cancelar" outline + botón primario "Guardar" o
-  "Crear").
-- Container max-w-3xl centrado para forms simples, max-w-5xl para
-  forms con preview lateral.
-- Form en card rounded-2xl bg-surface padding 32.
-  - Secciones agrupadas con divisores sutiles + título de sección
+Estructura:
+- Breadcrumb arriba con separadores ›:
+  "Doctores › Crear nuevo".
+- Header: h1 Poppins bold 32 + subtítulo neutral + acciones derecha
+  (botón outline "Cancelar" + botón primary "Guardar" o "Crear").
+- Container max-w-3xl simple, max-w-5xl con preview lateral.
+- Form en card rounded-2xl bg-surface shadow-sm padding 32:
+  - Secciones agrupadas con divisores hairline + título de sección
     Poppins semibold sm uppercase tracking-wide neutral.
-  - 1 o 2 columnas según breakpoint (1 col móvil, 2 cols md+ para
-    forms anchos).
-  - Inputs siguen el design system, con label arriba.
-  - Help text debajo de inputs en gris.
-- Sticky bottom action bar (en móvil): "Cancelar" + "Guardar".
-- Validación: en vivo al perder foco; resumen de errores en banner
-  arriba si hay errores al intentar enviar.
-- Loading state: botón "Guardar" muestra spinner + label
-  "Guardando…" + estado disabled de todos los inputs.
-- Success: toast verde "Creado exitosamente" + redirect a la lista.
+  - 1 col móvil, 2 cols md+ en forms anchos.
+  - Inputs con label arriba, helper text debajo en gris, error con
+    glifo ⚠ + texto rojo.
+- Sticky bottom action bar en móvil con "Cancelar" + "Guardar"
+  full-width.
+- Validación en vivo al perder foco; banner de resumen de errores
+  arriba si hay errores al enviar.
+- Loading: botón "Guardar" → spinner + "Guardando…", inputs disabled.
+- Success: toast sonner verde + redirect a la lista.
 
-RESPONSIVE:
-- <md: 1 columna. Action bar sticky bottom con dos botones full-width.
-  Padding container 16px.
-- md+: hasta 2 columnas dentro del form. Action bar en el header.
+Cancelar con cambios sin guardar = confirm-in-place inline
+"¿Descartar cambios? · [Sí] · [No]".
 
-Genera 2 vistas: móvil con form largo, desktop con form en 2 cols.
-```
+Responsive:
+- <md: 1 col, action bar sticky bottom full-width.
+- md+: hasta 2 cols, action bar en header.
 
-### Prompt 2.5 — Estados (Empty / Skeleton / Error / Confirm-in-place)
+Genera 2 vistas: móvil con form largo, desktop 2 cols.
 
-```
-Diseña los 4 estados auxiliares que clubSOS usa en toda la app.
+═══════════════════════════════════════════════════════════════════
+MOCKUP 5 — ESTADOS (Empty / Skeleton / Error / Confirm-in-place)
+═══════════════════════════════════════════════════════════════════
+
+Genera UNA página showcase con 4 estados en grid 2x2 de cards.
 
 A. EMPTY STATE
-   - Ícono grande (lucide, 64px, color neutral-300) centrado.
+   - Ícono lucide 64px text-gray-200 centrado.
    - Título Poppins semibold xl.
    - Descripción Roboto sm neutral.
-   - CTA primary button con ícono +.
-   Padding 64 vertical. Variantes para: tabla vacía, lista vacía,
-   búsqueda sin resultados, primera vez (onboarding).
+   - CTA primary con ícono +.
+   - Padding 64 vertical.
+   - Variantes mencionadas en copy: tabla vacía, búsqueda sin
+     resultados, primera vez.
 
 B. SKELETON
-   - Tabla: 5 filas con cells animadas (animate-pulse, bg-muted,
-     rounded).
-   - Card: bloque rounded con líneas de texto skeleton.
-   - KPI: número 32px + label sm skeleton.
-   - Wizard step: 3 grupos de inputs skeleton.
+   - Mostrar 4 tipos en mini-grid:
+     - Tabla: 5 filas con cells animate-pulse bg-muted rounded.
+     - Card: bloque rounded con líneas skeleton.
+     - KPI: número 32 + label sm skeleton.
+     - Wizard step: 3 grupos de inputs skeleton.
 
 C. ERROR STATE
-   - Ícono AlertTriangle 64px color error.
-   - Título "Algo salió mal".
-   - Descripción técnica corta + sugerencia ("Intenta recargar o
-     contacta soporte").
+   - Ícono AlertTriangle 64 color error.
+   - Título "Algo salió mal" Poppins semibold.
+   - Descripción + sugerencia: "Intenta recargar o contacta soporte."
    - Botón outline "Reintentar" + link "Contactar soporte".
 
 D. CONFIRM-IN-PLACE
-   - Al hacer click en "Eliminar" (botón ghost color error), el
-     botón se transforma in-place en un mini-row:
-     "¿Confirmar eliminación? · [Sí, eliminar] · [Cancelar]"
-   - Sí: botón pequeño bg-error text-white.
-   - Cancelar: botón pequeño ghost.
-   - Sin overlay, sin modal. Transición suave 200ms.
-
-Genera una sola página de showcase con los 4 estados en grid 2x2.
+   - Mostrar la transformación del botón:
+     Estado base: botón ghost text-destructive "Eliminar".
+     Estado activo: mini-row inline
+     "¿Confirmar eliminación? · [Sí, eliminar] (bg-destructive
+     text-white) · [Cancelar] (ghost)".
+   - Sin overlay, sin modal. Transición 200ms ease-out.
 ```
 
 ---
 
 ## 3. Auth
 
-### 3.1 Login
+> **Un único prompt** para las 3 pantallas de auth (Login, Signup overview, MFA verificar+enrolar). Pégalo en una conversación nueva; Claude Design devuelve los mockups en serie.
 
-**Ruta:** `/{locale}/login`
-**Rol:** público
-**Patrones referenciados:** Design System
-
-**Prompt:**
+### Prompt § 3 — Generar las 3 pantallas de auth
 
 ```
-clubSOS es una plataforma médica multi-tenant. Brand: rojo #CD2129 +
-azul #2266A7. Poppins/Roboto.
+Necesito 3 mockups para auth de clubSOS. Aplica el design system
+cargado (SOS red #CD2129 + trust blue #2266A7, Poppins/Roboto,
+glass disciplinado, copy es-NI con tuteo).
 
-Diseña la pantalla de Login.
+Layout maestro: split-screen 5/7 en lg+, stack en <lg.
+- Izquierda (form, 5/12): bg-white, padding 32, max-w-md.
+- Derecha (brand, 7/12, oculto <lg): foto login-image.webp (clinical,
+  masked healthcare worker + patient, naturally lit) + card flotante
+  glass (bg-white/80 backdrop-blur-xl) con highlight.
 
-OBJETIVO: usuario ingresa con email + password. Soporta login con
-Google. Si tiene MFA, redirige a /mfa/verificar después de auth.
+Page enter del login: animate-in fade-in slide-in-from-bottom-4
+duration-500.
 
-SECCIONES (split-screen lg+, stack móvil):
-- IZQUIERDA (form, 5/12 del ancho lg+, 100% móvil):
-  - Logo clubSOS arriba.
-  - h1 "Bienvenido de vuelta".
-  - Subtítulo "Ingresa para gestionar tus citas y beneficios".
-  - Botón "Continuar con Google" (outline + ícono Google) full-width.
-  - Divider "o continúa con email".
-  - Input email + input password (con toggle mostrar/ocultar).
-  - Link "¿Olvidaste tu contraseña?" alineado a la derecha, sm,
+═══════════════════════════════════════════════════════════════════
+MOCKUP 1 — LOGIN
+═══════════════════════════════════════════════════════════════════
+
+Ruta: /{locale}/login
+
+Form column:
+- Logo wordmark SOS MEDICAL arriba.
+- h1 "Bienvenido de vuelta".
+- Subtítulo "Ingresa para gestionar tus citas y beneficios".
+- TABS: "Recibir Código por WhatsApp" (default) · "Ingresar con
+  contraseña".
+
+Tab "Recibir Código por WhatsApp":
+  - Input teléfono con selector país (bandera + +505 prefilled).
+  - Helper "Te enviaremos un código de 6 dígitos por WhatsApp".
+  - Botón primary full-width "Recibir Código por WhatsApp".
+  - Tras enviar → mismo form con OTP input 6 cells + texto
+    "Enviado a +505 8888-8888 · cambiar número" (separador ·).
+
+Tab "Ingresar con contraseña":
+  - Input email / Input password (toggle Eye/EyeOff).
+  - Link sm "¿Olvidaste tu contraseña?" alineado derecha,
     color secondary.
-  - Botón primary full-width "Ingresar".
-  - Texto pie: "¿No tienes cuenta? Regístrate" con link a /signup.
+  - Botón primary full-width "Iniciar Sesión".
 
-- DERECHA (brand, 7/12 lg+, oculto <lg):
-  - Background gradient sutil primary→secondary o imagen médica
-    abstracta.
-  - Card flotante glass con quote testimonial o feature highlight:
-    "Agenda tus citas médicas con un solo toque" + ícono CalendarCheck.
-  - Footer pequeño con badges de seguridad (HIPAA-like).
+Footer del form: "¿No tienes cuenta? Regístrate" con link a /signup,
+color secondary, hover underline.
 
-ESTADOS:
-- Loading: botón "Ingresar" muestra spinner + "Ingresando…", inputs
-  disabled.
-- Error: banner rojo arriba del form con mensaje
-  ("Credenciales inválidas") + form vuelve a estar editable.
+Estados:
+- Loading: botón con spinner + "Ingresando…", inputs disabled.
+- Error de validación: banner rojo arriba con glifo ⚠ + mensaje
+  ("⚠ Por favor ingresa un número de teléfono válido").
+- Error de auth: toast sonner rojo.
+- OTP error: cells OTP en rojo + mensaje.
 
-RESPONSIVE:
-- <md: solo columna izquierda, padding 24, logo arriba, todo
-  centrado verticalmente.
-- md a lg: igual a móvil pero max-w-md centrado.
+Brand column (lg+):
+- Foto login-image.webp full-bleed cubriendo la mitad.
+- Card glass flotante con CalendarCheck 32 + título "Agenda tus citas
+  con un solo toque" + bullets de beneficios.
+
+Responsive:
+- <md: solo form col, padding 24, logo arriba, contenido centrado
+  vertical.
+- md–lg: form col centrado max-w-md.
 - lg+: split 5/7.
 
-REGLAS: sin modales. Toasts con sonner para success. Toggle de
-mostrar password con íconos Eye/EyeOff.
-```
+═══════════════════════════════════════════════════════════════════
+MOCKUP 2 — SIGNUP (overview wizard)
+═══════════════════════════════════════════════════════════════════
 
----
+Ruta: /{locale}/signup
 
-### 3.2 Signup — overview wizard
+Usa el patrón Wizard (Mockup 3 del § 2). Stepper de 5 pasos:
+1. Datos personales · 2. Contacto · 3. Empresa / Contrato ·
+4. Seguridad · 5. Resumen editable.
 
-**Ruta:** `/{locale}/signup`
-**Rol:** público
-**Patrones referenciados:** Wizard, Design System
-
-**Prompt:**
-
-```
-Diseña la pantalla overview del Signup wizard para clubSOS (los 5
-pasos individuales se detallan en § 7.6-7.10).
-
-OBJETIVO: usuario nuevo se registra como afiliado. 5 pasos cortos
-con validación en vivo y resumen editable al final.
-
-LAYOUT: split-screen como Login (5/7 lg+).
-
-IZQUIERDA (form column):
-- Logo clubSOS arriba.
-- Stepper horizontal (5 pasos) en sticky-top.
-- Contenido del paso actual (renderizado del prompt correspondiente
-  de § 7).
+Form column:
+- Logo wordmark arriba.
+- Stepper horizontal sticky-top (en móvil colapsa a "Paso X de 5"
+  con barra de progreso fina).
+- Contenido del paso (detalle de cada paso está en § 7).
 - Footer "← Anterior" + "Continuar →".
 
-DERECHA (brand column, oculto <lg):
-- Visual con beneficios del programa:
-  1. ✓ Citas médicas en 24h
-  2. ✓ Beneficios exclusivos
-  3. ✓ Documentos digitales seguros
-  4. ✓ Familia incluida
-- Cada item con ícono lucide + texto.
-- Card flotante glass con resumen del progreso del usuario.
+Brand column (lg+):
+- Visual con bullets de beneficios:
+  - ✓ Citas médicas en 24h
+  - ✓ Beneficios exclusivos
+  - ✓ Documentos digitales seguros
+  - ✓ Familia incluida
+  (cada uno con ícono lucide CheckCircle2 color success).
+- Card glass flotante con resumen progreso del usuario.
 
-RESPONSIVE:
-- <md: solo columna izquierda, stepper colapsa a barra de progreso
-  fina + "Paso X de 5".
-- md a lg: igual a móvil + max-w-xl.
-- lg+: split 5/7 con brand a la derecha.
+Estados:
+- Loading global durante envío: spinner + "Creando tu cuenta…".
+- Error: banner arriba del paso con glifo ⚠.
 
-ESTADOS:
-- Loading global durante envío final: spinner + "Creando tu cuenta…".
-- Error: banner arriba del paso con mensaje.
+Reglas: stepper permite volver atrás con click; no saltar adelante.
 
-REGLAS: sin modales. Cada paso es un prompt individual de § 7.
-Stepper permite volver atrás (click) pero no saltar hacia adelante.
-```
+═══════════════════════════════════════════════════════════════════
+MOCKUP 3 — MFA (2 vistas: verificar + enrolar)
+═══════════════════════════════════════════════════════════════════
 
----
+Layout centrado max-w-md, fondo bg-background.
 
-### 3.3 MFA — Verificar / Enrolar
-
-**Ruta:** `/{locale}/mfa/verificar`
-**Rol:** público (post-login con MFA enrolado) / autenticado (para enrolar)
-**Patrones referenciados:** Design System
-
-**Prompt:**
-
-```
-Diseña 2 pantallas MFA para clubSOS:
-
-A. VERIFICAR (post-login si MFA enrolado)
-   - Layout centrado, max-w-md.
-   - Logo clubSOS arriba.
+A. VERIFICAR (ruta /{locale}/mfa/verificar, post-login si MFA enrolado):
+   - Logo wordmark arriba.
    - h1 "Verificación en dos pasos".
    - Subtítulo "Ingresa el código de 6 dígitos de tu app de
      autenticación".
-   - Input OTP de 6 celdas (1 dígito por celda, auto-jump al
-     siguiente, paste detecta los 6 dígitos).
+   - Input OTP 6 cells (auto-jump, paste detecta los 6).
    - Botón primary full-width "Verificar".
-   - Link sm "Usar código de respaldo" → muestra input alternativo.
-   - Link xs "Cerrar sesión" abajo en gris.
+   - Link sm "Usar código de respaldo" → muestra input alternativo
+     debajo.
+   - Link xs gris "Cerrar sesión" abajo.
 
-B. ENROLAR (desde ajustes o post-signup)
+B. ENROLAR (desde ajustes o post-signup):
    - h1 "Activa autenticación en dos pasos".
    - Subtítulo "Escanea el QR con tu app".
-   - QR code centrado (256px).
-   - Texto pequeño con código manual para copiar (monoespaciado).
-   - Input OTP de 6 dígitos para confirmar.
+   - QR code 256px centrado.
+   - Texto pequeño con código manual monoespaciado para copiar.
+   - Input OTP 6 cells para confirmar.
    - Botón primary "Activar 2FA".
-   - Link "Saltar por ahora" en gris (solo en flujo post-signup).
+   - Link gris "Saltar por ahora" (solo flujo post-signup).
 
-ESTADOS:
+Estados:
 - Loading: spinner en botón.
-- Error: input OTP se pone rojo + mensaje "Código incorrecto.
-  Intenta de nuevo".
-- Éxito: toast verde + redirect a /dashboard.
+- Error: OTP cells rojas + mensaje "⚠ Código incorrecto. Intenta
+  de nuevo".
+- Éxito: toast sonner verde + redirect a /dashboard.
 
-RESPONSIVE:
-- <md: padding 16, OTP cells más pequeñas.
+Responsive:
+- <md: padding 16, cells OTP más pequeñas.
 - md+: max-w-md, padding 32.
-
-REGLAS: sin modales. Toast con sonner para success.
 ```
 
 ---
 
 ## 4. Miembro
 
-### 4.1 Home miembro
+> **Un único prompt** para las 10 pantallas del rol miembro. Pégalo en una conversación; Claude Design genera los mockups en serie.
 
-**Ruta:** `/{locale}/dashboard`
-**Rol:** miembro
-**Patrones referenciados:** Layout shell, Design System
-
-**Prompt:**
+### Prompt § 4 — Generar las 10 pantallas del miembro
 
 ```
-Diseña el Home del miembro de clubSOS. Tres roles: admin, empresa_admin,
-miembro. Este es para miembro (el afiliado al plan de salud).
+Genera 10 mockups responsive para el rol "miembro" de clubSOS.
+Aplica el design system y los patrones transversales del § 2.
+Copy es-NI con tuteo, voz friendly y reassuring (saludos cortos:
+"Hola, {nombre}", "Aquí tienes un resumen de tu cuenta").
 
-OBJETIVO: dashboard personal con su carnet digital, próxima cita,
-quick actions y resúmenes de sus avisos/beneficios/documentos.
+Layout shell común: sidebar glass + topbar glass + content area
+max-w-screen-2xl centrado con padding 16/24/32.
 
-SECCIONES (de arriba abajo):
+═══════════════════════════════════════════════════════════════════
+PANTALLA 1 — HOME (/dashboard)
+═══════════════════════════════════════════════════════════════════
 
-1. MFA BANNER (condicional, solo si no enrolado):
-   - Banner amarillo warning con ícono ShieldAlert.
-   - Texto "Protege tu cuenta con autenticación en dos pasos".
-   - Botón outline "Activar ahora" link a /mfa/verificar.
+Secciones:
+1. MFA banner condicional (warning amarillo, ShieldAlert,
+   "Protege tu cuenta con autenticación en dos pasos" + botón
+   outline "Activar ahora" link /mfa/verificar).
+2. Hero greeting + credential card flotante:
+   - Grid md: 7/12 hero + 5/12 carnet.
+   - Hero: "Hola, {Nombre}" h1 Poppins bold 32 con {Nombre} color
+     primary. Subtítulo Roboto neutral.
+   - Carnet digital (UNICO componente con gradiente):
+     bg gradient linear-gradient(to bottom right, #CD2129 →
+     #A41B22 → #2266A7), rounded-2xl, shadow-lg.
+     Contiene: 2 círculos decorativos bg-white/5; avatar/iniciales
+     56; nombre completo; empresa; eyebrows (UPPERCASE tracking-widest
+     opacity-60) "N° DE MIEMBRO" + valor `tracking-[0.2em] font-mono`
+     truncado; "FECHA DE NACIMIENTO" + valor DD/MM/YYYY; rotación
+     leve 1–2deg en hover.
+3. Próxima cita destacada:
+   - Si existe: card grande rounded-2xl shadow-sm con CalendarClock
+     40 en círculo bg-primary/10 text-primary; badge estado
+     (pendiente amarillo, confirmado verde); servicio + doctor +
+     ubicación; fecha/hora amigable (12h a.m./p.m.); acciones
+     "Ver detalles" + dropdown "Agregar a calendario" (Google/
+     Outlook/Apple/.ics).
+   - Si no: empty state "No tienes citas próximas" + CTA primary
+     "Pedir nueva cita" link /citas/nueva.
+4. Quick actions row (grid 2 móvil, 4 md):
+   pills bg-surface rounded-2xl shadow-sm hover:shadow-md
+   hover:-translate-y-0.5, con ícono 32 + label Poppins semibold:
+   "Pedir Cita" (CalendarPlus), "Ver Beneficios" (Gift),
+   "Mis Documentos" (FileText), "Mi Familia" (Users).
+5. Grid 3 cols (md+) de resúmenes:
+   A. Últimos Avisos (2): cards mini con título + fecha relativa +
+      dot status.
+   B. Beneficios Recientes (3): cards horizontales mini con ícono +
+      título + fecha fin.
+   C. Documentos Recientes (3): lista con ícono tipo archivo +
+      nombre + fecha + botón download mini.
+   Header de cada card: título + link "Ver todos →" color secondary.
+6. Mis Servicios Cubiertos: cards horizontales con ícono servicio +
+   nombre + uso "3/12 visitas" + barra progreso. Cada card
+   clickeable.
 
-2. HERO + CREDENTIAL CARD
-   - Layout grid (md): 7/12 hero + 5/12 credential card.
-   - Hero: "Hola, [Nombre]" h1 Poppins bold 32px con [Nombre]
-     en color primary. Subtítulo Roboto neutral.
-   - Credential card flotante (glass): tarjeta tipo carnet con
-     - Foto/iniciales del miembro (avatar 64px).
-     - Nombre completo.
-     - Empresa.
-     - Número de afiliado (badge sm).
-     - Background gradient primary→secondary muy sutil con
-       backdrop-blur. Rotación leve 1-2deg en hover.
+Estados: skeleton por sección; empty por bloque; error por bloque
+sin romper los demás.
 
-3. PRÓXIMA CITA (card destacada)
-   - Si existe: card grande con
-     - Ícono CalendarClock 40px en círculo primary/10.
-     - Badge de estado (pendiente, confirmado).
-     - Servicio + doctor + ubicación.
-     - Fecha y hora formato amigable.
-     - Acciones: "Ver detalles" + "Agregar a calendario" (dropdown
-       con Google/Outlook/Apple/.ics).
-   - Si no existe: empty state con "No tienes citas próximas" +
-     CTA "Pedir nueva cita" link a /citas/nueva.
-
-4. QUICK ACTIONS ROW (4 pills)
-   - Grid grid-cols-2 md:grid-cols-4 gap-4.
-   - Cada pill: card rounded-2xl con ícono lucide 32 + label
-     Poppins semibold.
-   - Acciones: Pedir cita (CalendarPlus), Ver beneficios (Gift),
-     Mis documentos (FileText), Mi familia (Users).
-
-5. GRID DE RESÚMENES (md+: 3 cols)
-   A. ÚLTIMOS AVISOS (2 items)
-      - Header con título + link "Ver todos →".
-      - Lista de cards mini con título + fecha relativa + dot status.
-   B. BENEFICIOS RECIENTES (3 items)
-      - Header + link.
-      - Mini cards horizontales con ícono + título + fecha fin.
-   C. DOCUMENTOS RECIENTES (3 items)
-      - Header + link.
-      - Lista con ícono tipo archivo + nombre + fecha + botón
-        descargar mini.
-
-6. MIS SERVICIOS CUBIERTOS (sección expandida)
-   - Header "Servicios incluidos en tu plan".
-   - Lista de cards horizontales con:
-     - Ícono del servicio.
-     - Nombre.
-     - Uso actual (ej: 3/12 visitas).
-     - Barra de progreso.
-   - Cada card clickeable a detalle del servicio.
-
-ESTADOS:
-- Skeleton independiente por sección (no skeleton global).
-- Empty state para Próxima cita y para cada lista vacía.
-- Error: cada bloque puede fallar sin romper los demás.
-
-RESPONSIVE:
-- <md: 1 columna stack, credential card debajo del hero.
-- md: 2 cols para hero+credential y para resúmenes (los 3 resúmenes
-  apilados de a 2).
+Responsive:
+- <md: 1 col stack, carnet debajo del hero.
+- md: 2 cols hero+carnet, resúmenes apilados de a 2.
 - lg+: layout completo con 3 cols en resúmenes.
 
-REGLAS: sin modales. Toasts con sonner. Mobile-first.
-```
+═══════════════════════════════════════════════════════════════════
+PANTALLA 2 — MIS CITAS (lista, /dashboard/citas)
+═══════════════════════════════════════════════════════════════════
 
----
-### 4.2 Mis citas (lista)
+NO usa tabla 3:1 (miembro tiene pocas citas). Lista de cards.
 
-**Ruta:** `/{locale}/dashboard/citas`
-**Rol:** miembro
-**Patrones referenciados:** Tabla 3:1 (variante simplificada para móvil), Design System
-
-**Prompt:**
-
-```
-Diseña la pantalla "Mis citas" del miembro.
-
-OBJETIVO: ver todas las citas del miembro (pasadas, próximas,
-canceladas) con filtros y acción de pedir nueva cita.
-
-SECCIONES:
-1. Header de página:
-   - h1 "Mis citas" + subtítulo "Gestiona tus citas médicas".
-   - Botón primary derecha: "+ Pedir nueva cita" link a
-     /citas/nueva (NO modal — es página).
-
-2. Tabs de filtro: "Próximas" (default) · "Pasadas" · "Canceladas".
-   Tabs subrayadas en primary cuando activas. Cada tab muestra
-   contador.
-
-3. Lista de citas (card list, NO tabla — el miembro tiene pocas):
-   Cada card rounded-2xl con:
-   - Avatar/ícono del servicio (24px) en círculo color del estado.
+Secciones:
+1. Header: h1 "Mis Citas" + subtítulo "Gestiona tus citas médicas".
+   Botón primary derecha "+ Pedir Nueva Cita" link /citas/nueva
+   (NUNCA modal).
+2. Tabs subrayadas: "Próximas" (default) · "Pasadas" · "Canceladas".
+   Cada tab con contador.
+3. Lista de citas como cards rounded-2xl shadow-sm:
+   - Avatar/ícono servicio 24 en círculo color del estado.
    - Servicio + doctor (Poppins semibold).
-   - Ubicación + fecha/hora (Roboto sm).
-   - Badge de estado a la derecha: pendiente (amarillo),
-     pendiente_admin (azul), confirmado (verde), completado (gris),
-     cancelado (rojo), rechazado (rojo).
-   - Acciones derecha: "Ver detalle" (link a /citas/[id]) +
-     dropdown "Agregar a calendario" (Google/Outlook/Apple/.ics) +
-     "Cancelar" (solo si dentro de ventana).
+   - Ubicación (MapPin) + fecha/hora (Clock) (Roboto sm).
+   - Badge estado a la derecha: pendiente (warning), pendiente_admin
+     (info), confirmado (success), completado (neutral), cancelado/
+     rechazado (error).
+   - Acciones derecha: "Ver detalle" link /citas/[id], dropdown
+     "Agregar a calendario", "Cancelar" (solo dentro de ventana
+     24h — confirm-in-place inline).
 
-ESTADOS:
-- Skeleton: 4 cards skeleton.
-- Empty (por tab): EmptyState con CTA "Pedir cita".
-- Error: ErrorState con reintentar.
+Estados: skeleton 4 cards; empty por tab con CTA "Pedir Cita"; error.
 
-CANCELAR: confirm-in-place — botón "Cancelar" se transforma en
-"¿Confirmar cancelación? · [Sí] · [No]". NO modal. Validar ventana
-(default 24h antes) en cliente y mostrar mensaje si fuera.
+Responsive:
+- <md: cards full-width, acciones en menú "..." con sheet inferior.
+- md+: cards en 1 col max-w-4xl centradas.
 
-RESPONSIVE:
-- <md: cards full-width, acciones colapsan en menú "..." con sheet.
-- md+: cards en 1 columna max-w-4xl centradas.
+═══════════════════════════════════════════════════════════════════
+PANTALLA 3 — WIZARD NUEVA CITA OVERVIEW (/dashboard/citas/nueva)
+═══════════════════════════════════════════════════════════════════
 
-REGLAS: sin modales. Toasts con sonner.
-```
+Usa patrón Wizard del § 2. 5 pasos consolidados (cada paso detallado
+en § 7):
+1. Paciente · 2. Servicio + Ubicación · 3. Doctor + Fecha + Horario
+· 4. Pago · 5. Confirmar.
 
----
+Layout: stepper sticky top, contenido principal lg:col-span-2,
+summary sticky derecha lg:col-span-1.
 
-### 4.3 Wizard nueva cita (overview)
-
-**Ruta:** `/{locale}/dashboard/citas/nueva`
-**Rol:** miembro
-**Patrones referenciados:** Wizard, Design System
-
-**Prompt:**
-
-```
-Diseña el overview del wizard de "Pedir nueva cita" del miembro
-de clubSOS. 5 pasos consolidados (los detalles de cada paso están
-en § 7.1-7.5).
-
-OBJETIVO: agendar una cita médica nueva con stepper claro, summary
-sticky lateral y smart defaults.
-
-LAYOUT: usa el patrón Wizard de § 2.3.
-- Stepper 5 pasos arriba sticky:
-  1. Paciente · 2. Servicio + Ubicación · 3. Doctor + Fecha + Horario
-  · 4. Pago · 5. Confirmar.
-- Columna principal: contenido del paso (renderizado del prompt
-  correspondiente de § 7.1-7.5).
-- Columna lateral derecha (lg+): summary sticky con lista de pasos
-  completados + botones editar.
-- Footer "← Anterior" + "Continuar →" / "Confirmar y enviar".
-
-EXTRAS:
+Extras:
 - Badge "Sugerido" en items autoseleccionados (1 sola ubicación,
-  1 solo doctor, fecha más próxima).
+  1 solo doctor, fecha más próxima con disponibilidad).
 - Stepper permite volver a pasos completados con click.
-- En móvil el summary lateral colapsa a chip "Ver resumen ↑" en
-  bottom que abre sheet.
+- En móvil summary lateral colapsa a chip "Ver resumen ↑" bottom
+  que abre sheet.
 
-ESTADOS:
-- Loading durante envío final: spinner en botón "Confirmar" +
-  "Creando tu cita…".
-- Error: banner arriba del paso (ej: "El horario ya no está
-  disponible. Selecciona otro.").
-- Éxito: redirect a /citas con toast "Cita creada exitosamente".
+Estados: loading durante envío "Creando tu cita…"; error con código
+P0001 mapeado a mensaje ("El horario ya no está disponible.");
+éxito → redirect /citas con toast sonner verde "Cita creada
+exitosamente".
 
-REGLAS: sin modales. Validación en vivo. Smart defaults siempre.
-```
+═══════════════════════════════════════════════════════════════════
+PANTALLA 4 — MIS AVISOS (/dashboard/avisos)
+═══════════════════════════════════════════════════════════════════
 
----
-
-### 4.4 Mis avisos
-
-**Ruta:** `/{locale}/dashboard/avisos`
-**Rol:** miembro
-**Patrones referenciados:** Design System
-
-**Prompt:**
-
-```
-Diseña la pantalla "Mis avisos" del miembro.
-
-OBJETIVO: ver avisos publicados por su empresa o por el admin global.
-
-SECCIONES:
-1. Header: h1 "Avisos" + subtítulo + chip contador "X sin leer".
+Secciones:
+1. Header h1 "Avisos" + subtítulo + chip contador "X sin leer".
 2. Tabs: "Todos" · "Sin leer" · "Archivados".
-3. Lista de avisos como cards:
-   - Card horizontal con:
-     - Indicator dot izquierda (primary si sin leer, gris si leído).
-     - Título Poppins semibold + extracto Roboto sm 2 líneas truncado.
-     - Fecha relativa abajo derecha.
-     - Click navega a /avisos/[id] (página, NO modal).
+3. Lista de avisos como cards horizontales rounded-xl:
+   - Dot indicator izquierda (primary si sin leer, gris si leído).
+   - Título Poppins semibold + extracto Roboto sm 2 líneas truncado.
+   - Fecha relativa derecha abajo.
+   - Click navega /avisos/[id] (página, NUNCA modal).
 4. Pagination si > 20.
 
-ESTADOS:
-- Skeleton 5 cards.
-- Empty: EmptyState "No tienes avisos aún".
-- Error: ErrorState.
+Estados: skeleton 5 cards; empty "No tienes avisos aún"; error.
 
-RESPONSIVE:
-- <md: cards full-width.
-- md+: lista max-w-4xl centrada.
+Responsive: <md full-width cards; md+ lista max-w-4xl.
 
-REGLAS: sin modales. Click va a página detalle.
-```
+═══════════════════════════════════════════════════════════════════
+PANTALLA 5 — AVISO DETALLE (/dashboard/avisos/[id], reemplaza modal)
+═══════════════════════════════════════════════════════════════════
 
----
-
-### 4.5 Aviso detalle (página, reemplaza modal)
-
-**Ruta:** `/{locale}/dashboard/avisos/[id]`
-**Rol:** miembro
-**Patrones referenciados:** Design System
-
-**Prompt:**
-
-```
-Diseña la página de detalle de un aviso (reemplaza el modal actual).
-
-OBJETIVO: leer un aviso completo con su contenido enriquecido.
-
-SECCIONES:
-1. Breadcrumb: "Avisos / [Título del aviso truncado]".
-2. Header:
-   - Botón outline "← Volver" arriba izquierda.
-   - h1 Título del aviso (Poppins bold 28px).
-   - Meta: autor (empresa o admin) + fecha + chip de categoría.
-3. Contenido principal (max-w-3xl):
-   - Body con prose tipography (paragraphs, lists, links).
+Secciones:
+1. Breadcrumb: "Avisos › [Título truncado]".
+2. Header: botón outline "← Volver" izquierda; h1 título Poppins
+   bold 28; meta: autor + fecha DD/MM/YYYY + chip categoría.
+3. Contenido principal max-w-3xl:
+   - Body prose typography (paragraphs, lists, links).
    - Imágenes embebidas si las hay.
-4. Sidebar (lg+ a la derecha):
-   - Card "Más avisos" con 3 avisos relacionados/recientes.
-   - Card "Acciones": marcar como archivado, compartir.
+4. Sidebar lg+ derecha:
+   - Card "Más avisos" con 3 relacionados/recientes.
+   - Card "Acciones": archivar, compartir.
 
-ESTADOS:
-- Skeleton del contenido.
-- Error 404: "Aviso no encontrado" + link volver.
+Estados: skeleton; error 404 "Aviso no encontrado" + link volver.
 
-RESPONSIVE:
-- <md: sin sidebar, sidebar al final del contenido.
-- md a lg: igual móvil.
-- lg+: layout con sidebar.
+Responsive: <lg sidebar al final; lg+ sidebar derecha.
 
-REGLAS: sin modales. Marca como leído al cargar (cliente).
-```
+Marca como leído al cargar (client-side).
 
----
+═══════════════════════════════════════════════════════════════════
+PANTALLA 6 — MIS BENEFICIOS (/dashboard/beneficios)
+═══════════════════════════════════════════════════════════════════
 
-### 4.6 Mis beneficios
-
-**Ruta:** `/{locale}/dashboard/beneficios`
-**Rol:** miembro
-**Patrones referenciados:** Design System
-
-**Prompt:**
-
-```
-Diseña la pantalla "Mis beneficios" del miembro.
-
-OBJETIVO: explorar beneficios disponibles según su empresa.
-
-SECCIONES:
-1. Header h1 + subtítulo + chip "X beneficios activos".
+Secciones:
+1. Header h1 "Mis Beneficios" + subtítulo + chip "X beneficios
+   activos".
 2. Toolbar:
-   - Search input "Buscar beneficio…".
-   - Filtros chip: "Todos", "Salud", "Bienestar", "Educación",
-     "Otros" (categorías).
-3. Grid de beneficios (3 cols md, 4 cols xl):
-   - BeneficioCard:
-     - Imagen del beneficio (aspect-video, rounded-t-2xl).
-     - Badge categoría arriba.
-     - Título Poppins semibold.
-     - Descripción Roboto sm 2 líneas truncada.
-     - Fecha fin "Vigente hasta X" sm gris.
-     - Botón outline "Ver detalles" link a /beneficios/[id].
+   - Search "Buscar beneficio…".
+   - Chips filtros: "Todos", "Salud", "Bienestar", "Educación",
+     "Otros".
+3. Grid de cards (3 cols md, 4 cols xl):
+   BeneficioCard:
+   - Imagen aspect-video rounded-t-2xl.
+   - Badge categoría arriba sobre imagen.
+   - Título Poppins semibold.
+   - Descripción Roboto sm 2 líneas truncada.
+   - Fecha fin "Vigente hasta DD/MM/YYYY" sm gris.
+   - Botón outline full-width "Ver detalles" link /beneficios/[id].
 
-ESTADOS:
-- Skeleton de 8 cards.
-- Empty: EmptyState "No hay beneficios activos para tu empresa".
-- Error: ErrorState.
+Estados: skeleton 8 cards; empty "No hay beneficios activos para tu
+empresa"; error.
 
-RESPONSIVE:
-- <md: 1 col.
-- md: 2 cols.
-- lg: 3 cols.
-- xl: 4 cols.
+Responsive: 1 / 2 / 3 / 4 cols.
 
-REGLAS: sin modales. Click va a /beneficios/[id].
-```
+═══════════════════════════════════════════════════════════════════
+PANTALLA 7 — BENEFICIO DETALLE (/dashboard/beneficios/[id])
+═══════════════════════════════════════════════════════════════════
 
----
-
-### 4.7 Beneficio detalle (página)
-
-**Ruta:** `/{locale}/dashboard/beneficios/[id]`
-**Rol:** miembro
-**Patrones referenciados:** Design System
-
-**Prompt:**
-
-```
-Diseña la página de detalle de un beneficio (reemplaza el modal
-actual).
-
-OBJETIVO: ver descripción completa, cómo usarlo y código/cupón si
-aplica.
-
-SECCIONES:
-1. Breadcrumb: "Beneficios / [Título]".
+Secciones:
+1. Breadcrumb "Beneficios › [Título]".
 2. Header con botón "← Volver".
-3. Layout (md+: 2 cols, 2/3 + 1/3):
-   - IZQ:
-     - Imagen grande del beneficio (aspect-video, rounded-2xl).
-     - Título h1.
-     - Descripción larga prose.
-     - Sección "¿Cómo usarlo?" con pasos numerados.
-     - Términos y condiciones (collapsible).
-   - DER (sidebar):
-     - Card "Información":
-       - Categoría (badge).
-       - Vigencia.
-       - Establecimiento/proveedor.
-     - Card "Tu beneficio":
-       - Si tiene código: código grande monoespaciado +
-         botón "Copiar" inline.
-       - Botón primary "Activar / Reclamar".
-     - Card "Ubicaciones" si aplica.
+3. Layout md+ 2 cols (2/3 + 1/3):
+   IZQ:
+   - Imagen grande aspect-video rounded-2xl.
+   - Título h1.
+   - Descripción larga prose.
+   - "¿Cómo usarlo?" con pasos numerados.
+   - Términos y condiciones (collapsible).
+   DER sidebar:
+   - Card "Información": categoría badge, vigencia, proveedor.
+   - Card "Tu beneficio":
+     - Si tiene código: código grande monoespaciado +
+       botón "Copiar" inline (toast verde al copiar).
+     - Botón primary full-width "Activar / Reclamar".
+   - Card "Ubicaciones" si aplica.
 
-ESTADOS:
-- Skeleton.
-- Error 404.
-- Beneficio expirado: banner gris arriba "Este beneficio venció el X".
+Estados: skeleton; error 404; beneficio expirado: banner gris arriba
+"Este beneficio venció el DD/MM/YYYY".
 
-RESPONSIVE:
-- <md: sidebar al final, full-width.
-- md+: 2 cols.
+═══════════════════════════════════════════════════════════════════
+PANTALLA 8 — MIS DOCUMENTOS (/dashboard/documentos)
+═══════════════════════════════════════════════════════════════════
 
-REGLAS: sin modales. Toast de éxito al copiar código.
-```
-
----
-
-### 4.8 Mis documentos
-
-**Ruta:** `/{locale}/dashboard/documentos`
-**Rol:** miembro
-**Patrones referenciados:** Design System
-
-**Prompt:**
-
-```
-Diseña la pantalla "Mis documentos" del miembro.
-
-OBJETIVO: ver y descargar documentos médicos personales.
-
-SECCIONES:
-1. Header h1 + subtítulo.
+Secciones:
+1. Header h1 "Mis Documentos Médicos" + subtítulo.
 2. Toolbar:
    - Search "Buscar documento…".
-   - Filtros: tipo de documento (chips), año (select).
-3. Lista o grid (toggle):
-   - DocumentoCard:
-     - Ícono grande tipo archivo (PDF, imagen).
-     - Nombre del documento Poppins semibold.
-     - Tipo (badge) + fecha del documento.
-     - Acciones: descargar (ícono Download) + previsualizar (ícono
-       Eye) si es PDF/imagen.
+   - Filtros: tipo (chips), año (select).
+   - Toggle lista/grid.
+3. Grid o lista de cards:
+   DocumentoCard:
+   - Ícono grande tipo archivo (FileText/Image).
+   - Nombre Poppins semibold.
+   - Tipo badge + fecha del documento DD/MM/YYYY.
+   - Acciones: download (Download) + preview (Eye) si PDF/imagen.
 4. Pagination.
 
-ESTADOS:
-- Skeleton 6 cards.
-- Empty: EmptyState "Tu empresa aún no ha subido documentos".
-- Error: ErrorState.
+Estados: skeleton 6 cards; empty "Tu empresa aún no ha subido
+documentos"; error.
 
-PREVIEW: cuando se hace click en preview de PDF/imagen, abre en una
-nueva pestaña o navega a /documentos/[id]/ver (NO modal). Para
-documentos pequeños se puede usar un sheet inferior móvil con
-viewer embedded.
+Preview: click → nueva pestaña o navega /documentos/[id]/ver.
+NUNCA modal. Móvil: sheet inferior con viewer embedded.
 
-RESPONSIVE:
-- <md: 1 col cards.
-- md: 2 cols.
-- lg+: 3 cols.
+Responsive: 1 / 2 / 3 cols.
 
-REGLAS: sin modales para subir (el miembro no sube — solo admin).
-```
+═══════════════════════════════════════════════════════════════════
+PANTALLA 9 — MI FAMILIA (/dashboard/familia)
+═══════════════════════════════════════════════════════════════════
 
----
-
-### 4.9 Mi familia
-
-**Ruta:** `/{locale}/dashboard/familia`
-**Rol:** miembro
-**Patrones referenciados:** Página-Formulario, Design System
-
-**Prompt:**
-
-```
-Diseña la pantalla "Mi familia" del miembro.
-
-OBJETIVO: gestionar familiares incluidos en el plan.
-
-SECCIONES:
+Secciones:
 1. Header:
-   - h1 "Mi familia" + chip "X / Y miembros usados".
-   - Botón primary "+ Agregar familiar" navega a
-     /familia/nuevo (página, no modal).
-2. Barra de progreso de cupos usados (si el plan tiene límite).
+   - h1 "Mi Familia" + chip "X / Y miembros usados".
+   - Botón primary "+ Agregar Familiar" navega /familia/nuevo
+     (página, NUNCA modal).
+2. Barra de progreso de cupos usados (si plan con límite).
 3. Grid de familiares (2 cols md, 3 cols lg):
-   - FamiliarCard:
-     - Avatar con iniciales 56px.
-     - Nombre completo Poppins semibold.
-     - Relación (Hijo/a, Cónyuge, Padre/Madre, etc.) badge.
-     - Fecha de nacimiento + edad.
-     - Acciones: Editar (link a /familia/[id]/editar) + Eliminar
-       (confirm-in-place).
+   FamiliarCard rounded-2xl shadow-sm:
+   - Avatar iniciales 56 con border-2 border-white shadow-sm.
+   - Nombre Poppins semibold.
+   - Relación (Hijo/a, Cónyuge, etc.) badge.
+   - Fecha nacimiento DD/MM/YYYY + edad.
+   - Acciones: Editar (link /familia/[id]/editar) + Eliminar
+     (confirm-in-place).
 
-ESTADOS:
-- Skeleton 4 cards.
-- Empty: EmptyState "Agrega familiares para incluirlos en tu plan".
-- Error: ErrorState.
-- Cupo lleno: banner amarillo "Has alcanzado el límite de
-  familiares. Contacta a tu empresa para ampliar."
+Estados: skeleton 4 cards; empty "Agrega familiares para incluirlos
+en tu plan"; error; cupo lleno: banner warning "Has alcanzado el
+límite. Contacta a tu empresa para ampliar."
 
-RESPONSIVE:
-- <md: 1 col.
-- md+: 2-3 cols.
+Responsive: 1 / 2 / 3 cols.
 
-REGLAS: agregar/editar van a páginas dedicadas. Eliminar es
-confirm-in-place.
-```
+═══════════════════════════════════════════════════════════════════
+PANTALLA 10 — MIS AJUSTES (/dashboard/ajustes)
+═══════════════════════════════════════════════════════════════════
 
----
+NO modal — página de configuración personal con navegación interna.
 
-### 4.10 Mis ajustes
+Layout:
+- Sidebar interno izquierdo (lg+) con navegación de secciones:
+  "Perfil", "Seguridad", "Notificaciones", "Idioma".
+- Contenido principal: form de la sección actual.
 
-**Ruta:** `/{locale}/dashboard/ajustes`
-**Rol:** miembro
-**Patrones referenciados:** Página-Formulario, Design System
+Secciones (cada una en su propia card con botón Guardar):
 
-**Prompt:**
-
-```
-Diseña la pantalla "Mis ajustes" del miembro (es una página de
-configuración personal, NO un modal).
-
-OBJETIVO: editar datos personales, contraseña, MFA, preferencias.
-
-LAYOUT:
-- Sidebar izquierdo (lg+): navegación interna de secciones
-  ("Perfil", "Seguridad", "Notificaciones", "Idioma").
-- Contenido principal: formulario de la sección actual.
-
-SECCIONES (cada una es un form en card propia):
 1. PERFIL:
-   - Avatar con botón "Cambiar foto" debajo.
+   - Avatar 96 con botón "Cambiar foto" debajo.
    - Nombre completo, cédula (readonly), email (readonly),
-     teléfono, fecha nacimiento, sexo.
-   - Botón "Guardar cambios" derecha del header de sección.
+     teléfono +505, fecha nacimiento DD/MM/YYYY, sexo (select).
+
 2. SEGURIDAD:
-   - Cambiar contraseña: campos actual + nueva + confirmar +
-     medidor de fortaleza.
-   - MFA: estado actual + botón activar/desactivar (lleva a
-     /mfa/verificar para enrolar).
-   - Sesiones activas: lista con dispositivo + ubicación + última
+   - Cambiar contraseña: actual + nueva + confirmar + medidor
+     fortaleza (segmentos débil/medio/fuerte/excelente).
+   - MFA: estado + botón activar/desactivar (link /mfa/verificar).
+   - Sesiones activas: lista dispositivo + ubicación + última
      actividad + botón "Cerrar".
+
 3. NOTIFICACIONES:
-   - Switches: Email · WhatsApp · In-app por categoría
+   - Switches por canal (Email · WhatsApp · In-app) y por categoría
      (citas, avisos, beneficios).
+
 4. IDIOMA:
    - Select: Español · English.
 
-ESTADOS:
-- Loading global al guardar: spinner en botón + disabled inputs.
-- Toast verde "Guardado" con sonner.
-- Error: banner rojo arriba del form.
+Estados: loading global al guardar; toast sonner verde "Guardado";
+error: banner rojo arriba del form.
 
-RESPONSIVE:
-- <md: navegación lateral colapsa a tabs horizontales con scroll-x.
-- md+: sidebar lateral + contenido.
-
-REGLAS: sin modales. Cada sección guarda independientemente.
+Responsive:
+- <md: nav lateral colapsa a tabs horizontales scroll-x.
+- md+: sidebar + contenido.
 ```
 
 ---
 
 ## 5. Empresa_admin
 
-### 5.1 Home empresa
+> **Un único prompt** para las 5 pantallas del rol empresa_admin. Tono operacional, denso, neutral: *"Control total del ecosistema Club SOS Medical."*, *"Gestiona los registros, citas y beneficios de tu equipo de un vistazo."*.
 
-**Ruta:** `/{locale}/dashboard/empresa`
-**Rol:** empresa_admin
-**Patrones referenciados:** Layout shell, Design System
-
-**Prompt:**
+### Prompt § 5 — Generar las 5 pantallas del empresa_admin
 
 ```
-Diseña el Home del empresa_admin de clubSOS. Es el administrador de
-una empresa cliente que gestiona a sus miembros afiliados.
+Genera 5 mockups responsive para el rol "empresa_admin" de clubSOS.
+Aplica el design system, los patrones del § 2, voz operacional y
+densa (no usa el tono friendly del miembro). Locale es-NI.
 
-OBJETIVO: dashboard ejecutivo de la empresa con KPIs, uso de
-contratos, citas pendientes y miembros recientes.
+Layout shell común: sidebar + topbar glass; content padding 16/24/32.
 
-SECCIONES:
-1. Hero saludo:
-   - "Hola, [Nombre]" h1.
-   - Subtítulo "Panel de [Nombre Empresa]".
+═══════════════════════════════════════════════════════════════════
+PANTALLA 1 — HOME EMPRESA (/dashboard/empresa)
+═══════════════════════════════════════════════════════════════════
 
-2. CARD DESTACADA: Uso de contratos
-   - Background gradient sutil secondary→primary muy claro.
-   - Título "Uso del contrato".
-   - Métricas: Contratados X / Activos Y / Disponibles Z.
-   - Barra de progreso grande (h-4 rounded-full).
-   - Texto pequeño "Renovación: dd/mm/aaaa".
+Secciones:
+1. Hero saludo: "Hola, {Nombre}" h1 + "Panel de {Nombre Empresa}"
+   subtítulo.
+2. CARD DESTACADA "Uso del contrato":
+   - Background bg-surface, border, shadow-sm (NO gradiente).
+   - Título "Uso del contrato" Poppins semibold.
+   - Métricas: "Contratados X · Activos Y · Disponibles Z"
+     (separador ·).
+   - Barra de progreso grande h-4 rounded-full bg-secondary.
+   - Texto sm "Renovación: DD/MM/YYYY".
+3. Alert banner condicional (citas_pendientes > 0):
+   warning amarillo + AlertTriangle + texto "Tienes X citas
+   pendientes de aprobación" + botón outline "Revisar".
+4. KPI cards (grid 2x2 móvil, 4x1 md+):
+   - Total miembros (Users)
+   - Miembros activos (UserCheck)
+   - Miembros pendientes (UserX, color warning si > 0)
+   - Citas del mes (CalendarDays)
+   Cada card: ícono lucide 24 en círculo color/10, número 32
+   Poppins bold, label sm Roboto neutral. Border-gray-100 +
+   shadow-sm + hover:shadow-md hover:-translate-y-0.5.
+5. Quick actions row (3 pills):
+   "Nuevo Miembro" (UserPlus) → /empresa/usuarios/nuevo,
+   "Ver Reportes" (BarChart3) → /empresa/reportes,
+   "Ajustes" (Settings) → /empresa/ajustes.
+6. Grid 2 cols lg+:
+   A. Citas pendientes: lista 5 con nombre miembro + servicio +
+      fecha + badge estado + acciones (Aprobar/Rechazar
+      confirm-in-place).
+   B. Miembros recientes: lista 5 con avatar + nombre + email +
+      chip estado.
+7. Gráfica "Citas por servicio" (donut o bar) en card propia.
+   Series con colores secondary (#2266A7) y primary (#CD2129).
 
-3. ALERT BANNER (condicional, si citas_pendientes > 0):
-   - Banner amarillo warning con AlertTriangle + texto
-     "Tienes X citas pendientes de aprobación" + botón "Revisar".
+Estados: skeleton por sección; empty por lista vacía; error por
+bloque.
 
-4. KPI CARDS (grid 2x2 móvil, 4x1 md+):
-   - Total miembros
-   - Miembros activos
-   - Miembros pendientes (color warning si > 0)
-   - Citas del mes
-   Cada card: ícono lucide 24 en círculo color/10, número 32px
-   Poppins bold, label sm Roboto neutral.
+Responsive: <md 1 col; md KPIs 2x2; lg+ KPIs 4x1 + listas 2 cols.
 
-5. QUICK ACTIONS ROW (3 pills):
-   - "Nuevo miembro" (UserPlus) link a /empresa/usuarios/nuevo
-   - "Ver reportes" (BarChart) link a /empresa/reportes
-   - "Ajustes" (Settings) link a /empresa/ajustes
+═══════════════════════════════════════════════════════════════════
+PANTALLA 2 — CITAS EMPRESA (/dashboard/empresa/citas)
+═══════════════════════════════════════════════════════════════════
 
-6. GRID 2 COLS (lg+):
-   A. Citas pendientes
-      - Header "Citas pendientes" + link "Ver todas →"
-      - Lista de 5 con: nombre miembro + servicio + fecha + badge
-        estado + acciones (Aprobar / Rechazar) confirm-in-place.
-   B. Miembros recientes
-      - Header + link.
-      - Lista de 5 con: avatar + nombre + email + chip estado.
+Usa patrón Tabla 3:1 del § 2.
 
-7. GRÁFICA "Citas por servicio"
-   - Donut o bar chart abajo, card propia.
-   - Leyenda lateral con colores y porcentajes.
+Columnas tabla:
+- Miembro (avatar + nombre)
+- Servicio
+- Doctor
+- Fecha y hora (DD/MM/YYYY, 12h a.m./p.m.)
+- Estado (badge: pendiente_empresa warning, pendiente info,
+  confirmado success, completado neutral, cancelado/rechazado error)
+- Acciones (icon buttons: ver, aprobar, rechazar)
 
-ESTADOS:
-- Skeleton independiente por sección.
-- Empty para cada lista vacía.
-- Error por bloque sin romper los demás.
-
-RESPONSIVE:
-- <md: stack 1 col.
-- md: KPIs 2x2, otras secciones 1 col.
-- lg+: KPIs 4x1, listas 2 cols.
-
-REGLAS: aprobar/rechazar citas son confirm-in-place. Sin modales.
-```
-
----
-
-### 5.2 Citas empresa
-
-**Ruta:** `/{locale}/dashboard/empresa/citas`
-**Rol:** empresa_admin
-**Patrones referenciados:** Tabla 3:1, Design System
-
-**Prompt:**
-
-```
-Diseña la pantalla de citas para empresa_admin de clubSOS.
-
-OBJETIVO: ver TODAS las citas de los miembros de la empresa y
-aprobar/rechazar las pendientes_empresa.
-
-USA EL PATRÓN TABLA 3:1 de § 2.2.
-
-COLUMNAS DE TABLA:
-- Miembro (avatar + nombre).
-- Servicio.
-- Doctor.
-- Fecha y hora.
-- Estado (badge: pendiente_empresa naranja, pendiente azul,
-  confirmado verde, completado gris, cancelado/rechazado rojo).
-- Acciones (icon buttons: ver, aprobar, rechazar).
-
-FILTROS DEL PANEL LATERAL (Modo A — sin selección):
+Panel MODO A (sin selección):
 - KPIs mini: Total mes / Pendientes / Confirmadas / Canceladas.
-- Filtros expandidos:
-  - Estado (multi-select).
-  - Servicio (select).
-  - Rango de fechas (date range).
-  - Miembro (search).
+- Filtros expandidos: estado (multi), servicio (select), rango
+  fechas (date range), miembro (search).
 - Acciones: Exportar CSV.
 
-PANEL CON SELECCIÓN (Modo B):
+Panel MODO B (con selección):
 - Avatar miembro + nombre + email.
 - Servicio · Doctor · Ubicación · Fecha · Cita ID.
 - Estado actual badge grande.
 - Acciones contextuales:
-  - Si pendiente_empresa: "Aprobar" (primary) + "Rechazar" (outline,
-    error). Ambas son confirm-in-place con mensaje opcional.
-  - Si otros estados: solo "Ver historial" + "Contactar miembro".
+  - Si pendiente_empresa: "Aprobar" (primary) + "Rechazar" (outline
+    destructive) ambos confirm-in-place con textarea mensaje
+    opcional.
+  - Otros estados: "Ver historial" + "Contactar miembro".
 
-ESTADOS:
-- Skeleton de 8 filas.
-- Empty: "No hay citas que coincidan con los filtros".
-- Error.
+Hereda estados y responsive del patrón Tabla 3:1.
 
-RESPONSIVE: hereda del patrón Tabla 3:1.
+═══════════════════════════════════════════════════════════════════
+PANTALLA 3 — USUARIOS EMPRESA (/dashboard/empresa/usuarios)
+═══════════════════════════════════════════════════════════════════
 
-REGLAS: aprobar/rechazar = confirm-in-place inline con campo de
-mensaje opcional. Sin modales.
-```
+Usa patrón Tabla 3:1.
 
----
+Columnas: avatar+nombre, email, cédula, rol badge (miembro/
+empresa_admin), estado badge, fecha registro DD/MM/YYYY,
+acciones (ver/editar/suspender).
 
-### 5.3 Usuarios empresa
-
-**Ruta:** `/{locale}/dashboard/empresa/usuarios`
-**Rol:** empresa_admin
-**Patrones referenciados:** Tabla 3:1, Página-Formulario, Design System
-
-**Prompt:**
-
-```
-Diseña la pantalla de gestión de usuarios (miembros) de la empresa.
-
-OBJETIVO: lista de miembros con búsqueda, filtros, crear/editar/
-suspender.
-
-USA EL PATRÓN TABLA 3:1.
-
-COLUMNAS:
-- Avatar + nombre.
-- Email.
-- Cédula.
-- Rol (miembro / empresa_admin) badge.
-- Estado (activo / pendiente / suspendido) badge.
-- Fecha registro.
-- Acciones: ver, editar, suspender/activar.
-
-PANEL MODO A (sin selección):
+Panel MODO A:
 - KPIs: Total / Activos / Pendientes / Suspendidos.
-- Filtros: estado, rol, búsqueda nombre/email/cédula.
-- Botones: Exportar CSV, Importar masivo (link a página
+- Filtros: estado, rol, búsqueda.
+- Botones: Exportar CSV, Importar masivo (link a
   /empresa/usuarios/importar, NO modal).
 
-PANEL MODO B (con selección):
+Panel MODO B:
 - Avatar + datos resumen.
-- Acciones: Editar (link a /empresa/usuarios/[id]/editar, NO modal),
-  Ver historial de citas, Suspender/Activar (confirm-in-place),
+- Acciones: Editar (link /empresa/usuarios/[id]/editar, NO modal),
+  Ver historial citas, Suspender/Activar (confirm-in-place),
   Reenviar invitación.
 
-CREAR NUEVO USUARIO:
-- Botón primary toolbar "+ Nuevo miembro" link a
-  /empresa/usuarios/nuevo (página dedicada usando patrón
-  Página-Formulario § 2.4).
-- Esa página tiene form con: nombre, email, cédula, teléfono, rol,
-  contrato asignado (select). Botones Cancelar / Crear.
+Botón primary toolbar: "+ Nuevo Miembro" link /empresa/usuarios/nuevo
+(página dedicada usando patrón Página-Formulario del § 2).
 
-ESTADOS: hereda Tabla 3:1.
+═══════════════════════════════════════════════════════════════════
+PANTALLA 4 — REPORTES EMPRESA (/dashboard/empresa/reportes)
+═══════════════════════════════════════════════════════════════════
 
-RESPONSIVE: hereda Tabla 3:1.
+Secciones:
+1. Header h1 "Reportes" + subtítulo + selector rango fechas.
+2. Tabs: "Resumen" (default) · "Citas" · "Beneficios" · "Documentos".
 
-REGLAS: editar/crear = página. Suspender = confirm-in-place. Sin
-modales.
-```
+RESUMEN:
+- 4 KPIs grandes (grid 2x2 móvil, 4x1 md+).
+- Gráfica línea "Citas por mes" (12 meses) — series color secondary.
+- Donut "Distribución por servicio".
+- Tabla compacta "Top 5 miembros activos".
 
----
+CITAS:
+- KPIs específicos.
+- Heatmap calendar (citas por día).
+- Stacked bar (estados por mes).
+- Tabla por servicio.
 
-### 5.4 Reportes empresa
+BENEFICIOS:
+- Beneficios más usados (top 10 horizontal bar).
+- Total reclamos / Tasa de uso / Activos.
 
-**Ruta:** `/{locale}/dashboard/empresa/reportes`
-**Rol:** empresa_admin
-**Patrones referenciados:** Design System
+DOCUMENTOS:
+- Total / Promedio por miembro.
+- Tabla por tipo.
 
-**Prompt:**
+Footer fixed: botón outline derecha "Exportar reporte (PDF)" →
+genera PDF y dispara toast con link.
 
-```
-Diseña la pantalla de reportes para empresa_admin.
+Estados: skeleton por gráfica; empty si rango sin datos; error.
 
-OBJETIVO: visualizaciones agregadas sobre uso del plan por sus
-miembros.
+Responsive: <md gráficas apiladas full-width; md+ grids 2 cols.
 
-SECCIONES:
-1. Header h1 "Reportes" + subtítulo.
-2. Toolbar global:
-   - Selector de rango de fechas (date range picker).
-   - Tabs: "Resumen" · "Citas" · "Beneficios" · "Documentos".
+═══════════════════════════════════════════════════════════════════
+PANTALLA 5 — AJUSTES EMPRESA (/dashboard/empresa/ajustes)
+═══════════════════════════════════════════════════════════════════
 
-3. RESUMEN (tab default):
-   - 4 KPIs grandes arriba (grid 2x2 móvil, 4x1 md+).
-   - Gráfica de línea: Citas por mes (12 meses).
-   - Donut: Distribución por servicio.
-   - Tabla compacta: Top 5 miembros activos.
+Layout: sidebar interno con secciones (lg+) / tabs scroll-x móvil.
 
-4. CITAS:
-   - KPIs específicos.
-   - Heatmap calendar (citas por día).
-   - Stacked bar: estados por mes.
-   - Tabla por servicio con métricas.
-
-5. BENEFICIOS:
-   - Beneficios más usados (top 10 horizontal bar).
-   - Total reclamos / Tasa de uso / Beneficios activos.
-
-6. DOCUMENTOS:
-   - Total documentos / Promedio por miembro.
-   - Tabla por tipo.
-
-7. Footer fixed: botón outline "Exportar reporte (PDF)" derecha.
-
-ESTADOS:
-- Skeleton por gráfica.
-- Empty si rango sin datos.
-- Error por sección.
-
-RESPONSIVE:
-- <md: gráficas full-width apiladas.
-- md+: grids 2 cols donde aplique.
-
-REGLAS: sin modales. Exportar genera PDF y dispara toast con link.
-```
-
----
-
-### 5.5 Ajustes empresa
-
-**Ruta:** `/{locale}/dashboard/empresa/ajustes`
-**Rol:** empresa_admin
-**Patrones referenciados:** Página-Formulario, Design System
-
-**Prompt:**
-
-```
-Diseña la pantalla de ajustes de la empresa.
-
-OBJETIVO: editar datos generales de la empresa, contrato, logo,
-preferencias de notificación.
-
-LAYOUT:
-- Sidebar interno con secciones (lg+): "Datos generales",
-  "Contrato", "Branding", "Notificaciones".
-- En móvil: tabs horizontales con scroll-x.
-
-SECCIONES:
+Secciones:
 1. DATOS GENERALES:
-   - Logo upload (avatar 96px + botón cambiar).
-   - Nombre legal, RUC, dirección, teléfono contacto, email contacto.
-2. CONTRATO (readonly mostly):
-   - Tipo de plan, total contratado, fecha inicio/fin.
-   - Si admin global permite: botón "Solicitar ampliación".
+   - Logo upload (avatar 96 + botón cambiar).
+   - Nombre legal, RUC, dirección, teléfono +505, email contacto.
+2. CONTRATO (mostly readonly):
+   - Tipo plan, total contratado, fechas inicio/fin DD/MM/YYYY.
+   - Si admin global lo permite: botón "Solicitar ampliación".
 3. BRANDING:
-   - Color primario opcional (color picker) — solo para
-     personalización dentro de límites.
+   - Color primario opcional (color picker dentro de límites).
 4. NOTIFICACIONES:
-   - Switches por tipo: nuevo miembro, cita pendiente, etc.
-   - Configurar destinatarios (multi-email input).
+   - Switches por tipo (nuevo miembro, cita pendiente, etc.).
+   - Multi-email input para destinatarios.
 
-ESTADOS:
-- Loading guardar.
-- Toast verde "Guardado".
-- Error banner.
+Cada sección guarda independiente.
 
-RESPONSIVE:
-- <md: tabs scroll-x.
-- md+: sidebar + contenido.
+Estados: loading guardar; toast verde "Guardado"; error banner.
 
-REGLAS: sin modales. Cada sección guarda independientemente.
+Responsive: <md tabs scroll-x; md+ sidebar + contenido.
 ```
 
 ---
+
 ## 6. Admin
 
-### 6.1 Home admin
+> **Un único prompt** para las 16 pantallas del admin global. Tono operacional, neutral, denso. Es un prompt extenso — Claude Design lo procesa en serie generando cada pantalla como un mockup independiente.
 
-**Ruta:** `/{locale}/dashboard/admin`
-**Rol:** admin
-**Patrones referenciados:** Layout shell, Design System
-
-**Prompt:**
+### Prompt § 6 — Generar las 16 pantallas del admin
 
 ```
-Diseña el Home del admin global de clubSOS.
+Genera 16 mockups responsive para el rol "admin global" de clubSOS
+(SOS Medical staff). Aplica design system + patrones del § 2.
+Voz operacional, locale es-NI.
 
-OBJETIVO: vista global de la plataforma — todas las empresas, todos
-los usuarios, todas las citas.
+═══════════════════════════════════════════════════════════════════
+PANTALLA 1 — HOME ADMIN (/dashboard/admin)
+═══════════════════════════════════════════════════════════════════
 
-SECCIONES:
-1. Hero: "Hola, [Nombre]" + "Panel global".
+1. Hero "Hola, {Nombre}" + "Panel global".
+2. Alert banner si citas_pendientes > 0 (warning + CTA "Revisar").
+3. KPIs (6 cards: grid 2 móvil, 3 md, 6 lg):
+   Total empresas, Empresas activas, Total usuarios, Usuarios activos,
+   Citas pendientes (warning si > 0), Citas del mes.
+   Card aparte abajo: Documentos totales + Beneficios activos.
+4. Quick actions row (4 pills):
+   "Nueva Empresa" (Building2) → /admin/empresas/nuevo
+   "Nuevo Doctor" (Stethoscope) → /admin/doctores/nuevo
+   "Subir Documento" (FileText) → /admin/documentos/subir
+   "Crear Beneficio" (Gift) → /admin/beneficios/nuevo
+5. Grid 2 cols lg+:
+   A. Citas pendientes globales (8): miembro + empresa + servicio +
+      fecha + acciones (Aprobar/Rechazar confirm-in-place + Ver
+      detalle link).
+   B. Empresas recientes (5): logo + nombre + contrato + fecha.
+6. Gráfica "Citas por servicio" global.
 
-2. ALERT BANNER (si citas_pendientes > 0): warning con CTA "Revisar".
+Estados: skeleton por sección; empty / error por bloque.
 
-3. KPIs (6 cards: grid 2 cols móvil, 3 md, 6 lg):
-   - Total empresas
-   - Empresas activas
-   - Total usuarios
-   - Usuarios activos
-   - Citas pendientes (warning si > 0)
-   - Citas del mes
-   Más abajo en card aparte: Documentos totales + Beneficios activos.
+═══════════════════════════════════════════════════════════════════
+PANTALLA 2 — USUARIOS ADMIN (/dashboard/admin/usuarios)
+═══════════════════════════════════════════════════════════════════
 
-4. QUICK ACTIONS ROW (4 pills):
-   - Nueva empresa (link a /admin/empresas/nuevo)
-   - Nuevo doctor (link a /admin/doctores/nuevo)
-   - Subir documento (link a /admin/documentos/subir)
-   - Crear beneficio (link a /admin/beneficios/nuevo)
+Patrón Tabla 3:1.
 
-5. GRID 2 COLS (lg+):
-   A. Citas pendientes (global):
-      - Lista de 8 con miembro + empresa + servicio + fecha + acciones
-        (Aprobar/Rechazar confirm-in-place + Ver detalle link).
-   B. Empresas recientes:
-      - Lista de 5 con logo + nombre + contrato + fecha.
+Columnas: avatar+nombre, email, cédula, empresa badge, rol
+(admin/empresa_admin/miembro), estado, fecha registro.
 
-6. GRÁFICA "Citas por servicio" global.
+Panel A: KPIs Total/Activos/Pendientes/Suspendidos; filtros
+empresa multi + rol + estado + búsqueda; exportar/importar masivo
+(link a página).
 
-ESTADOS:
-- Skeleton independiente por sección.
-- Empty / Error por bloque.
+Panel B: datos resumen; acciones Editar (link), Ver citas,
+Suspender (confirm-in-place), Cambiar rol (confirm-in-place con
+select inline), Eliminar (link a /admin/usuarios/[id]/eliminar
+página dedicada con warning de impacto).
 
-RESPONSIVE:
-- <md: 1 col stack.
-- md: KPIs 3 cols, otros 1 col.
-- lg+: KPIs 6 cols, grid 2 cols, gráfica full-width.
+Crear/editar = páginas /admin/usuarios/nuevo y /[id]/editar.
 
-REGLAS: aprobar/rechazar = confirm-in-place. Sin modales.
-```
+═══════════════════════════════════════════════════════════════════
+PANTALLA 3 — DOCTORES LISTA (/dashboard/admin/doctores)
+═══════════════════════════════════════════════════════════════════
 
----
+Patrón Tabla 3:1.
 
-### 6.2 Usuarios admin
+Columnas: avatar+nombre, especialidad, ubicación principal,
+servicios cubiertos (chips truncados a 2 + "+N"), estado, acciones.
 
-**Ruta:** `/{locale}/dashboard/admin/usuarios`
-**Rol:** admin
-**Patrones referenciados:** Tabla 3:1, Página-Formulario, Design System
+Panel A: KPIs Total/Activos/Inactivos; filtros especialidad,
+ubicación, servicio, estado.
 
-**Prompt:**
+Panel B: avatar grande + datos; servicios completos; horarios
+resumen; acciones Ver detalle (link /admin/doctores/[id]), Editar,
+Gestionar horarios (link /admin/doctores/[id]?tab=horarios),
+Inactivar (confirm-in-place).
 
-```
-Diseña la pantalla global de usuarios (todos los usuarios de todas
-las empresas) para admin.
+Botón primary: "+ Nuevo Doctor" link /admin/doctores/nuevo.
 
-USA EL PATRÓN TABLA 3:1.
+═══════════════════════════════════════════════════════════════════
+PANTALLA 4 — DOCTOR DETALLE (/dashboard/admin/doctores/[id])
+═══════════════════════════════════════════════════════════════════
 
-COLUMNAS:
-- Avatar + nombre.
-- Email.
-- Cédula.
-- Empresa (badge).
-- Rol (admin / empresa_admin / miembro).
-- Estado (activo / pendiente / suspendido).
-- Fecha registro.
+Reemplaza modal. Layout con tabs.
 
-PANEL MODO A:
-- KPIs: Total / Activos / Pendientes / Suspendidos.
-- Filtros: empresa (multi-select), rol, estado, búsqueda.
-- Acciones: Exportar, Importar masivo (link a página).
-
-PANEL MODO B:
-- Datos resumen.
-- Acciones: Editar (link), Ver citas, Suspender (confirm-in-place),
-  Cambiar rol (confirm-in-place con select inline), Eliminar
-  (link a /admin/usuarios/[id]/eliminar página dedicada con
-  warning de impacto).
-
-CREAR / EDITAR: páginas dedicadas
-- /admin/usuarios/nuevo y /admin/usuarios/[id]/editar.
-
-ESTADOS / RESPONSIVE: heredan Tabla 3:1.
-
-REGLAS: sin modales para forms.
-```
-
----
-
-### 6.3 Doctores (lista)
-
-**Ruta:** `/{locale}/dashboard/admin/doctores`
-**Rol:** admin
-**Patrones referenciados:** Tabla 3:1, Página-Formulario, Design System
-
-**Prompt:**
-
-```
-Diseña la pantalla de gestión de doctores.
-
-USA EL PATRÓN TABLA 3:1.
-
-COLUMNAS:
-- Avatar + nombre.
-- Especialidad.
-- Ubicación principal.
-- Servicios cubiertos (chips truncados a 2 + "+N").
-- Estado (activo/inactivo).
-- Acciones: ver detalle (link a /admin/doctores/[id]), editar (link),
-  activar/inactivar (confirm-in-place).
-
-PANEL MODO A:
-- KPIs: Total / Activos / Inactivos.
-- Filtros: especialidad, ubicación, servicio, estado.
-
-PANEL MODO B:
-- Avatar grande + nombre + especialidad.
-- Servicios completos lista.
-- Horarios resumen.
-- Acciones: Ver detalle (link), Editar (link),
-  Gestionar horarios (link a /admin/doctores/[id]?tab=horarios),
-  Inactivar (confirm-in-place).
-
-BOTÓN PRIMARY toolbar: "+ Nuevo doctor" link a
-/admin/doctores/nuevo (NO modal — página completa con form usando
-Página-Formulario).
-
-ESTADOS / RESPONSIVE: heredan Tabla 3:1.
-
-REGLAS: sin modales.
-```
-
----
-
-### 6.4 Doctor detalle
-
-**Ruta:** `/{locale}/dashboard/admin/doctores/[id]`
-**Rol:** admin
-**Patrones referenciados:** Página-Formulario, Design System
-
-**Prompt:**
-
-```
-Diseña la página de detalle de un doctor con tabs (reemplaza modal).
-
-LAYOUT:
-- Breadcrumb "Doctores / [Nombre]".
+- Breadcrumb "Doctores › [Nombre]".
 - Header: avatar grande + nombre + especialidad + badges (estado,
   ubicación) + botones derecha (Editar link, Inactivar
   confirm-in-place).
 - Tabs horizontales: "Información" · "Servicios" · "Horarios" ·
   "Excepciones" · "Citas".
 
-CONTENIDO POR TAB:
-1. INFORMACIÓN:
-   - Card con datos personales (cédula, email, teléfono, dirección).
-   - Card con datos profesionales (registro médico, biografía,
-     idiomas).
-2. SERVICIOS:
-   - Lista de servicios habilitados con duración y tarifa.
-   - Botón "+ Agregar servicio" navega a página /servicios o abre
-     select inline.
-3. HORARIOS:
-   - Calendario semanal con bloques de disponibilidad por día.
-   - Botón "Agregar horario" link a /admin/doctores/[id]/horarios/
-     nuevo.
-4. EXCEPCIONES:
-   - Lista de fechas excluidas (vacaciones, feriados).
-   - Botón link a /admin/excepciones/nuevo.
-5. CITAS:
-   - Mini-tabla de las últimas 20 citas del doctor.
+Tabs:
+1. INFORMACIÓN: card datos personales (cédula, email, teléfono +505,
+   dirección); card datos profesionales (registro médico, biografía,
+   idiomas).
+2. SERVICIOS: lista habilitados con duración + tarifa; botón
+   "+ Agregar servicio" abre select inline o lleva a página.
+3. HORARIOS: calendario semanal con bloques de disponibilidad;
+   botón "Agregar horario" link /admin/doctores/[id]/horarios/nuevo.
+4. EXCEPCIONES: lista fechas excluidas; botón link /admin/excepciones/nuevo.
+5. CITAS: mini-tabla últimas 20 citas del doctor.
 
-ESTADOS: skeleton del tab activo, empty para cada lista.
+Estados: skeleton del tab activo; empty para cada lista.
 
-RESPONSIVE:
-- <md: tabs scroll-x, contenido full-width.
-- md+: tabs horizontales completos.
+Responsive: <md tabs scroll-x; md+ tabs completos.
 
-REGLAS: sin modales. Todo crear/editar va a página.
-```
+═══════════════════════════════════════════════════════════════════
+PANTALLA 5 — DOCTOR CREAR/EDITAR (/dashboard/admin/doctores/nuevo y /[id]/editar)
+═══════════════════════════════════════════════════════════════════
 
----
+Página-Formulario del § 2.
 
-### 6.5 Doctor crear/editar (página)
-
-**Ruta:** `/{locale}/dashboard/admin/doctores/nuevo` y `/[id]/editar`
-**Rol:** admin
-**Patrones referenciados:** Página-Formulario, Design System
-
-**Prompt:**
-
-```
-Diseña la página de crear/editar doctor (reemplaza
-AdminDoctorFormModal).
-
-USA EL PATRÓN PÁGINA-FORMULARIO § 2.4.
-
-SECCIONES (en una sola página, scroll vertical):
-1. Datos personales:
-   - Avatar upload + nombre completo + cédula + email + teléfono.
-2. Datos profesionales:
-   - Registro médico, especialidad (select), idiomas (multi).
+Secciones scroll vertical:
+1. Datos personales: avatar upload, nombre, cédula, email,
+   teléfono +505.
+2. Datos profesionales: registro médico, especialidad (select),
+   idiomas (multi).
 3. Ubicación principal y secundarias (multi-select).
-4. Servicios habilitados (multi-select de servicios existentes,
-   con duración por defecto).
+4. Servicios habilitados (multi-select con duración por defecto).
 5. Estado (switch activo/inactivo, solo en edición).
-6. Biografía (textarea con character counter).
+6. Biografía (textarea con counter).
 
-ACCIONES:
-- Header: Breadcrumb + h1 "Nuevo doctor" / "Editar [Nombre]".
-- Action bar: Cancelar (vuelve a /admin/doctores) + Crear/Guardar.
+Header: breadcrumb + h1 "Nuevo doctor" / "Editar [Nombre]".
+Action bar: Cancelar (vuelve /admin/doctores) + Crear/Guardar.
 
-VALIDACIÓN: en vivo por campo. Resumen de errores arriba al
-intentar enviar.
+Validación inline; resumen errores arriba al enviar; loading;
+toast verde + redirect; error banner.
 
-ESTADOS:
-- Loading durante envío.
-- Toast verde "Doctor creado" + redirect a /admin/doctores.
-- Error banner arriba.
+═══════════════════════════════════════════════════════════════════
+PANTALLA 6 — SERVICIOS (/dashboard/admin/servicios + /nuevo + /[id]/editar)
+═══════════════════════════════════════════════════════════════════
 
-RESPONSIVE:
-- <md: 1 col, action bar sticky bottom.
-- md+: 2 cols en secciones anchas, action bar en header.
+Patrón Tabla 3:1.
 
-REGLAS: sin modales. Cancelar es navegación, no modal de confirmar
-descartar (a menos que haya cambios sin guardar — entonces
-confirm-in-place "¿Descartar cambios?").
-```
+Columnas: nombre con ícono, categoría badge, duración slot (min),
+tarifa, doctores que lo ofrecen (contador chip), estado, acciones.
 
----
+Panel A: KPIs Total/Activos/Categorías; filtros categoría, estado.
 
-### 6.6 Servicios (lista + crear/editar)
+Panel B: detalle servicio; acciones Editar (link),
+Ver doctores (link /admin/doctores filtrado), Duplicar (link
+/nuevo precargado), Inactivar (confirm-in-place).
 
-**Ruta:** `/{locale}/dashboard/admin/servicios` (+ /nuevo y /[id]/editar)
-**Rol:** admin
-**Patrones referenciados:** Tabla 3:1, Página-Formulario, Design System
+Botón primary "+ Nuevo Servicio" → /admin/servicios/nuevo.
 
-**Prompt:**
+Crear/Editar (Página-Formulario):
+- nombre, descripción, categoría select, duración slot (number min),
+  tarifa (number), ícono (selector visual de íconos lucide),
+  color de badge (color picker simple).
 
-```
-Diseña la pantalla de servicios médicos para admin.
+═══════════════════════════════════════════════════════════════════
+PANTALLA 7 — UBICACIONES (/dashboard/admin/ubicaciones + /nuevo + /[id]/editar)
+═══════════════════════════════════════════════════════════════════
 
-USA EL PATRÓN TABLA 3:1.
+Patrón Tabla 3:1.
 
-COLUMNAS:
-- Nombre (con ícono).
-- Categoría (badge).
-- Duración por slot (min).
-- Tarifa.
-- Doctores que lo ofrecen (contador chip).
-- Estado.
-- Acciones.
+Columnas: nombre, dirección truncada, ciudad, doctores asignados
+(contador), estado.
 
-PANEL MODO A:
-- KPIs: Total / Activos / Categorías.
-- Filtros: categoría, estado.
+Panel A: KPIs Total/Activas; filtros ciudad, estado.
 
-PANEL MODO B:
-- Detalle servicio.
-- Acciones: Editar (link), Ver doctores (link a /admin/doctores
-  filtrado), Duplicar (link a /nuevo precargado),
-  Inactivar (confirm-in-place).
+Panel B: mapa mini placeholder + dirección completa; lista doctores
+en esa ubicación; acciones Editar, Inactivar.
 
-BOTÓN PRIMARY: "+ Nuevo servicio" link a /admin/servicios/nuevo.
+Crear/Editar (página): nombre, dirección con autocompletado
+(placeholder de Google Places), ciudad, código postal, teléfono +505,
+horario apertura, coordenadas lat/lng, foto principal upload.
 
-CREAR/EDITAR — Página-Formulario:
-- Campos: nombre, descripción, categoría (select), duración slot
-  (number min), tarifa (number), ícono (selector visual de
-  íconos lucide), color de badge (color picker simple).
-- Cancelar / Guardar.
+═══════════════════════════════════════════════════════════════════
+PANTALLA 8 — EMPRESAS (/dashboard/admin/empresas + /nuevo + /[id]/editar)
+═══════════════════════════════════════════════════════════════════
 
-RESPONSIVE: hereda Tabla 3:1.
+Patrón Tabla 3:1.
 
-REGLAS: sin modales.
-```
+Columnas: logo + nombre, RUC, plan/contrato, miembros activos/
+contratados "X/Y", renovación DD/MM/YYYY, estado.
 
----
+Panel A: KPIs Total/Activas/En renovación próxima (<30d)/Vencidas;
+filtros estado, plan, búsqueda.
 
-### 6.7 Ubicaciones (lista + crear/editar)
+Panel B: logo + nombre + RUC + dirección; métricas (miembros,
+citas mes, beneficios reclamados); acciones Editar (link), Ver
+miembros (link filtrado), Ver contratos (link), Suspender
+(confirm-in-place), Eliminar (link a /admin/empresas/[id]/eliminar
+página con resumen de impacto: miembros suspendidos, contratos
+cerrados).
 
-**Ruta:** `/{locale}/dashboard/admin/ubicaciones` (+ /nuevo y /[id]/editar)
-**Rol:** admin
-**Patrones referenciados:** Tabla 3:1, Página-Formulario, Design System
+Crear/Editar (Página-Formulario) con secciones:
+1. Datos legales (nombre, RUC, dirección).
+2. Contacto (email, teléfono +505).
+3. Contrato (tipo plan, fecha inicio, fecha fin DD/MM/YYYY, número
+   de contratados).
+4. Branding (logo upload).
 
-**Prompt:**
+═══════════════════════════════════════════════════════════════════
+PANTALLA 9 — CITAS ADMIN (/dashboard/admin/citas)
+═══════════════════════════════════════════════════════════════════
 
-```
-Diseña la pantalla de ubicaciones (clínicas/sedes).
+Patrón Tabla 3:1.
 
-USA EL PATRÓN TABLA 3:1.
+Columnas: ID corto, miembro (avatar + nombre + empresa chip),
+servicio, doctor, ubicación, fecha y hora (DD/MM/YYYY +
+12h a.m./p.m.), estado badge, pago chip
+(pendiente/verificado/n.a.), acciones (ver, aprobar, rechazar).
 
-COLUMNAS:
-- Nombre.
-- Dirección truncada.
-- Ciudad.
-- Doctores asignados (contador).
-- Estado.
+Panel A: KPIs Total mes/Pendientes/Confirmadas/Canceladas/
+Verificación pago; filtros estado + empresa + servicio + doctor +
+rango fechas + estado pago; tab toggle "Lista" · "Calendario"
+(calendario = pantalla 10); exportar/importar masivo.
 
-PANEL MODO A:
-- KPIs: Total / Activas.
-- Filtros: ciudad, estado.
-
-PANEL MODO B:
-- Mapa mini (placeholder o estático) + dirección completa.
-- Lista de doctores en esa ubicación.
-- Acciones: Editar, Inactivar.
-
-CREAR/EDITAR (página):
-- Nombre, dirección completa con autocompletado (placeholder de
-  Google Places), ciudad, código postal, teléfono, horario de
-  apertura.
-- Coordenadas GPS (lat/lng).
-- Foto principal upload.
-
-RESPONSIVE: hereda Tabla 3:1.
-
-REGLAS: sin modales.
-```
-
----
-
-### 6.8 Empresas (lista + crear/editar)
-
-**Ruta:** `/{locale}/dashboard/admin/empresas` (+ /nuevo y /[id]/editar)
-**Rol:** admin
-**Patrones referenciados:** Tabla 3:1, Página-Formulario, Design System
-
-**Prompt:**
-
-```
-Diseña la pantalla de empresas clientes.
-
-USA EL PATRÓN TABLA 3:1.
-
-COLUMNAS:
-- Logo + nombre.
-- RUC.
-- Plan / Tipo de contrato.
-- Miembros activos / contratados (X / Y).
-- Renovación.
-- Estado.
-
-PANEL MODO A:
-- KPIs: Total / Activas / En renovación próxima (< 30d) / Vencidas.
-- Filtros: estado, plan, búsqueda.
-
-PANEL MODO B:
-- Logo + nombre + RUC + dirección.
-- Métricas: miembros, citas mes, beneficios reclamados.
-- Acciones: Editar (link), Ver miembros (link filtrado), Ver
-  contratos (link), Suspender (confirm-in-place), Eliminar (link a
-  página /eliminar con resumen).
-
-CREAR/EDITAR (página) — Página-Formulario:
-- Secciones:
-  1. Datos legales (nombre, RUC, dirección).
-  2. Contacto (email contacto, teléfono).
-  3. Contrato (tipo plan, fecha inicio, fecha fin, número de
-     contratados).
-  4. Branding (logo upload).
-- Cancelar / Crear.
-
-RESPONSIVE: hereda Tabla 3:1.
-
-REGLAS: sin modales. Eliminar empresa es flujo crítico con página
-dedicada que lista impactos (miembros que serán suspendidos,
-contratos que se cierran).
-```
-
----
-
-### 6.9 Citas admin (lista 3:1)
-
-**Ruta:** `/{locale}/dashboard/admin/citas`
-**Rol:** admin
-**Patrones referenciados:** Tabla 3:1, Design System
-
-**Prompt:**
-
-```
-Diseña la pantalla global de citas para admin.
-
-USA EL PATRÓN TABLA 3:1.
-
-COLUMNAS:
-- ID corto.
-- Miembro (avatar + nombre + empresa chip).
-- Servicio.
-- Doctor.
-- Ubicación.
-- Fecha y hora.
-- Estado (badge color).
-- Pago (chip: pendiente/verificado/n.a.).
-- Acciones (ver, aprobar, rechazar).
-
-PANEL MODO A:
-- KPIs: Total mes / Pendientes / Confirmadas / Canceladas /
-  Verificación pago.
-- Filtros: estado, empresa, servicio, doctor, rango fechas, estado
-  pago.
-- Tab toggle: "Lista" · "Calendario" (calendario → § 6.10).
-- Exportar / Importar masivo.
-
-PANEL MODO B (reemplaza AdminCitaDetalleModal):
-- Header con avatar miembro + ID + estado badge grande.
-- Sección "Detalle":
-  - Servicio, doctor, ubicación, fecha, duración.
-  - Miembro: nombre, empresa, contacto.
-  - Paciente (si para_titular=false): nombre, teléfono, cédula.
-- Sección "Pago" (si aplica):
-  - Estado pago + monto + método + ver comprobante.
-- Sección "Notificaciones":
-  - Timeline de cita_eventos (creada → confirmada → recordatorio).
+Panel B (reemplaza AdminCitaDetalleModal):
+- Avatar miembro + ID + estado badge grande.
+- Sección Detalle: servicio, doctor, ubicación, fecha, duración;
+  miembro nombre/empresa/contacto; paciente (si para_titular=false):
+  nombre/teléfono/cédula.
+- Sección Pago: estado + monto + método + ver comprobante.
+- Sección Notificaciones: timeline cita_eventos
+  (creada → confirmada → recordatorio).
 - Acciones:
   - Si pendiente_admin: Confirmar (primary) / Rechazar (outline
-    error) ambos confirm-in-place con campo mensaje opcional.
-  - Si pago pendiente: link "Verificar pago" a página dedicada
+    destructive) confirm-in-place con textarea mensaje.
+  - Si pago pendiente: link "Verificar pago" → página
     /admin/citas/[id]/verificar-pago.
   - Cancelar (confirm-in-place).
-  - Editar (raro, link a página si aplica).
+  - Editar (link a página si aplica).
 
-ESTADOS / RESPONSIVE: heredan Tabla 3:1.
+═══════════════════════════════════════════════════════════════════
+PANTALLA 10 — CALENDARIO DE CITAS (/dashboard/admin/citas/calendario)
+═══════════════════════════════════════════════════════════════════
 
-REGLAS: confirmar/rechazar/cancelar = confirm-in-place. Verificar
-pago = página dedicada. Sin modales.
-```
-
----
-
-### 6.10 Calendario de citas
-
-**Ruta:** `/{locale}/dashboard/admin/citas/calendario`
-**Rol:** admin
-**Patrones referenciados:** Design System
-
-**Prompt:**
-
-```
-Diseña la vista calendario de citas para admin.
-
-OBJETIVO: ver citas en vista calendario (día / semana / mes) con
-filtros y acciones rápidas.
-
-LAYOUT:
-- Header sticky:
-  - Tabs vista: Día · Semana · Mes (default semana).
-  - Selector fecha con flechas anterior/siguiente + botón Hoy.
-  - Filtros derecha: doctor, ubicación, estado.
-  - Botón "Nueva cita" (link a flujo admin de creación o redirect
-    al wizard del miembro impersonando).
-
+Layout:
+- Header sticky: tabs vista Día/Semana (default)/Mes; selector fecha
+  con flechas anterior/siguiente + botón Hoy; filtros derecha doctor/
+  ubicación/estado; botón "Nueva cita".
 - Cuerpo calendario:
-  - VISTA SEMANAL: grid horario 7 cols (lun-dom), filas de 30 min
-    desde 06:00 hasta 22:00. Cada cita = bloque rounded en el slot
-    con color por estado, nombre miembro, servicio. Click sobre
-    bloque abre sheet lateral (md+) o sheet inferior (móvil) con
-    el detalle/acciones de la cita (reusa el panel B de § 6.9).
-  - VISTA DÍA: 1 columna grande con todo el día.
-  - VISTA MES: cells de día con dots/contadores de citas por estado.
-    Click en día → vista día.
+  SEMANAL: grid 7 cols (lun-dom), filas 30 min de 06:00 a 22:00;
+  cada cita = bloque rounded color por estado con nombre miembro +
+  servicio. Click sobre bloque abre sheet lateral md+ o sheet
+  inferior móvil con detalle/acciones (reusa panel B de pantalla 9).
+  DÍA: 1 col grande.
+  MES: cells de día con dots/contadores por estado; click día → vista
+  día.
 
-- Realtime: las citas se actualizan en vivo (subscripción).
+Realtime: citas actualizan en vivo (suscripción supabase_realtime).
 
-ESTADOS:
-- Skeleton del calendario.
-- Empty: día/semana sin citas con mensaje suave.
-- Error.
+Responsive: <md solo vista día; md+ vistas completas.
 
-RESPONSIVE:
-- <md: solo vista día (otras vistas opcionales con tabs).
-- md+: vistas completas.
+REGLAS: detalle NO abre modal — abre sheet lateral o panel flotante.
 
-REGLAS: el detalle no abre modal — abre sheet lateral o panel
-flotante anclado a la celda. Sin modales.
-```
+═══════════════════════════════════════════════════════════════════
+PANTALLA 11 — BENEFICIOS ADMIN (/dashboard/admin/beneficios + /nuevo + /[id]/editar)
+═══════════════════════════════════════════════════════════════════
 
----
+Patrón Tabla 3:1.
 
-### 6.11 Beneficios admin (lista + crear/editar)
+Columnas: imagen mini + título, categoría badge, empresas asignadas
+("Todas" o contador), vigencia rango DD/MM/YYYY, estado (activa,
+expirada, programada), reclamos contador.
 
-**Ruta:** `/{locale}/dashboard/admin/beneficios` (+ /nuevo y /[id]/editar)
-**Rol:** admin
-**Patrones referenciados:** Tabla 3:1, Página-Formulario, Design System
+Panel A: KPIs Total/Activos/Más reclamado; filtros categoría,
+empresa, estado.
 
-**Prompt:**
+Panel B: imagen + título; descripción corta, código (si aplica),
+vigencia; stats (vistas, reclamos, tasa); acciones Editar (link),
+Duplicar, Pausar/Reactivar (confirm-in-place), Eliminar
+(confirm-in-place).
 
-```
-Diseña la gestión de beneficios para admin.
+Crear/Editar (Página-Formulario) con secciones:
+1. Contenido: título, descripción larga (rich text), imagen upload
+   (aspect 16:9).
+2. Categorización: categoría select, tags.
+3. Beneficiarios: "Todas las empresas" / "Empresas específicas"
+   (multi-select).
+4. Vigencia: fecha inicio + fecha fin DD/MM/YYYY.
+5. Mecánica: con código (input + generador) / sin código.
+6. Estado: switch activo.
 
-USA EL PATRÓN TABLA 3:1.
+═══════════════════════════════════════════════════════════════════
+PANTALLA 12 — DOCUMENTOS ADMIN (/dashboard/admin/documentos + /subir)
+═══════════════════════════════════════════════════════════════════
 
-COLUMNAS:
-- Imagen mini + título.
-- Categoría (badge).
-- Empresas asignadas (multi: "Todas" o contador).
-- Vigencia (rango fechas).
-- Estado (activa, expirada, programada).
-- Reclamos (contador).
+Patrón Tabla 3:1.
 
-PANEL MODO A:
-- KPIs: Total / Activos / Más reclamado.
-- Filtros: categoría, empresa, estado.
+Columnas: ícono tipo + nombre, tipo badge, usuario destinatario
+(avatar + nombre), empresa, fecha documento DD/MM/YYYY, tamaño,
+acciones (descargar, preview, eliminar).
 
-PANEL MODO B:
-- Imagen + título.
-- Detalle: descripción corta, código (si aplica), vigencia.
-- Stats: vistas, reclamos, tasa de uso.
-- Acciones: Editar (link), Duplicar (link precargado), Pausar/
-  Reactivar (confirm-in-place), Eliminar (confirm-in-place).
+Panel A: KPIs Total / por tipo top; filtros tipo, empresa, usuario,
+rango fechas; botón primary toolbar "+ Subir Documento" link
+/admin/documentos/subir (NO modal).
 
-CREAR/EDITAR (página, reemplaza BeneficioFormModal):
-- Secciones:
-  1. Contenido: título, descripción larga (rich text), imagen upload
-     (aspect 16:9).
-  2. Categorización: categoría (select), tags.
-  3. Beneficiarios: "Todas las empresas" / "Empresas específicas"
-     (multi-select).
-  4. Vigencia: fecha inicio + fecha fin.
-  5. Mecánica: con código (input + generador) / sin código (botón
-     activar).
-  6. Estado: switch activo.
+Panel B: preview thumbnail + metadata completa; acciones Descargar,
+Re-asignar (link /editar), Eliminar (confirm-in-place).
 
-RESPONSIVE: hereda Tabla 3:1.
-
-REGLAS: sin modales.
-```
-
----
-
-### 6.12 Documentos admin (lista + subir)
-
-**Ruta:** `/{locale}/dashboard/admin/documentos` (+ /subir)
-**Rol:** admin
-**Patrones referenciados:** Tabla 3:1, Página-Formulario, Design System
-
-**Prompt:**
-
-```
-Diseña la pantalla de gestión de documentos médicos del admin.
-
-USA EL PATRÓN TABLA 3:1.
-
-COLUMNAS:
-- Ícono tipo archivo + nombre.
-- Tipo (badge).
-- Usuario destinatario (avatar + nombre).
-- Empresa.
-- Fecha del documento.
-- Tamaño.
-- Acciones: descargar, previsualizar, eliminar.
-
-PANEL MODO A:
-- KPIs: Total / Por tipo top.
-- Filtros: tipo, empresa, usuario, rango fechas.
-- Botón primary toolbar: "+ Subir documento" link a
-  /admin/documentos/subir (página, NO modal — reemplaza
-  SubirDocumentoModal).
-
-PANEL MODO B:
-- Preview thumbnail.
-- Metadata completa.
-- Acciones: Descargar, Re-asignar (link a /editar),
-  Eliminar (confirm-in-place).
-
-SUBIR DOCUMENTO (página dedicada):
+Subir documento (página dedicada):
 - Drag-and-drop area grande (con fallback click).
-- Form de metadata: nombre, tipo, usuario destinatario (search),
-  fecha del documento.
+- Form metadata: nombre, tipo, usuario destinatario (search), fecha
+  documento DD/MM/YYYY.
 - Bulk: subir múltiples con metadata común editable por archivo.
-- Action bar: Cancelar / Subir.
+- Action bar Cancelar / Subir.
 - Progress bar por archivo.
 
-RESPONSIVE: hereda Tabla 3:1.
+═══════════════════════════════════════════════════════════════════
+PANTALLA 13 — EXCEPCIONES (/dashboard/admin/excepciones + /nuevo + /[id]/editar)
+═══════════════════════════════════════════════════════════════════
 
-REGLAS: sin modales para subir. Drag-and-drop full-width móvil.
+Patrón Tabla 3:1.
+
+Columnas: título/motivo, scope (Global/Doctor/Ubicación/Servicio),
+fecha inicio, fecha fin, duración (días), estado (vigente, futura,
+pasada), citas afectadas (contador).
+
+Panel A: KPIs Total vigentes / Futuras / Citas afectadas próximos
+30d; filtros scope, rango.
+
+Panel B: detalle excepción; lista citas afectadas con badge si
+fueron auto-canceladas; acciones Editar (link), Eliminar
+(confirm-in-place).
+
+Crear/Editar (Página-Formulario) con secciones:
+1. Tipo: select Global / Doctor específico / Ubicación específica /
+   Servicio específico.
+2. Selector(es) según tipo (multi-select).
+3. Fechas: rango (date range) o día completo + recurrencia
+   (semanal/mensual opcional).
+4. Motivo (textarea) + tipo (vacaciones / feriado / capacitación /
+   otro).
+5. Acciones automáticas: switch "Auto-cancelar citas afectadas y
+   notificar".
+
+Banner warning antes de guardar si afecta a > 0 citas.
+
+═══════════════════════════════════════════════════════════════════
+PANTALLA 14 — REPORTES ADMIN (/dashboard/admin/reportes)
+═══════════════════════════════════════════════════════════════════
+
+Header h1 "Reportes" + selector rango fechas + botón "Exportar".
+Tabs: "Resumen" · "Empresas" · "Citas" · "Documentos" · "Beneficios"
+· "Usuarios".
+
+RESUMEN:
+- 6 KPIs grandes.
+- Gráfica línea crecimiento usuarios por mes — color secondary.
+- Donut distribución empresas por plan.
+- Tabla top 5 empresas más activas.
+
+Sub-reportes: cada tab = página interna con gráficas específicas
+(donut, bar, line, heatmap, mini-tablas) y filtros propios.
+
+Estados: skeleton por gráfica; empty si rango sin datos; error.
+
+Responsive: <md gráficas apiladas; md+ grids 2 cols.
+
+Exportar = PDF + toast con link.
+
+═══════════════════════════════════════════════════════════════════
+PANTALLA 15 — AUDITORÍA (/dashboard/admin/auditoria)
+═══════════════════════════════════════════════════════════════════
+
+Patrón Tabla 3:1 (modo lectura — sin edit/delete inline).
+
+Columnas: timestamp (relativo + tooltip absoluto DD/MM/YYYY HH:mm),
+actor (avatar + nombre + rol), acción badge (created/updated/deleted/
+login/etc.), recurso badge (tipo + ID), IP / dispositivo.
+
+Panel A: KPIs Eventos hoy / semana / Actores únicos / Acciones
+fallidas; filtros expandidos siempre (actor search, acción multi,
+recurso tipo, rango fechas, resultado éxito/fallo); exportar
+JSON / CSV.
+
+Panel B: detalle completo evento:
+- Actor + rol + IP + user agent.
+- Recurso + ID + nombre legible.
+- Diff (si update): JSON viewer antes/después.
+- Metadata adicional.
+- Acciones: copiar JSON, link al recurso.
+
+═══════════════════════════════════════════════════════════════════
+PANTALLA 16 — SISTEMA (/dashboard/admin/sistema)
+═══════════════════════════════════════════════════════════════════
+
+Layout: sidebar interno (lg+) / tabs scroll-x móvil con secciones
+"General", "Citas", "Notificaciones", "Integraciones",
+"Mantenimiento".
+
+1. GENERAL: nombre plataforma, logo global, color brand (limitado),
+   idiomas habilitados, links a /terminos y /privacidad.
+2. CITAS: ventana cancelación (horas) input number, auto-confirmación
+   switch, recordatorio 24h switch.
+3. NOTIFICACIONES: templates WhatsApp habilitados (lista con estado
+   approved), email FROM, RESEND key (mask), canales activos.
+4. INTEGRACIONES: status Supabase / Resend / WhatsApp Cloud API;
+   edge functions estado.
+5. MANTENIMIENTO: modo mantenimiento switch (banner global), limpieza
+   logs antiguos, reindexar search.
+
+Cada sección guarda independiente con botón Guardar; toast verde;
+error banner.
 ```
 
 ---
 
-### 6.13 Excepciones horario (lista + crear/editar)
-
-**Ruta:** `/{locale}/dashboard/admin/excepciones` (+ /nuevo y /[id]/editar)
-**Rol:** admin
-**Patrones referenciados:** Tabla 3:1, Página-Formulario, Design System
-
-**Prompt:**
-
-```
-Diseña la gestión de excepciones de horario (vacaciones, feriados).
-
-USA EL PATRÓN TABLA 3:1.
-
-COLUMNAS:
-- Título / motivo.
-- Scope (Global / Doctor / Ubicación / Servicio).
-- Fecha inicio.
-- Fecha fin.
-- Duración (días).
-- Estado (vigente, futura, pasada).
-- Citas afectadas (contador).
-
-PANEL MODO A:
-- KPIs: Total vigentes / Futuras / Citas afectadas próximos 30d.
-- Filtros: scope, rango.
-
-PANEL MODO B:
-- Detalle excepción.
-- Lista de citas afectadas con badge si fueron auto-canceladas.
-- Acciones: Editar (link), Eliminar (confirm-in-place).
-
-CREAR/EDITAR (página dedicada, reemplaza
-AdminExcepcionFormModal):
-- Secciones:
-  1. Tipo: select Global / Doctor específico / Ubicación específica
-     / Servicio específico.
-  2. Selector(es) según tipo (multi-select).
-  3. Fechas: rango (date range picker) o día completo + recurrencia
-     (semanal/mensual opcional).
-  4. Motivo (textarea) + tipo (vacaciones / feriado / capacitación
-     / otro).
-  5. Acciones automáticas: switch "Auto-cancelar citas afectadas y
-     notificar".
-- Banner amarillo arriba si selección afecta a > 0 citas mostrando
-  contador, antes de guardar.
-
-RESPONSIVE: hereda Tabla 3:1.
-
-REGLAS: sin modales.
-```
-
----
-
-### 6.14 Reportes admin
-
-**Ruta:** `/{locale}/dashboard/admin/reportes`
-**Rol:** admin
-**Patrones referenciados:** Design System
-
-**Prompt:**
-
-```
-Diseña la pantalla de reportes global de admin.
-
-OBJETIVO: KPIs y reportes ejecutivos globales con drill-down por
-sub-reportes.
-
-SECCIONES:
-1. Header h1 + selector rango fechas + botón "Exportar reporte".
-2. Tabs: "Resumen" · "Empresas" · "Citas" · "Documentos" ·
-   "Beneficios" · "Usuarios".
-
-3. RESUMEN:
-   - 6 KPIs grandes (empresas activas, usuarios activos, citas mes,
-     citas confirmadas, documentos, beneficios reclamados).
-   - Gráfica línea: crecimiento usuarios por mes.
-   - Donut: distribución de empresas por plan.
-   - Tabla top 5 empresas más activas.
-
-4. SUB-REPORTES (cada tab):
-   Cada uno = página interna con gráficas específicas (donut, bar,
-   line, heatmap, mini-tablas) y filtros propios.
-
-ESTADOS:
-- Skeleton por gráfica.
-- Empty si rango sin datos.
-- Error por sección.
-
-RESPONSIVE:
-- <md: gráficas apiladas.
-- md+: grids 2 cols.
-
-REGLAS: sin modales. Exportar genera PDF y dispara toast con link.
-```
-
----
-
-### 6.15 Auditoría
-
-**Ruta:** `/{locale}/dashboard/admin/auditoria`
-**Rol:** admin
-**Patrones referenciados:** Tabla 3:1, Design System
-
-**Prompt:**
-
-```
-Diseña la pantalla de auditoría del admin.
-
-USA EL PATRÓN TABLA 3:1 (modo lectura — no edit/delete inline).
-
-COLUMNAS:
-- Timestamp (relativo + tooltip absoluto).
-- Actor (avatar + nombre + rol).
-- Acción (badge: created / updated / deleted / login / etc.).
-- Recurso (badge tipo + ID).
-- IP / dispositivo.
-
-PANEL MODO A:
-- KPIs: Eventos hoy / Eventos semana / Actores únicos / Acciones
-  fallidas.
-- Filtros (panel expandido siempre):
-  - Actor (search).
-  - Acción (multi-select).
-  - Recurso (tipo).
-  - Rango fechas.
-  - Resultado (éxito/fallo).
-- Exportar JSON / CSV.
-
-PANEL MODO B (con selección):
-- Detalle completo del evento:
-  - Actor + rol + IP + user agent.
-  - Recurso + ID + nombre legible.
-  - Diff (si update): JSON viewer antes/después.
-  - Metadata adicional.
-- Acciones: copiar JSON, link al recurso afectado.
-
-ESTADOS: hereda Tabla 3:1.
-
-REGLAS: solo lectura. Sin modales.
-```
-
----
-
-### 6.16 Sistema (configuración)
-
-**Ruta:** `/{locale}/dashboard/admin/sistema`
-**Rol:** admin
-**Patrones referenciados:** Página-Formulario, Design System
-
-**Prompt:**
-
-```
-Diseña la pantalla de configuración del sistema (admin global).
-
-LAYOUT:
-- Sidebar interno con secciones (lg+) / tabs scroll-x (móvil):
-  "General", "Citas", "Notificaciones", "Integraciones",
-  "Mantenimiento".
-
-SECCIONES:
-1. GENERAL:
-   - Nombre de la plataforma, logo global, color brand (limitado).
-   - Idiomas habilitados.
-   - Términos y privacidad (link a páginas /terminos, /privacidad).
-2. CITAS:
-   - Ventana de cancelación (horas) input number.
-   - Auto-confirmación (switch).
-   - Recordatorio 24h (switch).
-3. NOTIFICACIONES:
-   - Templates WhatsApp habilitados (lista con estado approved).
-   - Email FROM, RESEND key (mask).
-   - Activar canales: email / WhatsApp / in-app.
-4. INTEGRACIONES:
-   - Status de Supabase, Resend, WhatsApp Cloud API.
-   - Edge functions estado.
-5. MANTENIMIENTO:
-   - Modo mantenimiento switch (banner global a usuarios).
-   - Limpieza de logs antiguos.
-   - Reindexar search.
-
-Cada sección guarda independiente con botón Guardar.
-
-ESTADOS: loading guardar, toast verde, error banner.
-
-REGLAS: sin modales.
-```
-
----
 ## 7. Wizards expandidos
 
-> Estos prompts detallan el contenido del paso ACTUAL dentro del shell del wizard (§ 2.3). Asume que el stepper, summary lateral y footer ya están renderizados — diseña solo el contenido principal del paso.
+> **Un único prompt** para los 10 pasos detallados (5 del wizard de citas + 5 del wizard de signup). Estos prompts complementan los overviews de las pantallas 4.3 y 3.2 — detallan el contenido de cada paso individual asumiendo que el shell del wizard (stepper, summary, footer) ya está renderizado.
 
-### 7.1 Wizard Citas — Paso 1: Paciente
-
-**Ruta:** `/{locale}/dashboard/citas/nueva?step=1`
-**Rol:** miembro
-**Patrones referenciados:** Wizard, Design System
-
-**Prompt:**
+### Prompt § 7 — Generar los 10 pasos expandidos
 
 ```
-Diseña el contenido del PASO 1 del wizard de nueva cita: PACIENTE.
-
-OBJETIVO: el miembro indica para quién es la cita — para sí mismo
-(titular) o para un familiar registrado.
-
-CONTENIDO:
-1. Título de paso: "¿Para quién es la cita?".
-2. Subtítulo: "Selecciona el paciente que recibirá la atención".
-
-3. TABS / TOGGLE GRANDE:
-   - 2 cards grandes lado a lado (md+) / stack (móvil):
-     - "Para mí (Titular)": avatar del miembro + nombre.
-     - "Para un familiar": ícono Users.
-   - Card activa: border-primary border-2 + bg-primary/5.
-
-4. SI "Para un familiar":
-   - Subsection "Selecciona el familiar":
-     - Grid de avatar cards con familiares registrados.
-     - Cada card: avatar + nombre + relación badge + edad.
-     - Card final: "+ Agregar nuevo familiar" link a /familia/nuevo
-       (NO modal — abre página).
-   - Si no hay familiares: empty state inline con CTA.
-
-5. SI "Para mí":
-   - Validación silenciosa: confirmar datos del miembro
-     (no editable).
-
-ESTADOS:
-- Skeleton si hay carga.
-- Error: banner.
-
-VALIDACIÓN: avanzar requiere selección (titular o un familiar).
-
-REGLAS: sin modales. Agregar familiar = página.
-```
-
----
-
-### 7.2 Wizard Citas — Paso 2: Servicio + Ubicación
-
-**Ruta:** `/{locale}/dashboard/citas/nueva?step=2`
-**Rol:** miembro
-**Patrones referenciados:** Wizard, Design System
-
-**Prompt:**
-
-```
-Diseña el contenido del PASO 2 del wizard: SERVICIO + UBICACIÓN
-consolidados.
-
-OBJETIVO: elegir el servicio médico y la ubicación. Si solo hay
-1 ubicación disponible para el servicio, autoseleccionar y mostrar
-con badge "Sugerido".
-
-CONTENIDO:
-1. Título: "¿Qué servicio necesitas?".
-
-2. SERVICIOS — grid de cards (2 cols md, 3 cols lg):
-   Cada ServicioCard:
-   - Ícono lucide grande del servicio en círculo color primary/10.
-   - Nombre Poppins semibold.
-   - Descripción corta sm.
-   - Badge "Cubierto" si está en el plan.
-   - Hover: border-primary, shadow-md.
-   - Selected: border-primary border-2 + bg-primary/5 + check mark.
-
-3. CUANDO HAY SELECCIÓN DE SERVICIO:
-   - Aparece subsection "Ubicación":
-     - Si 1 sola ubicación disponible: card pre-seleccionada con
-       badge naranja "Sugerido" + nombre + dirección + botón
-       "Ver más opciones" (oculto si solo 1).
-     - Si > 1: grid de UbicacionCard con nombre + dirección +
-       distancia (opcional) + badge.
-
-ESTADOS:
-- Skeleton del grid.
-- Empty: "No hay servicios disponibles en tu plan" (raro, banner).
-- Error: banner.
-
-VALIDACIÓN: avanzar requiere servicio + ubicación seleccionados.
-
-REGLAS: sin modales. Smart defaults visibles con badge.
-```
-
----
-
-### 7.3 Wizard Citas — Paso 3: Doctor + Fecha + Horario (UNIFICADO)
-
-**Ruta:** `/{locale}/dashboard/citas/nueva?step=3`
-**Rol:** miembro
-**Patrones referenciados:** Wizard, Design System
-
-**Prompt:**
-
-```
-Diseña el contenido del PASO 3 unificado del wizard: DOCTOR + FECHA
-+ HORARIO en una sola vista.
-
-OBJETIVO: ver disponibilidad integrada de doctores compatibles con
-el servicio en una vista calendario+slots.
-
-CONTENIDO (lg+: 3 cols / 2/3 + 1/3, móvil: stack):
-
-1. Header del paso:
-   - Título: "Elige tu cita".
-   - Selector horizontal de doctores arriba (sticky):
-     - Avatars en row scroll-x con nombre debajo.
-     - Si solo 1 doctor disponible: card grande con info y badge
-       "Sugerido".
-     - Click cambia doctor y refresca slots (mantiene fecha
-       seleccionada).
-
-2. COLUMNA IZQUIERDA (calendario):
-   - Calendario mensual interactivo (date picker grande).
-   - Días con disponibilidad: dot indicator primary.
-   - Día sin disponibilidad: gris claro disabled.
-   - Día seleccionado: bg-primary text-white circular.
-   - Navegación de mes con flechas + label "Mayo 2026".
-   - Auto-selección: primera fecha con disponibilidad si no hay
-     selección previa, marcada con badge "Más próxima".
-
-3. COLUMNA DERECHA (slots):
-   - Header: fecha seleccionada formato amigable
-     "Miércoles, 28 de mayo".
-   - Grid de slot buttons (2-3 cols dentro de la columna):
-     - Cada slot: bloque rounded-xl con hora "09:00".
-     - Estados: disponible (border + hover bg-primary/10),
-       seleccionado (bg-primary text-white), no disponible
-       (gris disabled).
-   - Si día seleccionado no tiene slots: empty state
-     "No hay horarios disponibles este día. Prueba otra fecha."
-
-4. REALTIME: los slots se actualizan en vivo si alguien más reserva.
-
-ESTADOS:
-- Skeleton de calendario y slots.
-- Empty: doctor sin disponibilidad próxima.
-- Error.
-
-VALIDACIÓN: avanzar requiere doctor + fecha + slot seleccionados.
-
-RESPONSIVE:
-- <md: stack vertical: selector doctor → calendario → slots.
-- md+: row de doctores, 2 cols calendario+slots.
-- lg+: layout completo.
-
-REGLAS: sin modales. Realtime con sutiles transitions cuando un
-slot se ocupa por otro usuario.
-```
-
----
-
-### 7.4 Wizard Citas — Paso 4: Pago
-
-**Ruta:** `/{locale}/dashboard/citas/nueva?step=4`
-**Rol:** miembro
-**Patrones referenciados:** Wizard, Design System
-
-**Prompt:**
-
-```
-Diseña el contenido del PASO 4 del wizard: PAGO.
-
-OBJETIVO: elegir método de pago. Si transferencia, subir
-comprobante inline.
-
-CONTENIDO:
-1. Título: "Método de pago".
-2. Si servicio cubierto 100%: banner verde "Esta cita está
-   cubierta por tu plan. No se requiere pago." + skip step
-   automático con badge.
-3. Si requiere pago:
-   - Total a pagar: card destacada con monto Poppins bold 32px +
-     desglose (servicio, IVA si aplica).
-   - Tabs de métodos:
-     - Tarjeta (placeholder Pasarela): logo + texto "Serás
-       redirigido a checkout seguro al confirmar".
-     - Transferencia bancaria: muestra datos de cuenta
-       (banco, número, beneficiario) + área upload
-       "Subir comprobante" (drag-and-drop o click) + input opcional
-       de referencia.
-     - Efectivo en sede (si aplica): card simple con instrucciones.
-
-ESTADOS:
-- Loading durante upload de comprobante.
-- Validación: si transferencia, requiere comprobante.
-- Error banner si upload falla.
-
-VALIDACIÓN: si requiere pago, método + (comprobante si
-transferencia) son obligatorios.
-
-REGLAS: sin modales. Comprobante se sube inline.
-```
-
----
-
-### 7.5 Wizard Citas — Paso 5: Confirmar
-
-**Ruta:** `/{locale}/dashboard/citas/nueva?step=5`
-**Rol:** miembro
-**Patrones referenciados:** Wizard, Design System
-
-**Prompt:**
-
-```
-Diseña el contenido del PASO 5 final: CONFIRMAR.
-
-OBJETIVO: revisar todos los detalles, aceptar términos y enviar.
-
-CONTENIDO:
-1. Título: "Confirma tu cita".
-2. Subtítulo: "Revisa la información antes de confirmar".
-3. RESUMEN ESTRUCTURADO (card grande):
-   - Sección "Paciente": avatar + nombre + relación + edad +
-     botón "Editar" mini.
-   - Sección "Servicio y ubicación": ícono + nombre servicio +
-     ubicación + edit.
-   - Sección "Doctor": avatar + nombre + especialidad + edit.
-   - Sección "Fecha y horario": ícono CalendarClock + fecha
-     completa + hora + duración + edit.
-   - Sección "Pago": método + monto + edit (si aplica).
-
-4. AVISOS:
-   - Política de cancelación: "Puedes cancelar hasta 24 horas
-     antes" en card info azul.
-   - Confirmaciones: "Recibirás un email + WhatsApp con la
-     confirmación".
-
-5. Términos y condiciones:
-   - Checkbox "He leído y acepto los [términos y condiciones]"
-     con link a /terminos.
-   - Sin aceptar = botón Confirmar deshabilitado.
-
-6. Footer de wizard (heredado de § 2.3):
-   - "← Anterior" + "Confirmar y enviar" (primary grande).
-
-ESTADOS:
-- Loading durante envío: spinner + "Creando tu cita…".
-- Error: banner arriba con mensaje específico
-  (SLOT_TAKEN → "Ese horario ya no está disponible. Te llevamos
-  al paso 3 para elegir otro").
-- Éxito: redirect a /citas + toast verde + animación check.
-
-REGLAS: sin modales. Editar saltos a pasos previos.
-```
-
----
-
-### 7.6 Wizard Signup — Paso 1: Datos personales
-
-**Ruta:** `/{locale}/signup?step=1`
-**Rol:** público
-**Patrones referenciados:** Wizard, Design System
-
-**Prompt:**
-
-```
-Diseña el contenido del PASO 1 del signup: DATOS PERSONALES.
-
-OBJETIVO: capturar identidad básica del nuevo miembro.
-
-CONTENIDO:
-1. Título: "Cuéntanos sobre ti".
-2. Subtítulo: "Esta información nos ayuda a personalizar tu cuenta".
-3. Campos (2 cols md+, 1 col móvil):
-   - Nombre completo (texto, requerido).
-   - Cédula / DNI (texto con máscara según país, requerido).
-   - Fecha de nacimiento (date picker, requerido, no futuro,
-     edad mínima 18 o señalar si menor).
-   - Sexo (select: Femenino / Masculino / Otro / Prefiero no decir).
-
-VALIDACIÓN EN VIVO:
-- Nombre: mínimo 2 palabras.
-- Cédula: formato + verificar único (debounce 500ms, spinner inline,
-  check verde si disponible).
-- Fecha: en rango razonable.
-
-ESTADOS:
-- Cada input muestra success/error en tiempo real.
-- Banner si hay errores generales.
-
-REGLAS: sin modales.
-```
-
----
-
-### 7.7 Wizard Signup — Paso 2: Contacto
-
-**Ruta:** `/{locale}/signup?step=2`
-**Rol:** público
-**Patrones referenciados:** Wizard, Design System
-
-**Prompt:**
-
-```
-Diseña el contenido del PASO 2 del signup: CONTACTO.
-
-OBJETIVO: capturar email y teléfono validados.
-
-CONTENIDO:
-1. Título: "¿Cómo te contactamos?".
-2. Campos:
-   - Email (requerido):
-     - Validación formato.
-     - Verificar único (debounce, spinner inline).
-     - Si ya existe: link "¿Ya tienes cuenta? Inicia sesión".
-   - Teléfono (requerido):
-     - Input con selector de país (bandera + código).
-     - Validación formato.
-     - Texto helper "Te enviaremos confirmaciones por WhatsApp".
-   - Dirección (opcional):
-     - Calle, ciudad, código postal.
-3. CHECKBOX:
-   - "Quiero recibir notificaciones por WhatsApp" (default ON).
-   - "Quiero recibir newsletters" (default OFF).
-
-VALIDACIÓN: en vivo por campo. Email único validado contra Supabase.
-
-REGLAS: sin modales.
-```
-
----
-
-### 7.8 Wizard Signup — Paso 3: Empresa / Contrato
-
-**Ruta:** `/{locale}/signup?step=3`
-**Rol:** público
-**Patrones referenciados:** Wizard, Design System
-
-**Prompt:**
-
-```
-Diseña el contenido del PASO 3 del signup: EMPRESA / CONTRATO.
-
-OBJETIVO: asociar al usuario con su empresa y validar contrato/
-código.
-
-CONTENIDO:
-1. Título: "¿Cuál es tu empresa?".
-2. Campos:
-   - Empresa:
-     - Input con autocompletado (search) buscando empresas activas.
-     - Cada opción: logo + nombre + tipo plan.
-     - Si solo 1 empresa preseleccionada por código de invitación
-       (URL param): mostrarla como card preseleccionada con
-       badge "Sugerido" y opción "Cambiar empresa".
-   - Código de invitación / contrato (opcional o requerido según
-     empresa):
-     - Input texto monoespaciado.
-     - Validar en vivo (debounce): si válido → muestra preview
-       del beneficio "Plan: X, Cobertura: Y" en card verde.
-     - Si inválido: error rojo.
-
-3. SI NO HAY EMPRESA:
-   - Banner azul info "¿Tu empresa no aparece? Habla con
-     RRHH para que se registre en clubSOS".
-
-VALIDACIÓN: empresa requerida. Código validado si la empresa
-requiere uno.
-
-REGLAS: sin modales.
-```
-
----
-
-### 7.9 Wizard Signup — Paso 4: Seguridad
-
-**Ruta:** `/{locale}/signup?step=4`
-**Rol:** público
-**Patrones referenciados:** Wizard, Design System
-
-**Prompt:**
-
-```
-Diseña el contenido del PASO 4 del signup: SEGURIDAD.
-
-OBJETIVO: definir password y opcionalmente activar MFA.
-
-CONTENIDO:
-1. Título: "Asegura tu cuenta".
-2. Campos:
-   - Password (requerido):
-     - Input con toggle mostrar/ocultar.
-     - Medidor de fortaleza en vivo (barra horizontal con segmentos
-       débil/medio/fuerte/excelente coloreados).
-     - Checklist de requisitos debajo en vivo (cada uno con check
-       o cross): mínimo 8 caracteres, una mayúscula, un número,
-       un símbolo.
-   - Confirmar password (debe coincidir, validación inline).
-
-3. SECCIÓN MFA (opcional):
-   - Switch "Activar autenticación en dos pasos (recomendado)".
-   - Si ON: texto "Lo configurarás al iniciar sesión por primera
-     vez".
-
-4. CHECKBOX (requerido para continuar):
-   - "Acepto los términos y condiciones y política de privacidad"
-     con links a /terminos y /privacidad.
-
-VALIDACIÓN: password cumple todos los requisitos + match +
-términos aceptados.
-
-REGLAS: sin modales.
-```
-
----
-
-### 7.10 Wizard Signup — Paso 5: Resumen editable
-
-**Ruta:** `/{locale}/signup?step=5`
-**Rol:** público
-**Patrones referenciados:** Wizard, Design System
-
-**Prompt:**
-
-```
-Diseña el contenido del PASO 5 final del signup: RESUMEN EDITABLE.
-
-OBJETIVO: revisar todo lo capturado con posibilidad de editar
-cada sección antes de crear la cuenta.
-
-CONTENIDO:
-1. Título: "Confirma tus datos".
-2. Subtítulo: "Revisa que todo esté correcto antes de crear tu
-   cuenta".
-
-3. CARDS RESUMEN (uno por paso, scroll vertical):
-   Cada card:
-   - Header con número de paso + título + botón "Editar" mini
-     (link al paso correspondiente).
-   - Contenido: lista key-value de los campos capturados.
-     Datos sensibles (password) ocultos con bullets.
-   - Border-l-4 primary cuando el paso está completo.
-
-4. Sección final:
-   - Card destacada "Tu plan":
-     - Empresa + tipo de plan + beneficios incluidos.
-   - Mini-banner: "Al crear tu cuenta, recibirás un email de
-     confirmación".
-
-5. Footer de wizard:
-   - "← Anterior" + "Crear mi cuenta" (primary grande con
-     ícono check).
-
-ESTADOS:
-- Loading durante creación: spinner + "Creando tu cuenta…" en botón.
-- Error: banner arriba con código de error específico
-  (email duplicado → te llevamos al paso 2).
-- Éxito: redirect a /dashboard + toast verde "¡Bienvenido a
-  clubSOS!" + tour onboarding opcional.
-
-REGLAS: sin modales. Edit redirige al paso correspondiente.
+Genera 10 mockups, en serie, para los pasos individuales de los dos
+wizards de clubSOS. Aplica design system, patrón Wizard del § 2,
+copy es-NI con tuteo (miembro) o neutral (signup).
+
+═══════════════════════════════════════════════════════════════════
+PARTE A — WIZARD DE NUEVA CITA (5 pasos)
+═══════════════════════════════════════════════════════════════════
+
+Cada paso renderiza dentro de la columna principal del wizard
+(la izquierda en lg+, full-width en móvil).
+
+──────────────────────────────────────────
+PASO 1/5 — PACIENTE
+──────────────────────────────────────────
+
+Título: "¿Para quién es la cita?".
+Subtítulo: "Selecciona el paciente que recibirá la atención".
+
+Toggle grande (2 cards lado a lado md+, stack móvil):
+- "Para Mí (Titular)": avatar del miembro + nombre.
+- "Para un Familiar": ícono Users.
+Card activa: border-primary border-2 + bg-primary/5.
+
+Si "Para un familiar":
+- Grid de cards con familiares registrados.
+- Cada card: avatar + nombre + relación badge + edad.
+- Card final: "+ Agregar nuevo familiar" link /familia/nuevo (página,
+  NUNCA modal).
+- Si no hay familiares: empty state inline con CTA.
+
+Validación: avanzar requiere selección (titular o un familiar).
+
+──────────────────────────────────────────
+PASO 2/5 — SERVICIO + UBICACIÓN
+──────────────────────────────────────────
+
+Título: "¿Qué servicio necesitas?".
+
+Servicios: grid de cards (2 cols md, 3 cols lg):
+- Ícono lucide grande en círculo bg-primary/10 text-primary.
+- Nombre Poppins semibold.
+- Descripción corta sm.
+- Badge "Cubierto" si está en el plan.
+- Hover: border-primary + shadow-md hover:-translate-y-0.5.
+- Selected: border-primary border-2 + bg-primary/5 + check.
+
+Tras seleccionar servicio, aparece sub-sección Ubicación:
+- Si 1 sola disponible: card pre-seleccionada con badge "Sugerido"
+  (color primary) + nombre + dirección + botón "Ver más opciones"
+  (oculto si solo 1).
+- Si > 1: grid de cards con nombre + dirección + distancia
+  (opcional) + badge.
+
+Validación: avanzar requiere servicio + ubicación.
+
+──────────────────────────────────────────
+PASO 3/5 — DOCTOR + FECHA + HORARIO UNIFICADO
+──────────────────────────────────────────
+
+Título: "Elige tu cita".
+
+Layout lg+: 3 cols (2/3 + 1/3). Móvil stack.
+
+Selector horizontal de doctores sticky arriba:
+- Avatars en row scroll-x con nombre debajo.
+- Si solo 1 doctor: card grande con info + badge "Sugerido".
+- Click cambia doctor y refresca slots (mantiene fecha).
+
+Col izquierda (calendario):
+- Calendario mensual interactivo.
+- Días con disponibilidad: dot indicator primary.
+- Día sin disponibilidad: gris claro disabled.
+- Día seleccionado: bg-primary text-white circular.
+- Navegación de mes con flechas + label "Mayo 2026".
+- Auto-selección: primera fecha con disponibilidad si no hay
+  selección previa, badge "Más próxima".
+
+Col derecha (slots):
+- Header fecha amigable "Miércoles, 28 de mayo".
+- Grid de slot buttons (2-3 cols):
+  - Cada slot: bloque rounded-xl con hora "09:00 a.m.".
+  - Disponible: border + hover bg-primary/10.
+  - Seleccionado: bg-primary text-white.
+  - No disponible: gris disabled.
+- Empty: "No hay horarios disponibles este día. Prueba otra fecha."
+
+Realtime: slots actualizan en vivo si alguien más reserva.
+
+Validación: requiere doctor + fecha + slot.
+
+──────────────────────────────────────────
+PASO 4/5 — PAGO
+──────────────────────────────────────────
+
+Título: "Método de pago".
+
+Si cubierto 100%: banner verde "Esta cita está cubierta por tu plan.
+No se requiere pago." + skip step automático con badge.
+
+Si requiere pago:
+- Total a pagar: card destacada con monto Poppins bold 32 +
+  desglose (servicio + IVA si aplica).
+- Tabs de métodos:
+  - Tarjeta (Pasarela): logo + texto "Serás redirigido a checkout
+    seguro al confirmar".
+  - Transferencia bancaria: datos cuenta (banco, número, beneficiario)
+    + drag-and-drop "Subir comprobante" + input opcional referencia.
+  - Efectivo en sede (si aplica): card con instrucciones.
+
+Validación: si requiere pago, método obligatorio. Si transferencia,
+comprobante obligatorio. Loading durante upload.
+
+──────────────────────────────────────────
+PASO 5/5 — CONFIRMAR
+──────────────────────────────────────────
+
+Título: "Confirma tu cita".
+Subtítulo: "Revisa la información antes de confirmar".
+
+Resumen estructurado (card grande):
+- Sección Paciente: avatar + nombre + relación + edad + botón
+  "Editar".
+- Sección Servicio y ubicación: ícono + nombre + ubicación + edit.
+- Sección Doctor: avatar + nombre + especialidad + edit.
+- Sección Fecha y horario: CalendarClock + fecha completa + hora
+  12h + duración + edit.
+- Sección Pago: método + monto + edit (si aplica).
+
+Avisos:
+- Política de cancelación: "Puedes cancelar hasta 24 horas antes"
+  en card info azul.
+- Confirmaciones: "Recibirás un email + WhatsApp con la confirmación".
+
+Términos:
+- Checkbox "He leído y acepto los [términos y condiciones]"
+  con link /terminos.
+- Sin aceptar = botón Confirmar deshabilitado.
+
+Footer: "← Anterior" + "Confirmar y Enviar" (primary grande).
+
+Estados:
+- Loading: spinner + "Creando tu cita…".
+- Error: banner con código mapeado (SLOT_TAKEN → "Ese horario ya no
+  está disponible. Te llevamos al paso 3 para elegir otro").
+- Éxito: redirect /citas + toast verde + animación check.
+
+═══════════════════════════════════════════════════════════════════
+PARTE B — WIZARD DE SIGNUP (5 pasos)
+═══════════════════════════════════════════════════════════════════
+
+Cada paso renderiza dentro del split-screen del signup (form a la
+izquierda, brand a la derecha en lg+).
+
+──────────────────────────────────────────
+PASO 1/5 — DATOS PERSONALES
+──────────────────────────────────────────
+
+Título: "Cuéntanos sobre ti".
+Subtítulo: "Esta información nos ayuda a personalizar tu cuenta".
+
+Campos (2 cols md+, 1 col móvil):
+- Nombre completo (requerido, mínimo 2 palabras).
+- Cédula / DNI (texto con máscara según país, requerido, verificar
+  único debounce 500ms con spinner inline + check verde).
+- Fecha de nacimiento DD/MM/YYYY (date picker, no futuro, edad
+  mínima 18 o señalar si menor).
+- Sexo (select: Femenino / Masculino / Otro / Prefiero no decir).
+
+Validación en vivo por campo. Glifo ⚠ + mensaje en errores.
+
+──────────────────────────────────────────
+PASO 2/5 — CONTACTO
+──────────────────────────────────────────
+
+Título: "¿Cómo te contactamos?".
+
+Campos:
+- Email (requerido, formato + único validado contra Supabase con
+  debounce). Si ya existe: link "¿Ya tienes cuenta? Inicia sesión".
+- Teléfono (requerido, selector país bandera + código, default +505,
+  validación formato). Helper "Te enviaremos confirmaciones por
+  WhatsApp".
+- Dirección (opcional): calle, ciudad, código postal.
+
+Checkboxes:
+- "Quiero recibir notificaciones por WhatsApp" (default ON).
+- "Quiero recibir newsletters" (default OFF).
+
+──────────────────────────────────────────
+PASO 3/5 — EMPRESA / CONTRATO
+──────────────────────────────────────────
+
+Título: "¿Cuál es tu empresa?".
+
+Campos:
+- Empresa (input con autocompletado buscando empresas activas).
+  Cada opción: logo + nombre + tipo plan.
+  Si solo 1 preseleccionada por código de invitación URL:
+  card preseleccionada con badge "Sugerido" + opción "Cambiar
+  empresa".
+- Código de invitación / contrato (opcional o requerido según
+  empresa):
+  - Input monoespaciado.
+  - Validar en vivo (debounce): si válido → preview "Plan: X,
+    Cobertura: Y" en card verde.
+  - Si inválido: error rojo + ⚠.
+
+Si no hay empresa: banner azul "¿Tu empresa no aparece? Habla con
+RRHH para que se registre en clubSOS".
+
+Validación: empresa requerida. Código validado si la empresa lo
+requiere.
+
+──────────────────────────────────────────
+PASO 4/5 — SEGURIDAD
+──────────────────────────────────────────
+
+Título: "Asegura tu cuenta".
+
+Campos:
+- Password (requerido):
+  - Input con toggle Eye/EyeOff.
+  - Medidor de fortaleza en vivo (barra horizontal segmentos
+    débil/medio/fuerte/excelente coloreados).
+  - Checklist de requisitos en vivo (cada uno check o cross):
+    mínimo 8 caracteres, una mayúscula, un número, un símbolo.
+- Confirmar password (debe coincidir, validación inline).
+
+Sección MFA (opcional):
+- Switch "Activar autenticación en dos pasos (recomendado)".
+- Si ON: texto "Lo configurarás al iniciar sesión por primera vez".
+
+Checkbox requerido:
+- "Acepto los términos y condiciones y política de privacidad"
+  con links /terminos y /privacidad.
+
+──────────────────────────────────────────
+PASO 5/5 — RESUMEN EDITABLE
+──────────────────────────────────────────
+
+Título: "Confirma tus datos".
+Subtítulo: "Revisa que todo esté correcto antes de crear tu cuenta".
+
+Cards resumen (uno por paso, scroll vertical):
+Cada card:
+- Header con número de paso + título + botón "Editar" mini (link
+  al paso).
+- Contenido lista key-value. Datos sensibles ocultos con bullets.
+- Border-l-4 primary cuando paso completo.
+
+Sección final:
+- Card destacada "Tu plan": empresa + tipo plan + beneficios.
+- Mini-banner: "Al crear tu cuenta, recibirás un email de
+  confirmación".
+
+Footer: "← Anterior" + "Crear Mi Cuenta" (primary grande con check).
+
+Estados:
+- Loading: spinner + "Creando tu cuenta…".
+- Error: banner con código (email duplicado → te llevamos al paso 2).
+- Éxito: redirect /dashboard + toast verde "¡Bienvenido a clubSOS!"
+  + tour onboarding opcional.
 ```
 
 ---
@@ -2666,20 +1866,20 @@ REGLAS: sin modales. Edit redirige al paso correspondiente.
 
 ### 8.1 Tabla de migración modal → página
 
-| Modal actual (archivo) | Ruta nueva | Prompt que cubre el rediseño |
+| Modal actual (archivo) | Ruta nueva | Pantalla dentro del prompt |
 |---|---|---|
-| `AdminDoctorFormModal.tsx` | `/admin/doctores/nuevo` y `/admin/doctores/[id]/editar` | § 6.5 |
-| `AdminServicioFormModal.tsx` | `/admin/servicios/nuevo` · `/admin/servicios/[id]/editar` | § 6.6 |
-| `AdminUbicacionFormModal.tsx` | `/admin/ubicaciones/nuevo` · `/admin/ubicaciones/[id]/editar` | § 6.7 |
-| `AdminExcepcionFormModal.tsx` | `/admin/excepciones/nuevo` · `/admin/excepciones/[id]/editar` | § 6.13 |
-| `BeneficioFormModal.tsx` | `/admin/beneficios/nuevo` · `/admin/beneficios/[id]/editar` | § 6.11 |
-| `SubirDocumentoModal.tsx` | `/admin/documentos/subir` | § 6.12 |
-| `AdminCitaDetalleModal.tsx` | Panel lateral 3:1 de `/admin/citas` | § 6.9 (Modo B) |
-| `EditarUsuarioModal.tsx` (empresa) | `/empresa/usuarios/[id]/editar` | § 5.3 |
-| `DetalleModal.tsx` (empresa) | Panel lateral 3:1 | § 5.2 / § 5.3 (Modo B) |
-| `AvisoDetailModal.tsx` (miembro) | `/avisos/[id]` | § 4.5 |
-| `BeneficioDetailModal.tsx` (miembro) | `/beneficios/[id]` | § 4.7 |
-| `AdminPagoVerificacion` (si modal) | `/admin/citas/[id]/verificar-pago` | § 6.9 (link) |
+| `AdminDoctorFormModal.tsx` | `/admin/doctores/nuevo` y `/admin/doctores/[id]/editar` | § 6 · Pantalla 5 |
+| `AdminServicioFormModal.tsx` | `/admin/servicios/nuevo` · `/admin/servicios/[id]/editar` | § 6 · Pantalla 6 |
+| `AdminUbicacionFormModal.tsx` | `/admin/ubicaciones/nuevo` · `/admin/ubicaciones/[id]/editar` | § 6 · Pantalla 7 |
+| `AdminExcepcionFormModal.tsx` | `/admin/excepciones/nuevo` · `/admin/excepciones/[id]/editar` | § 6 · Pantalla 13 |
+| `BeneficioFormModal.tsx` | `/admin/beneficios/nuevo` · `/admin/beneficios/[id]/editar` | § 6 · Pantalla 11 |
+| `SubirDocumentoModal.tsx` | `/admin/documentos/subir` | § 6 · Pantalla 12 |
+| `AdminCitaDetalleModal.tsx` | Panel lateral 3:1 de `/admin/citas` | § 6 · Pantalla 9 (Panel Modo B) |
+| `EditarUsuarioModal.tsx` (empresa) | `/empresa/usuarios/[id]/editar` | § 5 · Pantalla 3 |
+| `DetalleModal.tsx` (empresa) | Panel lateral 3:1 | § 5 · Pantallas 2 y 3 (Panel Modo B) |
+| `AvisoDetailModal.tsx` (miembro) | `/avisos/[id]` | § 4 · Pantalla 5 |
+| `BeneficioDetailModal.tsx` (miembro) | `/beneficios/[id]` | § 4 · Pantalla 7 |
+| `AdminPagoVerificacion` (si modal) | `/admin/citas/[id]/verificar-pago` | § 6 · Pantalla 9 (link) |
 
 **Excepciones permitidas (siguen siendo modal o no aplica):**
 
@@ -2724,4 +1924,4 @@ REGLAS: sin modales. Edit redirige al paso correspondiente.
 ---
 
 > **Fin del catálogo de prompts.**
-> Para añadir un nuevo prompt, copia la plantilla de spec § 6 y respeta las reglas duras del preámbulo § 0.3.
+> Para añadir un nuevo prompt (o pantalla nueva dentro de un prompt existente), respeta las **reglas duras del preámbulo § 0.3**, el **vocabulario y voz del § 0.2**, y reutiliza los patrones del § 2 referenciándolos por nombre en vez de redescribirlos.
