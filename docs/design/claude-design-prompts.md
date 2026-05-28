@@ -1295,3 +1295,388 @@ REGLAS: sin modales. Cada sección guarda independientemente.
 ```
 
 ---
+## 6. Admin
+
+### 6.1 Home admin
+
+**Ruta:** `/{locale}/dashboard/admin`
+**Rol:** admin
+**Patrones referenciados:** Layout shell, Design System
+
+**Prompt:**
+
+```
+Diseña el Home del admin global de clubSOS.
+
+OBJETIVO: vista global de la plataforma — todas las empresas, todos
+los usuarios, todas las citas.
+
+SECCIONES:
+1. Hero: "Hola, [Nombre]" + "Panel global".
+
+2. ALERT BANNER (si citas_pendientes > 0): warning con CTA "Revisar".
+
+3. KPIs (6 cards: grid 2 cols móvil, 3 md, 6 lg):
+   - Total empresas
+   - Empresas activas
+   - Total usuarios
+   - Usuarios activos
+   - Citas pendientes (warning si > 0)
+   - Citas del mes
+   Más abajo en card aparte: Documentos totales + Beneficios activos.
+
+4. QUICK ACTIONS ROW (4 pills):
+   - Nueva empresa (link a /admin/empresas/nuevo)
+   - Nuevo doctor (link a /admin/doctores/nuevo)
+   - Subir documento (link a /admin/documentos/subir)
+   - Crear beneficio (link a /admin/beneficios/nuevo)
+
+5. GRID 2 COLS (lg+):
+   A. Citas pendientes (global):
+      - Lista de 8 con miembro + empresa + servicio + fecha + acciones
+        (Aprobar/Rechazar confirm-in-place + Ver detalle link).
+   B. Empresas recientes:
+      - Lista de 5 con logo + nombre + contrato + fecha.
+
+6. GRÁFICA "Citas por servicio" global.
+
+ESTADOS:
+- Skeleton independiente por sección.
+- Empty / Error por bloque.
+
+RESPONSIVE:
+- <md: 1 col stack.
+- md: KPIs 3 cols, otros 1 col.
+- lg+: KPIs 6 cols, grid 2 cols, gráfica full-width.
+
+REGLAS: aprobar/rechazar = confirm-in-place. Sin modales.
+```
+
+---
+
+### 6.2 Usuarios admin
+
+**Ruta:** `/{locale}/dashboard/admin/usuarios`
+**Rol:** admin
+**Patrones referenciados:** Tabla 3:1, Página-Formulario, Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla global de usuarios (todos los usuarios de todas
+las empresas) para admin.
+
+USA EL PATRÓN TABLA 3:1.
+
+COLUMNAS:
+- Avatar + nombre.
+- Email.
+- Cédula.
+- Empresa (badge).
+- Rol (admin / empresa_admin / miembro).
+- Estado (activo / pendiente / suspendido).
+- Fecha registro.
+
+PANEL MODO A:
+- KPIs: Total / Activos / Pendientes / Suspendidos.
+- Filtros: empresa (multi-select), rol, estado, búsqueda.
+- Acciones: Exportar, Importar masivo (link a página).
+
+PANEL MODO B:
+- Datos resumen.
+- Acciones: Editar (link), Ver citas, Suspender (confirm-in-place),
+  Cambiar rol (confirm-in-place con select inline), Eliminar
+  (link a /admin/usuarios/[id]/eliminar página dedicada con
+  warning de impacto).
+
+CREAR / EDITAR: páginas dedicadas
+- /admin/usuarios/nuevo y /admin/usuarios/[id]/editar.
+
+ESTADOS / RESPONSIVE: heredan Tabla 3:1.
+
+REGLAS: sin modales para forms.
+```
+
+---
+
+### 6.3 Doctores (lista)
+
+**Ruta:** `/{locale}/dashboard/admin/doctores`
+**Rol:** admin
+**Patrones referenciados:** Tabla 3:1, Página-Formulario, Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla de gestión de doctores.
+
+USA EL PATRÓN TABLA 3:1.
+
+COLUMNAS:
+- Avatar + nombre.
+- Especialidad.
+- Ubicación principal.
+- Servicios cubiertos (chips truncados a 2 + "+N").
+- Estado (activo/inactivo).
+- Acciones: ver detalle (link a /admin/doctores/[id]), editar (link),
+  activar/inactivar (confirm-in-place).
+
+PANEL MODO A:
+- KPIs: Total / Activos / Inactivos.
+- Filtros: especialidad, ubicación, servicio, estado.
+
+PANEL MODO B:
+- Avatar grande + nombre + especialidad.
+- Servicios completos lista.
+- Horarios resumen.
+- Acciones: Ver detalle (link), Editar (link),
+  Gestionar horarios (link a /admin/doctores/[id]?tab=horarios),
+  Inactivar (confirm-in-place).
+
+BOTÓN PRIMARY toolbar: "+ Nuevo doctor" link a
+/admin/doctores/nuevo (NO modal — página completa con form usando
+Página-Formulario).
+
+ESTADOS / RESPONSIVE: heredan Tabla 3:1.
+
+REGLAS: sin modales.
+```
+
+---
+
+### 6.4 Doctor detalle
+
+**Ruta:** `/{locale}/dashboard/admin/doctores/[id]`
+**Rol:** admin
+**Patrones referenciados:** Página-Formulario, Design System
+
+**Prompt:**
+
+```
+Diseña la página de detalle de un doctor con tabs (reemplaza modal).
+
+LAYOUT:
+- Breadcrumb "Doctores / [Nombre]".
+- Header: avatar grande + nombre + especialidad + badges (estado,
+  ubicación) + botones derecha (Editar link, Inactivar
+  confirm-in-place).
+- Tabs horizontales: "Información" · "Servicios" · "Horarios" ·
+  "Excepciones" · "Citas".
+
+CONTENIDO POR TAB:
+1. INFORMACIÓN:
+   - Card con datos personales (cédula, email, teléfono, dirección).
+   - Card con datos profesionales (registro médico, biografía,
+     idiomas).
+2. SERVICIOS:
+   - Lista de servicios habilitados con duración y tarifa.
+   - Botón "+ Agregar servicio" navega a página /servicios o abre
+     select inline.
+3. HORARIOS:
+   - Calendario semanal con bloques de disponibilidad por día.
+   - Botón "Agregar horario" link a /admin/doctores/[id]/horarios/
+     nuevo.
+4. EXCEPCIONES:
+   - Lista de fechas excluidas (vacaciones, feriados).
+   - Botón link a /admin/excepciones/nuevo.
+5. CITAS:
+   - Mini-tabla de las últimas 20 citas del doctor.
+
+ESTADOS: skeleton del tab activo, empty para cada lista.
+
+RESPONSIVE:
+- <md: tabs scroll-x, contenido full-width.
+- md+: tabs horizontales completos.
+
+REGLAS: sin modales. Todo crear/editar va a página.
+```
+
+---
+
+### 6.5 Doctor crear/editar (página)
+
+**Ruta:** `/{locale}/dashboard/admin/doctores/nuevo` y `/[id]/editar`
+**Rol:** admin
+**Patrones referenciados:** Página-Formulario, Design System
+
+**Prompt:**
+
+```
+Diseña la página de crear/editar doctor (reemplaza
+AdminDoctorFormModal).
+
+USA EL PATRÓN PÁGINA-FORMULARIO § 2.4.
+
+SECCIONES (en una sola página, scroll vertical):
+1. Datos personales:
+   - Avatar upload + nombre completo + cédula + email + teléfono.
+2. Datos profesionales:
+   - Registro médico, especialidad (select), idiomas (multi).
+3. Ubicación principal y secundarias (multi-select).
+4. Servicios habilitados (multi-select de servicios existentes,
+   con duración por defecto).
+5. Estado (switch activo/inactivo, solo en edición).
+6. Biografía (textarea con character counter).
+
+ACCIONES:
+- Header: Breadcrumb + h1 "Nuevo doctor" / "Editar [Nombre]".
+- Action bar: Cancelar (vuelve a /admin/doctores) + Crear/Guardar.
+
+VALIDACIÓN: en vivo por campo. Resumen de errores arriba al
+intentar enviar.
+
+ESTADOS:
+- Loading durante envío.
+- Toast verde "Doctor creado" + redirect a /admin/doctores.
+- Error banner arriba.
+
+RESPONSIVE:
+- <md: 1 col, action bar sticky bottom.
+- md+: 2 cols en secciones anchas, action bar en header.
+
+REGLAS: sin modales. Cancelar es navegación, no modal de confirmar
+descartar (a menos que haya cambios sin guardar — entonces
+confirm-in-place "¿Descartar cambios?").
+```
+
+---
+
+### 6.6 Servicios (lista + crear/editar)
+
+**Ruta:** `/{locale}/dashboard/admin/servicios` (+ /nuevo y /[id]/editar)
+**Rol:** admin
+**Patrones referenciados:** Tabla 3:1, Página-Formulario, Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla de servicios médicos para admin.
+
+USA EL PATRÓN TABLA 3:1.
+
+COLUMNAS:
+- Nombre (con ícono).
+- Categoría (badge).
+- Duración por slot (min).
+- Tarifa.
+- Doctores que lo ofrecen (contador chip).
+- Estado.
+- Acciones.
+
+PANEL MODO A:
+- KPIs: Total / Activos / Categorías.
+- Filtros: categoría, estado.
+
+PANEL MODO B:
+- Detalle servicio.
+- Acciones: Editar (link), Ver doctores (link a /admin/doctores
+  filtrado), Duplicar (link a /nuevo precargado),
+  Inactivar (confirm-in-place).
+
+BOTÓN PRIMARY: "+ Nuevo servicio" link a /admin/servicios/nuevo.
+
+CREAR/EDITAR — Página-Formulario:
+- Campos: nombre, descripción, categoría (select), duración slot
+  (number min), tarifa (number), ícono (selector visual de
+  íconos lucide), color de badge (color picker simple).
+- Cancelar / Guardar.
+
+RESPONSIVE: hereda Tabla 3:1.
+
+REGLAS: sin modales.
+```
+
+---
+
+### 6.7 Ubicaciones (lista + crear/editar)
+
+**Ruta:** `/{locale}/dashboard/admin/ubicaciones` (+ /nuevo y /[id]/editar)
+**Rol:** admin
+**Patrones referenciados:** Tabla 3:1, Página-Formulario, Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla de ubicaciones (clínicas/sedes).
+
+USA EL PATRÓN TABLA 3:1.
+
+COLUMNAS:
+- Nombre.
+- Dirección truncada.
+- Ciudad.
+- Doctores asignados (contador).
+- Estado.
+
+PANEL MODO A:
+- KPIs: Total / Activas.
+- Filtros: ciudad, estado.
+
+PANEL MODO B:
+- Mapa mini (placeholder o estático) + dirección completa.
+- Lista de doctores en esa ubicación.
+- Acciones: Editar, Inactivar.
+
+CREAR/EDITAR (página):
+- Nombre, dirección completa con autocompletado (placeholder de
+  Google Places), ciudad, código postal, teléfono, horario de
+  apertura.
+- Coordenadas GPS (lat/lng).
+- Foto principal upload.
+
+RESPONSIVE: hereda Tabla 3:1.
+
+REGLAS: sin modales.
+```
+
+---
+
+### 6.8 Empresas (lista + crear/editar)
+
+**Ruta:** `/{locale}/dashboard/admin/empresas` (+ /nuevo y /[id]/editar)
+**Rol:** admin
+**Patrones referenciados:** Tabla 3:1, Página-Formulario, Design System
+
+**Prompt:**
+
+```
+Diseña la pantalla de empresas clientes.
+
+USA EL PATRÓN TABLA 3:1.
+
+COLUMNAS:
+- Logo + nombre.
+- RUC.
+- Plan / Tipo de contrato.
+- Miembros activos / contratados (X / Y).
+- Renovación.
+- Estado.
+
+PANEL MODO A:
+- KPIs: Total / Activas / En renovación próxima (< 30d) / Vencidas.
+- Filtros: estado, plan, búsqueda.
+
+PANEL MODO B:
+- Logo + nombre + RUC + dirección.
+- Métricas: miembros, citas mes, beneficios reclamados.
+- Acciones: Editar (link), Ver miembros (link filtrado), Ver
+  contratos (link), Suspender (confirm-in-place), Eliminar (link a
+  página /eliminar con resumen).
+
+CREAR/EDITAR (página) — Página-Formulario:
+- Secciones:
+  1. Datos legales (nombre, RUC, dirección).
+  2. Contacto (email contacto, teléfono).
+  3. Contrato (tipo plan, fecha inicio, fecha fin, número de
+     contratados).
+  4. Branding (logo upload).
+- Cancelar / Crear.
+
+RESPONSIVE: hereda Tabla 3:1.
+
+REGLAS: sin modales. Eliminar empresa es flujo crítico con página
+dedicada que lista impactos (miembros que serán suspendidos,
+contratos que se cierran).
+```
+
+---
