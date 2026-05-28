@@ -143,3 +143,210 @@ larga que muestre todos los tokens y componentes con sus estados.
 ```
 
 ---
+
+## 2. Patrones transversales
+
+> Estos 5 patrones son referenciados por nombre desde cada prompt de pantalla. Genera mockups de referencia para cada uno antes de las pantallas.
+
+### Prompt 2.1 — Layout shell (Sidebar + Topbar)
+
+```
+Diseña el layout shell de la app clubSOS. Asume el design system ya
+cargado (paleta CD2129/2266A7, Poppins/Roboto, rounded-xl).
+
+ESTRUCTURA:
+- Sidebar fijo a la izquierda (240px en lg+, 64px colapsado, drawer
+  off-canvas en <md).
+  Grupos colapsables con divisores sutiles. Cada item: ícono lucide
+  18px + label + opcional badge de contador (citas pendientes).
+  Item activo: fondo bg-primary/10 + texto primary + barra lateral
+  izquierda primary 3px.
+- Topbar de 64px alto: búsqueda global (al centro en lg+, ícono en md),
+  campana de notificaciones con badge contador, avatar dropdown con
+  nombre + rol + logout.
+- Contenido principal: padding 16/24/32 según breakpoint,
+  max-w-screen-2xl centrado.
+
+RESPONSIVE:
+- <md: sidebar oculto, botón hamburguesa en topbar abre drawer.
+- md a lg: sidebar colapsado por defecto, expandible.
+- lg+: sidebar expandido por defecto.
+
+Genera 3 vistas: móvil cerrado, móvil con drawer abierto, desktop.
+```
+
+### Prompt 2.2 — Patrón Tabla 3:1 (lista + panel contextual)
+
+```
+Diseña el patrón maestro de "tabla con panel contextual" que clubSOS
+usa en todas sus listas de admin/empresa.
+
+ESTRUCTURA (xl+, ≥1280px):
+Grid de 4 columnas con gap-6.
+- Columnas 1-3: tabla.
+  - Toolbar arriba: campo search (lupa izquierda), chips de filtros
+    activos, botón "Filtros avanzados", botón primario "+ Nuevo".
+  - Tabla con headers sticky, filas seleccionables (radio o checkbox
+    para multi), zebra muy sutil, hover bg-muted, fila seleccionada
+    bg-primary/5 + border-l-4 border-primary.
+  - Paginación abajo derecha.
+- Columna 4: panel sticky (top-24, h-fit), bg-surface, rounded-2xl,
+  border, padding 24. STATEFUL — tiene 2 modos:
+
+  MODO A (sin selección):
+   - Header: "Resumen" + ícono BarChart.
+   - 2-3 KPI mini-cards stack vertical (ej: Total, Activos, Pendientes).
+   - Divider.
+   - Sección "Filtros avanzados" siempre expandida: selects, date
+     pickers, switches.
+   - Divider.
+   - Botones: "Exportar CSV", "Importar".
+
+  MODO B (con selección de una fila):
+   - Header: ícono + nombre del registro + botón X cerrar selección.
+   - Meta info (4-6 líneas key-value).
+   - Divider.
+   - Lista vertical de acciones contextuales (cada una con ícono +
+     label): Editar, Ver historial, Duplicar, Eliminar (color error).
+   - Si la acción Editar requiere página dedicada, navegar a
+     /recurso/[id]/editar (NO abrir modal).
+
+RESPONSIVE:
+- <md: tabla se vuelve lista de cards verticales (cada fila = card
+  rounded-xl con info principal). Toolbar de búsqueda + botón "Filtros"
+  arriba. Al tocar una card aparece un sheet inferior (no modal) que
+  cubre 70% del viewport con el detalle + acciones contextuales.
+- md a xl: tabla ancho completo. KPIs y filtros arriba (en una fila
+  horizontal). Cuando hay selección, panel de detalle se ubica debajo
+  de la tabla como sección sticky.
+- xl+: layout 3:1 lado a lado.
+
+ELIMINAR: usa confirm-in-place — el botón "Eliminar" se transforma en
+"¿Confirmar? · Sí · No" en línea. Para flujos críticos (eliminar
+empresa, eliminar usuario activo), navegar a página dedicada
+/recurso/[id]/eliminar con resumen del impacto.
+
+Genera 4 vistas: móvil sin selección, móvil con sheet abierto,
+desktop xl sin selección (modo A), desktop xl con selección (modo B).
+```
+
+### Prompt 2.3 — Wizard genérico (stepper + sticky summary)
+
+```
+Diseña el patrón maestro de wizard que clubSOS usa para signup y para
+agendar citas.
+
+ESTRUCTURA (lg+):
+Grid de 3 columnas en md+ (2fr 1fr o 3fr 1fr para summary).
+
+- Top sticky stepper horizontal:
+  Bullets numeradas (1, 2, 3, 4, 5) conectadas con líneas.
+  Estados: completado (primary lleno + check), actual (primary outline
+  + número), pendiente (gris). Click en pasos completados navega de
+  vuelta. Below: "Paso 3 de 5: Doctor + Fecha + Horario".
+
+- Columna principal (izquierda, 2/3 o 3/4 del ancho):
+  Card grande rounded-2xl, padding 32. Contiene el contenido del paso
+  actual. Inputs grandes, labels Poppins semibold, helper text Roboto.
+  Validación en vivo: ícono check verde a la derecha del input cuando
+  válido; mensaje de error en rojo debajo cuando inválido.
+  Smart defaults aplicados con badge "Sugerido" o "Más frecuente".
+
+- Columna derecha (1/3 o 1/4 del ancho):
+  Sticky summary card. Header "Resumen de tu cita" / "Resumen de
+  registro". Lista de pasos completados con: ícono check verde +
+  label del paso + valor seleccionado + botón "Editar" pequeño
+  que salta al paso. Pasos pendientes en gris claro con "—".
+
+- Footer sticky-bottom dentro del contenedor:
+  Botón secundario "← Anterior" (oculto en paso 1) + spacer +
+  botón primario "Continuar →". Botón principal del último paso
+  cambia a "Confirmar y enviar" en color primary.
+
+RESPONSIVE:
+- <md: stepper colapsa a barra de progreso fina + label "Paso 3 de 5".
+  Summary lateral se vuelve chip fijo en bottom: "Ver resumen ↑" con
+  contador de pasos completos; al tocar abre sheet inferior con el
+  summary completo. Footer de navegación pegado al bottom edge.
+- md a lg: summary lateral se mueve debajo del contenido principal
+  (no sticky lateral); stepper completo arriba.
+- lg+: summary lateral sticky a la derecha.
+
+Genera 3 vistas: móvil con sheet de summary abierto, md sin summary
+sidebar, lg+ con summary sticky a la derecha.
+```
+
+### Prompt 2.4 — Página-Formulario (reemplaza modal)
+
+```
+Diseña el patrón "página-formulario" que clubSOS usa en lugar de
+modales para crear/editar entidades.
+
+ESTRUCTURA:
+- Breadcrumb arriba: "Doctores / Crear nuevo" con separadores ›.
+- Header de página: h1 Poppins bold + subtítulo gris + acciones a la
+  derecha (botón "Cancelar" outline + botón primario "Guardar" o
+  "Crear").
+- Container max-w-3xl centrado para forms simples, max-w-5xl para
+  forms con preview lateral.
+- Form en card rounded-2xl bg-surface padding 32.
+  - Secciones agrupadas con divisores sutiles + título de sección
+    Poppins semibold sm uppercase tracking-wide neutral.
+  - 1 o 2 columnas según breakpoint (1 col móvil, 2 cols md+ para
+    forms anchos).
+  - Inputs siguen el design system, con label arriba.
+  - Help text debajo de inputs en gris.
+- Sticky bottom action bar (en móvil): "Cancelar" + "Guardar".
+- Validación: en vivo al perder foco; resumen de errores en banner
+  arriba si hay errores al intentar enviar.
+- Loading state: botón "Guardar" muestra spinner + label
+  "Guardando…" + estado disabled de todos los inputs.
+- Success: toast verde "Creado exitosamente" + redirect a la lista.
+
+RESPONSIVE:
+- <md: 1 columna. Action bar sticky bottom con dos botones full-width.
+  Padding container 16px.
+- md+: hasta 2 columnas dentro del form. Action bar en el header.
+
+Genera 2 vistas: móvil con form largo, desktop con form en 2 cols.
+```
+
+### Prompt 2.5 — Estados (Empty / Skeleton / Error / Confirm-in-place)
+
+```
+Diseña los 4 estados auxiliares que clubSOS usa en toda la app.
+
+A. EMPTY STATE
+   - Ícono grande (lucide, 64px, color neutral-300) centrado.
+   - Título Poppins semibold xl.
+   - Descripción Roboto sm neutral.
+   - CTA primary button con ícono +.
+   Padding 64 vertical. Variantes para: tabla vacía, lista vacía,
+   búsqueda sin resultados, primera vez (onboarding).
+
+B. SKELETON
+   - Tabla: 5 filas con cells animadas (animate-pulse, bg-muted,
+     rounded).
+   - Card: bloque rounded con líneas de texto skeleton.
+   - KPI: número 32px + label sm skeleton.
+   - Wizard step: 3 grupos de inputs skeleton.
+
+C. ERROR STATE
+   - Ícono AlertTriangle 64px color error.
+   - Título "Algo salió mal".
+   - Descripción técnica corta + sugerencia ("Intenta recargar o
+     contacta soporte").
+   - Botón outline "Reintentar" + link "Contactar soporte".
+
+D. CONFIRM-IN-PLACE
+   - Al hacer click en "Eliminar" (botón ghost color error), el
+     botón se transforma in-place en un mini-row:
+     "¿Confirmar eliminación? · [Sí, eliminar] · [Cancelar]"
+   - Sí: botón pequeño bg-error text-white.
+   - Cancelar: botón pequeño ghost.
+   - Sin overlay, sin modal. Transición suave 200ms.
+
+Genera una sola página de showcase con los 4 estados en grid 2x2.
+```
+
+---
