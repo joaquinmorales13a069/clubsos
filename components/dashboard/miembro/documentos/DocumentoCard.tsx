@@ -2,13 +2,14 @@
 
 /**
  * DocumentoCard — Single medical document card.
- * Shows type icon + badge, nombre, fecha, uploaded-by.
- * View: signed URL → new tab. Download: same URL → <a download>.
+ * Card click → navigates to detail page.
+ * Inline View/Download buttons remain for quick access.
  * One createSignedUrl call (300 s) serves both actions.
  */
 
 import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
 import { formatDateShortNI, calendarDateNI } from "@/lib/datetime";
 import { toast } from "sonner";
 import {
@@ -41,7 +42,9 @@ export type DocumentoRow = {
 };
 
 interface DocumentoCardProps {
-  documento: DocumentoRow;
+  documento:   DocumentoRow;
+  detailHref?: string;
+  isActive?:   boolean;
 }
 
 /** Icon + color config per document type */
@@ -66,9 +69,10 @@ function formatFecha(dateStr: string | null, locale: "es" | "en"): string | null
   );
 }
 
-export default function DocumentoCard({ documento }: DocumentoCardProps) {
+export default function DocumentoCard({ documento, detailHref, isActive }: DocumentoCardProps) {
   const t      = useTranslations("Dashboard.miembro.documentos");
   const locale = useLocale() as "es" | "en";
+  const router = useRouter();
   const [loading, setLoading] = useState<"view" | "download" | null>(null);
 
   const config = TIPO_CONFIG[documento.tipo_documento] ?? TIPO_CONFIG.otro;
@@ -88,14 +92,16 @@ export default function DocumentoCard({ documento }: DocumentoCardProps) {
     return data.signedUrl;
   }
 
-  async function handleView() {
+  async function handleView(e: React.MouseEvent) {
+    e.stopPropagation();
     setLoading("view");
     const url = await getSignedUrl();
     if (url) window.open(url, "_blank", "noopener,noreferrer");
     setLoading(null);
   }
 
-  async function handleDownload() {
+  async function handleDownload(e: React.MouseEvent) {
+    e.stopPropagation();
     setLoading("download");
     const url = await getSignedUrl();
     if (url) {
@@ -109,8 +115,20 @@ export default function DocumentoCard({ documento }: DocumentoCardProps) {
     setLoading(null);
   }
 
+  function handleCardClick() {
+    if (detailHref) router.push(detailHref);
+  }
+
   return (
-    <article className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+    <article
+      data-active={isActive || undefined}
+      onClick={handleCardClick}
+      className={cn(
+        "bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col transition-shadow",
+        detailHref ? "cursor-pointer hover:shadow-md" : "hover:shadow-md",
+        isActive && "ring-2 ring-secondary/40 border-secondary/30",
+      )}
+    >
       {/* Colored top strip + icon */}
       <div className={cn("flex items-center gap-3 px-4 py-3", config.bg)}>
         <div className={cn("p-2 rounded-xl", config.badge.replace("text-", "bg-").replace("bg-", "bg-opacity-20 "))}>
@@ -142,7 +160,6 @@ export default function DocumentoCard({ documento }: DocumentoCardProps) {
             </div>
           )}
         </div>
-
       </div>
 
       {/* Actions */}

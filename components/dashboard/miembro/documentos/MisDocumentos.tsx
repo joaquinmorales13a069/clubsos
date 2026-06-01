@@ -6,10 +6,12 @@
  *   - Filter chips by tipo_documento
  *   - Paginated grid (12 per page) via Supabase browser client
  *   - Loading / empty states
+ *   - Card click → navigates to /dashboard/documentos/[id]
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { usePathname } from "next/navigation";
 import { FileText, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import DocumentoCard, { type DocumentoRow } from "./DocumentoCard";
@@ -32,7 +34,15 @@ interface MisDocumentosProps {
 }
 
 export default function MisDocumentos({ userId, initialData, initialCount }: MisDocumentosProps) {
-  const t = useTranslations("Dashboard.miembro.documentos");
+  const t        = useTranslations("Dashboard.miembro.documentos");
+  const locale   = useLocale();
+  const pathname = usePathname();
+
+  // Derive active doc ID from URL
+  const activeId = (() => {
+    const match = pathname.match(/\/documentos\/([^/]+)/);
+    return match ? match[1] : null;
+  })();
 
   const [filter, setFilter]         = useState<FilterType>("all");
   const [page, setPage]             = useState(0);
@@ -134,7 +144,12 @@ export default function MisDocumentos({ userId, initialData, initialCount }: Mis
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {documentos.map((doc) => (
-            <DocumentoCard key={doc.id} documento={doc} />
+            <DocumentoCard
+              key={doc.id}
+              documento={doc}
+              detailHref={`/${locale}/dashboard/documentos/${doc.id}`}
+              isActive={activeId === doc.id}
+            />
           ))}
         </div>
       )}
