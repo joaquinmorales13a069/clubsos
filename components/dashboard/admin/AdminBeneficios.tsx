@@ -1,14 +1,16 @@
 "use client";
 
 /**
- * AdminBeneficios — Full CRUD for beneficios (Step 7.4).
+ * AdminBeneficios — Full CRUD for beneficios.
  *
  * Server-side pagination (20/page). Re-fetches on page change or after
- * create/delete. Edit updates the row in local state without a re-fetch.
+ * delete. Cards navigate to /[id] for detail. Create/Edit via parallel routes.
  */
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
 import { formatDateShortNI } from "@/lib/datetime";
 import { toast } from "sonner";
 import {
@@ -23,8 +25,6 @@ import {
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
-import BeneficioFormModal from "./BeneficioFormModal";
-import BeneficioDetailModal from "@/components/dashboard/miembro/beneficios/BeneficioDetailModal";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -87,9 +87,12 @@ interface Props {
   userId: string;
 }
 
-export default function AdminBeneficios({ userId }: Props) {
+export default function AdminBeneficios({ userId: _userId }: Props) {
   const t      = useTranslations("Dashboard.admin.beneficios");
   const locale = useLocale() as "es" | "en";
+  const router = useRouter();
+  const params = useParams<{ id?: string }>();
+  const activeId = params?.id ?? null;
 
   // ── Data state ────────────────────────────────────────────────────────────
   const [beneficios,  setBeneficios]  = useState<BeneficioRow[]>([]);
@@ -103,19 +106,9 @@ export default function AdminBeneficios({ userId }: Props) {
   const pageRef = useRef(0);
   pageRef.current = page;
 
-  // ── Empresa options for form (fetched once) ───────────────────────────────
-  const [empresas, setEmpresas] = useState<EmpresaOption[]>([]);
-
-  // ── Form modal ────────────────────────────────────────────────────────────
-  const [formOpen,         setFormOpen]         = useState(false);
-  const [editingBeneficio, setEditingBeneficio] = useState<BeneficioRow | null>(null);
-
   // ── Delete confirm ────────────────────────────────────────────────────────
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deletingId,      setDeletingId]      = useState<string | null>(null);
-
-  // ── Detail modal ──────────────────────────────────────────────────────────
-  const [detailBeneficio, setDetailBeneficio] = useState<BeneficioRow | null>(null);
 
   // ── Fetch beneficios ──────────────────────────────────────────────────────
   const fetchBeneficios = useCallback(async () => {
@@ -141,37 +134,10 @@ export default function AdminBeneficios({ userId }: Props) {
   // Re-fetch when page or refresh key changes
   useEffect(() => { fetchBeneficios(); }, [fetchBeneficios, page, refresh]);
 
-  // Fetch empresas once on mount
-  useEffect(() => {
-    createClient()
-      .from("empresas")
-      .select("id, nombre")
-      .eq("estado", "activa")
-      .order("nombre")
-      .then(({ data }) => setEmpresas((data ?? []) as EmpresaOption[]));
-  }, []);
-
   // ── Pagination helpers ────────────────────────────────────────────────────
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
   const fromItem   = totalCount === 0 ? 0 : page * PAGE_SIZE + 1;
   const toItem     = Math.min((page + 1) * PAGE_SIZE, totalCount);
-
-  // ── Create / Edit handlers ────────────────────────────────────────────────
-  const openCrear = () => { setEditingBeneficio(null); setFormOpen(true); };
-  const openEditar = (b: BeneficioRow) => { setEditingBeneficio(b); setFormOpen(true); };
-
-  const handleSaved = (saved: BeneficioRow, isNew: boolean) => {
-    setFormOpen(false);
-    setEditingBeneficio(null);
-    if (isNew) {
-      // Go to page 0 and re-fetch so new item appears first
-      setPage(0);
-      setRefresh((r) => r + 1);
-    } else {
-      // Update row in place — no re-fetch needed
-      setBeneficios((prev) => prev.map((b) => (b.id === saved.id ? saved : b)));
-    }
-  };
 
   // ── Delete ────────────────────────────────────────────────────────────────
   const handleDelete = async (id: string) => {
@@ -190,6 +156,9 @@ export default function AdminBeneficios({ userId }: Props) {
       setBeneficios((prev) => prev.filter((b) => b.id !== id));
       setTotalCount((n) => n - 1);
       toast.success(t("eliminadoOk"));
+      if (activeId === id) {
+        router.push(`/${locale}/dashboard/admin/beneficios`);
+      }
     } else {
       toast.error(t("errorEliminar"));
     }
@@ -218,15 +187,14 @@ export default function AdminBeneficios({ userId }: Props) {
           <h1 className="text-2xl font-poppins font-bold text-gray-900">{t("titulo")}</h1>
           <p className="text-sm font-roboto text-neutral mt-0.5">{t("subtitle")}</p>
         </div>
-        <button
-          type="button"
-          onClick={openCrear}
+        <Link
+          href={`/${locale}/dashboard/admin/beneficios/nuevo`}
           className="shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary text-white
                      text-sm font-roboto font-semibold hover:bg-secondary/90 shadow-sm transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span className="hidden sm:inline">{t("crearBtn")}</span>
-        </button>
+        </Link>
       </div>
 
       {/* Table card */}
@@ -275,12 +243,17 @@ export default function AdminBeneficios({ userId }: Props) {
                   {beneficios.map((b) => {
                     const isConfirming = confirmDeleteId === b.id;
                     const isDeleting   = deletingId === b.id;
+                    const isActive     = activeId === b.id;
 
                     return (
                       <tr
                         key={b.id}
-                        className="hover:bg-gray-50/50 transition-colors cursor-pointer"
-                        onClick={() => setDetailBeneficio(b)}
+                        data-active={isActive || undefined}
+                        className={cn(
+                          "hover:bg-gray-50/50 transition-colors cursor-pointer",
+                          isActive && "bg-secondary/5 ring-inset ring-1 ring-secondary/20",
+                        )}
+                        onClick={() => router.push(`/${locale}/dashboard/admin/beneficios/${b.id}`)}
                       >
                         {/* Thumbnail */}
                         <td className="px-5 py-3.5">
@@ -354,14 +327,14 @@ export default function AdminBeneficios({ userId }: Props) {
                             </div>
                           ) : (
                             <div className="flex gap-1.5">
-                              <button
-                                type="button"
-                                onClick={() => openEditar(b)}
+                              <Link
+                                href={`/${locale}/dashboard/admin/beneficios/${b.id}/editar`}
+                                onClick={(e) => e.stopPropagation()}
                                 className="p-1.5 rounded-lg text-gray-400 hover:text-secondary hover:bg-secondary/10 transition-colors"
                                 title={t("editarBtn")}
                               >
                                 <Pencil className="w-4 h-4" />
-                              </button>
+                              </Link>
                               <button
                                 type="button"
                                 onClick={() => setConfirmDeleteId(b.id)}
@@ -385,12 +358,17 @@ export default function AdminBeneficios({ userId }: Props) {
               {beneficios.map((b) => {
                 const isConfirming = confirmDeleteId === b.id;
                 const isDeleting   = deletingId === b.id;
+                const isActive     = activeId === b.id;
 
                 return (
                   <div
                     key={b.id}
-                    className="px-4 py-4 cursor-pointer hover:bg-gray-50/60 transition-colors"
-                    onClick={() => setDetailBeneficio(b)}
+                    data-active={isActive || undefined}
+                    className={cn(
+                      "px-4 py-4 cursor-pointer hover:bg-gray-50/60 transition-colors",
+                      isActive && "bg-secondary/5",
+                    )}
+                    onClick={() => router.push(`/${locale}/dashboard/admin/beneficios/${b.id}`)}
                   >
                     <div className="flex items-start gap-3">
                       {/* Thumbnail */}
@@ -444,13 +422,13 @@ export default function AdminBeneficios({ userId }: Props) {
                           </div>
                         ) : (
                           <div className="flex gap-1">
-                            <button
-                              type="button"
-                              onClick={() => openEditar(b)}
+                            <Link
+                              href={`/${locale}/dashboard/admin/beneficios/${b.id}/editar`}
+                              onClick={(e) => e.stopPropagation()}
                               className="p-1.5 rounded-lg text-gray-400 hover:text-secondary hover:bg-secondary/10 transition-colors"
                             >
                               <Pencil className="w-4 h-4" />
-                            </button>
+                            </Link>
                             <button
                               type="button"
                               onClick={() => setConfirmDeleteId(b.id)}
@@ -503,23 +481,6 @@ export default function AdminBeneficios({ userId }: Props) {
         </div>
       )}
 
-      {/* Detail modal */}
-      <BeneficioDetailModal
-        open={detailBeneficio !== null}
-        beneficio={detailBeneficio}
-        onClose={() => setDetailBeneficio(null)}
-      />
-
-      {/* Create / Edit modal */}
-      <BeneficioFormModal
-        open={formOpen}
-        mode={editingBeneficio ? "editar" : "crear"}
-        beneficio={editingBeneficio}
-        empresas={empresas}
-        createdBy={userId}
-        onClose={() => { setFormOpen(false); setEditingBeneficio(null); }}
-        onSaved={handleSaved}
-      />
     </div>
   );
 }
