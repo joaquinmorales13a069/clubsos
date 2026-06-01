@@ -1261,8 +1261,23 @@
           "cancelar": "Cancelar",
           "guardar": "Guardar",
           "guardando": "Guardando...",
+          "editarTitle": "Editar ubicación",
+          "nuevoTitle": "Nueva ubicación",
+          "crear": "Crear ubicación",
           "validNombre": "El nombre es obligatorio.",
           "errorGuardar": "No se pudo guardar la ubicación."
+        },
+        "detalle": {
+          "untitled": "Ubicación",
+          "editar": "Editar",
+          "direccion": "Dirección",
+          "telefono": "Teléfono",
+          "zonaHoraria": "Zona horaria",
+          "activo": "Activa",
+          "doctoresCount": "Doctores en esta ubicación",
+          "creado": "Creada",
+          "si": "Sí",
+          "no": "No"
         }
       },
       "doctores": {

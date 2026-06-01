@@ -1261,8 +1261,23 @@
           "cancelar": "Cancel",
           "guardar": "Save",
           "guardando": "Saving...",
+          "editarTitle": "Edit location",
+          "nuevoTitle": "New location",
+          "crear": "Create location",
           "validNombre": "Name is required.",
           "errorGuardar": "Failed to save location."
+        },
+        "detalle": {
+          "untitled": "Location",
+          "editar": "Edit",
+          "direccion": "Address",
+          "telefono": "Phone",
+          "zonaHoraria": "Time zone",
+          "activo": "Active",
+          "doctoresCount": "Doctors at this location",
+          "creado": "Created",
+          "si": "Yes",
+          "no": "No"
         }
       },
       "doctores": {
