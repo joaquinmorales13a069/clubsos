@@ -13,6 +13,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   Search,
@@ -22,11 +23,9 @@ import {
   ChevronRight,
   CheckCircle2,
   XCircle,
-  Eye,
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
-import DetalleModalAdmin from "./DetalleModalAdmin";
 import { formatDateShortNI, formatTimeNI, formatShortDateTimeNI, type Loc } from "@/lib/datetime";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -108,6 +107,7 @@ export default function AdminCitasRegistro() {
   const t      = useTranslations("Dashboard.admin.citas");
   const tGlobal = useTranslations("Dashboard.empresa.citas");
   const locale = useLocale() as Loc;
+  const router = useRouter();
 
   // ── Server-fetched data ──────────────────────────────────────────────────
   const [citas,      setCitas]      = useState<CitaRegistroAdmin[]>([]);
@@ -126,10 +126,6 @@ export default function AdminCitasRegistro() {
   // ── Empresa dropdown options (fetched once) ───────────────────────────────
   const [empresas,        setEmpresas]        = useState<EmpresaOption[]>([]);
   const [empresasLoading, setEmpresasLoading] = useState(true);
-
-  // ── Modal ─────────────────────────────────────────────────────────────────
-  const [selectedCita, setSelectedCita] = useState<CitaRegistroAdmin | null>(null);
-  const [modalOpen,    setModalOpen]    = useState(false);
 
   // ── Per-row action loading ─────────────────────────────────────────────────
   const [aprobandoId,  setAprobandoId]  = useState<string | null>(null);
@@ -231,9 +227,6 @@ export default function AdminCitasRegistro() {
         setCitas((prev) =>
           prev.map((c) => c.id === citaId ? { ...c, estado_sync: "confirmado" } : c),
         );
-        if (selectedCita?.id === citaId) {
-          setSelectedCita((prev) => prev ? { ...prev, estado_sync: "confirmado" } : prev);
-        }
         toast.success(tGlobal("aprobada"));
         window.dispatchEvent(new CustomEvent("citas:mutated"));
       } else {
@@ -258,9 +251,6 @@ export default function AdminCitasRegistro() {
       setCitas((prev) =>
         prev.map((c) => c.id === citaId ? { ...c, estado_sync: "rechazado" } : c),
       );
-      if (selectedCita?.id === citaId) {
-        setSelectedCita((prev) => prev ? { ...prev, estado_sync: "rechazado" } : prev);
-      }
       toast.success(tGlobal("rechazada"));
       window.dispatchEvent(new CustomEvent("citas:mutated"));
     } else {
@@ -268,8 +258,6 @@ export default function AdminCitasRegistro() {
     }
     setRechazandoId(null);
   };
-
-  const openModal = (cita: CitaRegistroAdmin) => { setSelectedCita(cita); setModalOpen(true); };
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -391,7 +379,8 @@ export default function AdminCitasRegistro() {
                     return (
                       <tr
                         key={cita.id}
-                        className="hover:bg-gray-50/60 transition-colors"
+                        onClick={() => router.push(`/${locale}/dashboard/admin/citas/${cita.id}`)}
+                        className="hover:bg-gray-50/60 cursor-pointer transition-colors"
                       >
                         {/* Paciente */}
                         <td className="px-5 py-3.5">
@@ -434,21 +423,12 @@ export default function AdminCitasRegistro() {
                             {t(status.i18n as Parameters<typeof t>[0])}
                           </span>
                         </td>
-                        {/* Actions */}
+                        {/* Inline quick-actions (stop propagation so row click doesn't fire) */}
                         <td
                           className="px-4 py-3.5"
                           onClick={(e) => e.stopPropagation()}
                         >
                           <div className="flex items-center gap-1.5">
-                            {/* Eye / detail */}
-                            <button
-                              type="button"
-                              onClick={() => openModal(cita)}
-                              className="p-1.5 rounded-lg text-gray-400 hover:text-secondary hover:bg-secondary/10 transition-colors"
-                              title={t("verDetalle")}
-                            >
-                              <Eye className="w-4 h-4" />
-                            </button>
                             {/* Approve — only when pendiente and not yet in EA */}
                             {canAprobar && (
                               <button
@@ -506,7 +486,7 @@ export default function AdminCitasRegistro() {
                 return (
                   <div
                     key={cita.id}
-                    onClick={() => openModal(cita)}
+                    onClick={() => router.push(`/${locale}/dashboard/admin/citas/${cita.id}`)}
                     className="px-4 py-4 cursor-pointer hover:bg-gray-50/60 transition-colors"
                   >
                     <div className="flex items-start gap-3">
@@ -612,16 +592,6 @@ export default function AdminCitasRegistro() {
         </div>
       )}
 
-      {/* Detail modal */}
-      <DetalleModalAdmin
-        open={modalOpen}
-        cita={selectedCita}
-        aprobando={aprobandoId === selectedCita?.id}
-        rechazando={rechazandoId === selectedCita?.id}
-        onClose={() => setModalOpen(false)}
-        onAprobar={handleAprobar}
-        onRechazar={handleRechazar}
-      />
     </div>
   );
 }

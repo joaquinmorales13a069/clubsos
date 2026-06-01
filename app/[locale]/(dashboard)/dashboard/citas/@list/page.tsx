@@ -1,6 +1,6 @@
 /**
- * Citas page — Step 5.3
- * Server Component: fetches citas and user profile, passes to MisCitas client component.
+ * Miembro — Mis Citas (list slot for parallel routes layout)
+ * Server Component: fetches citas + profile, passes to MisCitas.
  */
 
 import { redirect } from "next/navigation";
@@ -8,7 +8,7 @@ import { getLocale } from "next-intl/server";
 import { createClient } from "@/utils/supabase/server";
 import MisCitas from "@/components/dashboard/miembro/citas/MisCitas";
 
-export default async function CitasPage() {
+export default async function CitasListPage() {
   const supabase = await createClient();
   const locale   = await getLocale();
 
@@ -36,8 +36,6 @@ export default async function CitasPage() {
 
   return (
     <MisCitas
-      // Supabase returns FK joins as arrays even for single FKs; downstream we
-      // only consume the (single) related row, so we cast at the boundary.
       citas={(citasRes.data ?? []) as unknown as Parameters<typeof MisCitas>[0]["citas"]}
       userProfile={profileRes.data ?? null}
       locale={locale}

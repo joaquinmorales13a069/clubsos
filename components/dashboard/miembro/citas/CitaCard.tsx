@@ -91,22 +91,24 @@ export default function CitaCard({ cita }: CitaCardProps) {
 
       {/* Add to external calendar — only for confirmed citas */}
       {cita.estado_sync === "confirmado" && (
-        <AgregarACalendario
-          citaId={cita.id}
-          title={`${cita.servicio_asociado ?? "Cita médica"}${cita.doctor?.nombre ? ` con ${cita.doctor.nombre}` : ""}`}
-          start={new Date(cita.fecha_hora_cita)}
-          end={cita.fecha_hora_fin
-            ? new Date(cita.fecha_hora_fin)
-            : new Date(new Date(cita.fecha_hora_cita).getTime() + 30 * 60_000)}
-          location={cita.ubicacion
-            ? `${cita.ubicacion.nombre}${cita.ubicacion.direccion ? `, ${cita.ubicacion.direccion}` : ""}`
-            : undefined}
-        />
+        <div onClick={(e) => e.stopPropagation()}>
+          <AgregarACalendario
+            citaId={cita.id}
+            title={`${cita.servicio_asociado ?? "Cita médica"}${cita.doctor?.nombre ? ` con ${cita.doctor.nombre}` : ""}`}
+            start={new Date(cita.fecha_hora_cita)}
+            end={cita.fecha_hora_fin
+              ? new Date(cita.fecha_hora_fin)
+              : new Date(new Date(cita.fecha_hora_cita).getTime() + 30 * 60_000)}
+            location={cita.ubicacion
+              ? `${cita.ubicacion.nombre}${cita.ubicacion.direccion ? `, ${cita.ubicacion.direccion}` : ""}`
+              : undefined}
+          />
+        </div>
       )}
 
       {/* Cancel button */}
       {CANCELABLE.has(cita.estado_sync) && (
-        <div className="space-y-1">
+        <div className="space-y-1" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={handleCancel}
             disabled={cancelling || pastCutoff}

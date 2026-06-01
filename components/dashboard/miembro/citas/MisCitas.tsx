@@ -9,7 +9,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { CalendarDays, Plus } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import WizardProgressBar from "./WizardProgressBar";
@@ -40,9 +40,10 @@ interface MisCitasProps {
 
 type View = "list" | "wizard";
 
-export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) {
+export default function MisCitas({ citas, userProfile, locale: _locale }: MisCitasProps) {
   const t = useTranslations("Dashboard.miembro.citas");
   const router = useRouter();
+  const locale = useLocale();
   const [view, setView]     = useState<View>("list");
   const [wizard, setWizard] = useState<WizardState>(INITIAL_WIZARD);
   const [datosBancarios, setDatosBancarios] = useState<{ banco: string; numero_cuenta: string; iban: string } | null>(null);
@@ -232,7 +233,15 @@ export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) 
         <section className="space-y-3">
           <h2 className="text-sm font-poppins font-semibold text-gray-500 uppercase tracking-wide">{t("sectionUpcoming")}</h2>
           <div className="grid gap-3 sm:grid-cols-2">
-            {upcoming.map((c) => <CitaCard key={c.id} cita={c} />)}
+            {upcoming.map((c) => (
+              <div
+                key={c.id}
+                onClick={() => router.push(`/${locale}/dashboard/citas/${c.id}`)}
+                className="cursor-pointer"
+              >
+                <CitaCard cita={c} />
+              </div>
+            ))}
           </div>
         </section>
       )}
@@ -242,7 +251,15 @@ export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) 
         <section className="space-y-3">
           <h2 className="text-sm font-poppins font-semibold text-gray-500 uppercase tracking-wide">{t("sectionHistory")}</h2>
           <div className="grid gap-3 sm:grid-cols-2">
-            {history.map((c) => <CitaCard key={c.id} cita={c} />)}
+            {history.map((c) => (
+              <div
+                key={c.id}
+                onClick={() => router.push(`/${locale}/dashboard/citas/${c.id}`)}
+                className="cursor-pointer"
+              >
+                <CitaCard cita={c} />
+              </div>
+            ))}
           </div>
         </section>
       )}

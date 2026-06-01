@@ -12,6 +12,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -23,10 +25,9 @@ import type {
   DatesSetArg,
   EventContentArg,
 } from "@fullcalendar/core";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, List } from "lucide-react";
 
 import { createClient } from "@/utils/supabase/client";
-import AdminCitaDetalleModal from "./AdminCitaDetalleModal";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -79,7 +80,9 @@ export default function AdminCalendarioCitas() {
   const t       = useTranslations("Dashboard.admin.citas.calendario");
   const tF      = useTranslations("Dashboard.admin.citas.calendario.filtros");
   const tEstado = useTranslations("Dashboard.admin.citas.calendario.estados");
+  const tToggle = useTranslations("Dashboard.admin.citas.toggle");
   const locale  = useLocale();
+  const router  = useRouter();
 
   const supabase    = useMemo(() => createClient(), []);
   const calendarRef = useRef<FullCalendar>(null);
@@ -100,10 +103,6 @@ export default function AdminCalendarioCitas() {
   const [ubicaciones, setUbicaciones] = useState<FilterOption[]>([]);
   const [doctores,    setDoctores]    = useState<FilterOption[]>([]);
   const [servicios,   setServicios]   = useState<FilterOption[]>([]);
-
-  // Modal state
-  const [modalOpen, setModalOpen] = useState(false);
-  const [modalCitaId, setModalCitaId] = useState<string | null>(null);
 
   // ── Load filter options once ───────────────────────────────────────────────
   useEffect(() => {
@@ -195,20 +194,8 @@ export default function AdminCalendarioCitas() {
   }, []);
 
   const handleEventClick = useCallback((arg: EventClickArg) => {
-    setModalCitaId(arg.event.id);
-    setModalOpen(true);
-  }, []);
-
-  const handleModalClose = useCallback(() => {
-    setModalOpen(false);
-    setModalCitaId(null);
-  }, []);
-
-  const handleModalChanged = useCallback(() => {
-    setModalOpen(false);
-    setModalCitaId(null);
-    void fetchEvents();
-  }, [fetchEvents]);
+    router.push(`/${locale}/dashboard/admin/citas/${arg.event.id}`);
+  }, [router, locale]);
 
   // ── Render ────────────────────────────────────────────────────────────────
   const selectCls =
@@ -217,14 +204,35 @@ export default function AdminCalendarioCitas() {
 
   return (
     <div className="space-y-5">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
-          <CalendarDays className="w-5 h-5 text-secondary" />
+      {/* Header + toggle */}
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+            <CalendarDays className="w-5 h-5 text-secondary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-poppins font-bold text-gray-900">{t("title")}</h1>
+            <p className="text-sm font-roboto text-neutral">{t("subtitle")}</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-xl font-poppins font-bold text-gray-900">{t("title")}</h1>
-          <p className="text-sm font-roboto text-neutral">{t("subtitle")}</p>
+        {/* Toggle — "Lista" navigates back to the split-pane route */}
+        <div className="inline-flex items-center gap-1 rounded-2xl border border-gray-200 bg-white p-1">
+          <Link
+            href={`/${locale}/dashboard/admin/citas`}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-roboto font-medium transition-colors text-neutral hover:text-gray-700"
+          >
+            <List className="w-4 h-4" />
+            {tToggle("lista")}
+          </Link>
+          <button
+            type="button"
+            disabled
+            aria-pressed
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-roboto font-medium transition-colors bg-secondary text-white shadow-sm"
+          >
+            <CalendarDays className="w-4 h-4" />
+            {tToggle("calendario")}
+          </button>
         </div>
       </div>
 
@@ -316,12 +324,6 @@ export default function AdminCalendarioCitas() {
         />
       </div>
 
-      <AdminCitaDetalleModal
-        citaId={modalCitaId}
-        open={modalOpen}
-        onClose={handleModalClose}
-        onChanged={handleModalChanged}
-      />
     </div>
   );
 }

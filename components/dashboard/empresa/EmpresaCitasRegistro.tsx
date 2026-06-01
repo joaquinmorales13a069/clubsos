@@ -13,6 +13,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
 import { formatDateShortNI, formatTimeNI, formatShortDateTimeNI, type Loc } from "@/lib/datetime";
 import { toast } from "sonner";
 import {
@@ -26,7 +27,6 @@ import {
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
-import DetalleModal from "./DetalleModal";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -106,6 +106,7 @@ export default function EmpresaCitasRegistro() {
   const t      = useTranslations("Dashboard.empresa.registroCitas");
   const tCitas = useTranslations("Dashboard.empresa.citas");
   const locale = useLocale() as Loc;
+  const router = useRouter();
 
   // ── Data state ──────────────────────────────────────────────────────────
   const [citas,   setCitas]   = useState<CitaRegistro[]>([]);
@@ -115,10 +116,6 @@ export default function EmpresaCitasRegistro() {
   const [filter,   setFilter]   = useState<FilterKey>("todas");
   const [search,   setSearch]   = useState("");
   const [page,     setPage]     = useState(0);
-
-  // ── Modal state ──────────────────────────────────────────────────────────
-  const [selectedCita, setSelectedCita] = useState<CitaRegistro | null>(null);
-  const [modalOpen,    setModalOpen]    = useState(false);
 
   // ── Action loading per-cita ───────────────────────────────────────────────
   const [aprobandoId,  setAprobandoId]  = useState<string | null>(null);
@@ -213,10 +210,6 @@ export default function EmpresaCitasRegistro() {
             c.id === citaId ? { ...c, estado_sync: "confirmado" } : c,
           ),
         );
-        // Keep modal open but reflect new status
-        if (selectedCita?.id === citaId) {
-          setSelectedCita((prev) => prev ? { ...prev, estado_sync: "confirmado" } : prev);
-        }
         toast.success(tCitas("aprobada"));
       } else {
         toast.error(tCitas("error_aprobar"));
@@ -244,21 +237,12 @@ export default function EmpresaCitasRegistro() {
           c.id === citaId ? { ...c, estado_sync: "rechazado" } : c,
         ),
       );
-      if (selectedCita?.id === citaId) {
-        setSelectedCita((prev) => prev ? { ...prev, estado_sync: "rechazado" } : prev);
-      }
       toast.success(tCitas("rechazada"));
     } else {
       toast.error(tCitas("error_rechazar"));
     }
 
     setRechazandoId(null);
-  };
-
-  // ── Row click → open detail modal ────────────────────────────────────────
-  const openModal = (cita: CitaRegistro) => {
-    setSelectedCita(cita);
-    setModalOpen(true);
   };
 
   // ── Render ────────────────────────────────────────────────────────────────
@@ -380,7 +364,7 @@ export default function EmpresaCitasRegistro() {
                     return (
                       <tr
                         key={cita.id}
-                        onClick={() => openModal(cita)}
+                        onClick={() => router.push(`/${locale}/dashboard/empresa/citas/${cita.id}`)}
                         className="hover:bg-gray-50/60 cursor-pointer transition-colors"
                       >
                         {/* Creado por */}
@@ -491,7 +475,7 @@ export default function EmpresaCitasRegistro() {
                 return (
                   <div
                     key={cita.id}
-                    onClick={() => openModal(cita)}
+                    onClick={() => router.push(`/${locale}/dashboard/empresa/citas/${cita.id}`)}
                     className="px-4 py-4 cursor-pointer hover:bg-gray-50/60 transition-colors"
                   >
                     <div className="flex items-start gap-3">
@@ -601,16 +585,6 @@ export default function EmpresaCitasRegistro() {
         </div>
       )}
 
-      {/* Detail modal */}
-      <DetalleModal
-        open={modalOpen}
-        cita={selectedCita}
-        aprobando={aprobandoId === selectedCita?.id}
-        rechazando={rechazandoId === selectedCita?.id}
-        onClose={() => setModalOpen(false)}
-        onAprobar={handleAprobar}
-        onRechazar={handleRechazar}
-      />
     </div>
   );
 }
