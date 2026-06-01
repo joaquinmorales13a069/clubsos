@@ -447,7 +447,10 @@
         "cerrar": "Cerrar",
         "noDescripcion": "Sin descripción.",
         "vigencia": "Vigencia",
-        "validHasta": "Válido hasta"
+        "validHasta": "Válido hasta",
+        "detalle": {
+          "untitled": "Aviso"
+        }
       },
       "documentos": {
         "title": "Mis Reportes",
