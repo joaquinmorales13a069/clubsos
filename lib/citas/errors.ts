@@ -11,6 +11,7 @@ export type CitaErrorCode =
   | "QUOTA_EXCEEDED"
   | "INVALID_DOCTOR_SERVICE"
   | "CANCEL_TOO_LATE"
+  | "CITA_YA_PASO"
   | "INVALID_STATE_TRANSITION"
   | "CITA_NOT_FOUND"
   | "DOCTOR_NOT_FOUND"
@@ -33,6 +34,7 @@ const MAPPING: Record<CitaErrorCode, CitaErrorMapping> = {
   QUOTA_EXCEEDED:                    { status: 409, i18nKey: "Errors.citas.quota_exceeded" },
   INVALID_DOCTOR_SERVICE:            { status: 422, i18nKey: "Errors.citas.invalid_doctor_service" },
   CANCEL_TOO_LATE:                   { status: 409, i18nKey: "Errors.citas.cancel_too_late" },
+  CITA_YA_PASO:                      { status: 409, i18nKey: "Errors.citas.cita_ya_paso" },
   INVALID_STATE_TRANSITION:          { status: 409, i18nKey: "Errors.citas.invalid_state_transition" },
   CITA_NOT_FOUND:                    { status: 404, i18nKey: "Errors.citas.cita_not_found" },
   DOCTOR_NOT_FOUND:                  { status: 404, i18nKey: "Errors.citas.doctor_not_found" },
