@@ -787,6 +787,36 @@
         "sectionUsuariosDesc": "Incluye nombre, correo, teléfono, rol, tipo de cuenta, estado y fecha de registro. Usa el filtro de período para acotar el rango de fechas de registro.",
         "sectionCitasDesc": "Agrupadas por servicio (total de citas por tipo de consulta) o por titular (citas propias más citas de familiares). El filtro aplica sobre la fecha de la cita, no la fecha de creación.",
         "sectionContratosDesc": "Solo incluye citas vinculadas a un contrato de servicio. Agrupa por contrato-servicio (cuota configurada vs. citas realizadas) o por titular. Selecciona la fecha de inicio del período a analizar."
+      },
+      "usuarios": {
+        "detalle": {
+          "untitled": "Usuario",
+          "editar": "Editar",
+          "email": "Correo",
+          "telefono": "Teléfono",
+          "documento": "Documento",
+          "estado": "Estado",
+          "fechaNacimiento": "Fecha de nacimiento",
+          "sexo": "Sexo",
+          "tipoCuenta": "Tipo de cuenta",
+          "creado": "Registrado",
+          "sexoM": "Masculino",
+          "sexoF": "Femenino"
+        },
+        "editar": {
+          "title": "Editar usuario",
+          "nombre": "Nombre completo",
+          "telefono": "Teléfono",
+          "email": "Correo",
+          "documento": "Documento",
+          "estado": "Estado",
+          "guardar": "Guardar cambios",
+          "guardando": "Guardando…",
+          "estados": {
+            "activo": "Activo",
+            "inactivo": "Inactivo"
+          }
+        }
       }
     },
     "admin": {

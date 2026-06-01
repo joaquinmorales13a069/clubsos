@@ -787,6 +787,36 @@
         "sectionUsuariosDesc": "Includes name, email, phone, role, account type, status and registration date. Use the period filter to narrow the registration date range.",
         "sectionCitasDesc": "Grouped by service (total appointments per consultation type) or by primary member (own appointments plus family appointments). The filter applies to the appointment date, not the creation date.",
         "sectionContratosDesc": "Only includes appointments linked to a service contract. Groups by contract-service (configured quota vs. appointments used) or by primary member. Select the start date for the period to analyze."
+      },
+      "usuarios": {
+        "detalle": {
+          "untitled": "User",
+          "editar": "Edit",
+          "email": "Email",
+          "telefono": "Phone",
+          "documento": "Document",
+          "estado": "Status",
+          "fechaNacimiento": "Date of birth",
+          "sexo": "Sex",
+          "tipoCuenta": "Account type",
+          "creado": "Registered",
+          "sexoM": "Male",
+          "sexoF": "Female"
+        },
+        "editar": {
+          "title": "Edit user",
+          "nombre": "Full name",
+          "telefono": "Phone",
+          "email": "Email",
+          "documento": "Document",
+          "estado": "Status",
+          "guardar": "Save changes",
+          "guardando": "Saving…",
+          "estados": {
+            "activo": "Active",
+            "inactivo": "Inactive"
+          }
+        }
       }
     },
     "admin": {
