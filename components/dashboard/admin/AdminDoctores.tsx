@@ -1,22 +1,24 @@
 "use client";
 
 /**
- * AdminDoctores — list + filter doctores (with quick create modal).
+ * AdminDoctores — list + filter doctores.
  *
  * Phase 4 · Step 6 of the native citas module. Lists doctores from
  * /api/admin/doctores, allows filtering by ubicacion and estado, and
- * provides quick create (modal) + per-row toggle activar/desactivar +
- * "View detail" navigation to /admin/doctores/[id].
+ * provides per-row toggle activar/desactivar + navigation to /[id].
+ * Create/edit now go through dedicated parallel-route pages.
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
   Stethoscope,
   Plus,
   Eye,
+  Pencil,
   Power,
   PowerOff,
   Loader2,
@@ -24,7 +26,6 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import AdminDoctorFormModal from "./AdminDoctorFormModal";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -76,20 +77,19 @@ function servicioCount(d: DoctorRow): number {
 export default function AdminDoctores({ locale }: Props) {
   const t      = useTranslations("Dashboard.admin.doctores");
   const router = useRouter();
+  const params = useParams<{ id?: string }>();
+  const activeId = params?.id ?? null;
 
   const [rows,    setRows]    = useState<DoctorRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState(false);
 
-  // Ubicaciones for filter + form
+  // Ubicaciones for filter
   const [ubicaciones, setUbicaciones] = useState<UbicacionMini[]>([]);
 
   // Filters
   const [filtroUbicacion, setFiltroUbicacion] = useState<string>("");
   const [filtroEstado,    setFiltroEstado]    = useState<"todos" | "activo" | "inactivo">("activo");
-
-  // Modal state (create only — edits live in the detail page Info tab)
-  const [formOpen, setFormOpen] = useState(false);
 
   // Soft delete confirm state
   const [confirmId, setConfirmId] = useState<string | null>(null);
@@ -137,13 +137,6 @@ export default function AdminDoctores({ locale }: Props) {
   }, [rows, filtroUbicacion, filtroEstado]);
 
   // ── Handlers ───────────────────────────────────────────────────────────────
-  const openCreate = () => setFormOpen(true);
-
-  const handleSaved = () => {
-    setFormOpen(false);
-    toast.success(t("saved"));
-    void load();
-  };
 
   const handleToggleActivo = async (d: DoctorRow) => {
     if (d.activo && confirmId !== d.id) {
@@ -172,9 +165,6 @@ export default function AdminDoctores({ locale }: Props) {
     setBusyId(null);
   };
 
-  const goDetail = (d: DoctorRow) =>
-    router.push(`/${locale}/dashboard/admin/doctores/${d.id}`);
-
   // ── Styles ─────────────────────────────────────────────────────────────────
   const thCls = "px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap";
   const tdCls = "px-4 py-3 text-sm font-roboto text-gray-800 align-middle";
@@ -195,13 +185,13 @@ export default function AdminDoctores({ locale }: Props) {
             <p className="text-sm font-roboto text-neutral">{t("subtitle")}</p>
           </div>
         </div>
-        <button
-          onClick={openCreate}
+        <Link
+          href={`/${locale}/dashboard/admin/doctores/nuevo`}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary text-white text-sm font-roboto font-medium hover:bg-secondary/90 transition-colors shrink-0"
         >
           <Plus className="w-4 h-4" />
           {t("nuevo")}
-        </button>
+        </Link>
       </div>
 
       {/* Filters */}
@@ -259,10 +249,12 @@ export default function AdminDoctores({ locale }: Props) {
                 {filtered.map((d) => (
                   <tr
                     key={d.id}
-                    className="hover:bg-gray-50/60 transition-colors"
+                    data-active={d.id === activeId ? "true" : undefined}
+                    className="hover:bg-gray-50/60 transition-colors cursor-pointer data-[active=true]:bg-primary/5 data-[active=true]:border-l-2 data-[active=true]:border-primary"
                     onClick={() => {
                       if (confirmId === d.id) return;
                       setConfirmId(null);
+                      router.push(`/${locale}/dashboard/admin/doctores/${d.id}`);
                     }}
                   >
                     <td className={cn(tdCls, "font-medium text-gray-900")}>
@@ -294,14 +286,22 @@ export default function AdminDoctores({ locale }: Props) {
                     </td>
                     <td className={cn(tdCls, "text-right")} onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => goDetail(d)}
+                        <Link
+                          href={`/${locale}/dashboard/admin/doctores/${d.id}`}
                           title={t("verDetalle")}
                           aria-label={t("verDetalle")}
                           className="p-1.5 rounded-lg text-gray-400 hover:text-secondary hover:bg-secondary/10 transition-colors"
                         >
                           <Eye className="w-4 h-4" />
-                        </button>
+                        </Link>
+                        <Link
+                          href={`/${locale}/dashboard/admin/doctores/${d.id}/editar`}
+                          title={t("editar")}
+                          aria-label={t("editar")}
+                          className="p-1.5 rounded-lg text-gray-400 hover:text-secondary hover:bg-secondary/10 transition-colors"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Link>
 
                         {confirmId === d.id ? (
                           <div className="flex items-center gap-1.5">
@@ -359,13 +359,6 @@ export default function AdminDoctores({ locale }: Props) {
         )}
       </div>
 
-      {/* Form modal — create only */}
-      <AdminDoctorFormModal
-        open={formOpen}
-        ubicaciones={ubicaciones}
-        onClose={() => setFormOpen(false)}
-        onSaved={handleSaved}
-      />
     </div>
   );
 }
