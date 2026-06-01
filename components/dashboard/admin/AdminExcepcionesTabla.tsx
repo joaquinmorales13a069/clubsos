@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { Loader2, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDateTimeNI } from "@/lib/datetime";
-import type { ExcepcionScope } from "./AdminExcepcionFormModal";
+import type { ExcepcionScope } from "@/app/[locale]/(dashboard)/dashboard/admin/excepciones/@detail/_components/ExcepcionForm";
 
 interface ExcepcionRow {
   id:           string;

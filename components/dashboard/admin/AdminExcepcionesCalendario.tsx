@@ -26,7 +26,7 @@ import type {
   EventContentArg,
 } from "@fullcalendar/core";
 import { createClient } from "@/utils/supabase/client";
-import type { ExcepcionScope } from "./AdminExcepcionFormModal";
+import type { ExcepcionScope } from "@/app/[locale]/(dashboard)/dashboard/admin/excepciones/@detail/_components/ExcepcionForm";
 
 interface ExcepcionRow {
   id:           string;
