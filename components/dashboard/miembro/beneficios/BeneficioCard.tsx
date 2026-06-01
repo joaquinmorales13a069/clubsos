@@ -25,6 +25,7 @@ export type BeneficioRow = {
 interface BeneficioCardProps {
   beneficio: BeneficioRow;
   onClick?: () => void;
+  active?: boolean;
 }
 
 const TIPO_CONFIG: Record<
@@ -54,7 +55,7 @@ function formatFecha(dateStr: string | null, locale: "es" | "en"): string | null
 
 const MAX_DESC = 180;
 
-export default function BeneficioCard({ beneficio, onClick }: BeneficioCardProps) {
+export default function BeneficioCard({ beneficio, onClick, active }: BeneficioCardProps) {
   const t      = useTranslations("Dashboard.miembro.beneficios");
   const locale = useLocale() as "es" | "en";
   const config = TIPO_CONFIG[beneficio.tipo_beneficio] ?? TIPO_CONFIG.descuento;
@@ -70,9 +71,11 @@ export default function BeneficioCard({ beneficio, onClick }: BeneficioCardProps
 
   return (
     <article
+      data-active={active || undefined}
       className={cn(
         "bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col group hover:shadow-md transition-shadow",
         onClick && "cursor-pointer",
+        active && "ring-2 ring-secondary/40",
       )}
       onClick={onClick}
     >

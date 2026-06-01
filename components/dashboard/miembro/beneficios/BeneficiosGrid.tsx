@@ -9,11 +9,11 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { useRouter, useParams } from "next/navigation";
 import { Gift, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import BeneficioCard, { type BeneficioRow } from "./BeneficioCard";
-import BeneficioDetailModal from "./BeneficioDetailModal";
 
 const PAGE_SIZE = 12;
 
@@ -26,14 +26,17 @@ interface BeneficiosGridProps {
 }
 
 export default function BeneficiosGrid({ initialData, initialCount }: BeneficiosGridProps) {
-  const t = useTranslations("Dashboard.miembro.beneficios");
+  const t      = useTranslations("Dashboard.miembro.beneficios");
+  const locale = useLocale();
+  const router = useRouter();
+  const params = useParams<{ id?: string }>();
+  const activeId = params?.id ?? null;
 
   const [filter, setFilter]         = useState<FilterType>("all");
   const [page, setPage]             = useState(0);
   const [beneficios, setBeneficios] = useState<BeneficioRow[]>(initialData);
   const [totalCount, setTotalCount] = useState(initialCount);
   const [loading, setLoading]       = useState(false);
-  const [selectedBeneficio, setSelectedBeneficio] = useState<BeneficioRow | null>(null);
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
 
@@ -131,7 +134,12 @@ export default function BeneficiosGrid({ initialData, initialCount }: Beneficios
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {beneficios.map((b) => (
-            <BeneficioCard key={b.id} beneficio={b} onClick={() => setSelectedBeneficio(b)} />
+            <BeneficioCard
+              key={b.id}
+              beneficio={b}
+              active={activeId === b.id}
+              onClick={() => router.push(`/${locale}/dashboard/beneficios/${b.id}`)}
+            />
           ))}
         </div>
       )}
@@ -166,11 +174,6 @@ export default function BeneficiosGrid({ initialData, initialCount }: Beneficios
           </div>
         </div>
       )}
-      <BeneficioDetailModal
-        open={selectedBeneficio !== null}
-        beneficio={selectedBeneficio}
-        onClose={() => setSelectedBeneficio(null)}
-      />
     </div>
   );
 }
