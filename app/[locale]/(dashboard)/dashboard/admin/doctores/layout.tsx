@@ -1,17 +1,16 @@
-/**
- * Admin — Gestionar Doctores (Phase 4 · Step 6)
- *
- * Server Component: verifies admin role, then renders AdminDoctores.
- */
 import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import { createClient } from "@/utils/supabase/server";
-import AdminDoctores from "@/components/dashboard/admin/AdminDoctores";
+import SplitPaneClient from "./_split-pane-client";
 
-export default async function AdminDoctoresPage() {
+interface DoctoresLayoutProps {
+  list: React.ReactNode;
+  detail: React.ReactNode;
+}
+
+export default async function DoctoresLayout({ list, detail }: DoctoresLayoutProps) {
   const supabase = await createClient();
-  const locale   = await getLocale();
-
+  const locale = await getLocale();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
@@ -20,8 +19,7 @@ export default async function AdminDoctoresPage() {
     .select("rol")
     .eq("id", user.id)
     .single();
-
   if (profile?.rol !== "admin") redirect(`/${locale}/dashboard`);
 
-  return <AdminDoctores locale={locale} />;
+  return <SplitPaneClient list={list} detail={detail} />;
 }
