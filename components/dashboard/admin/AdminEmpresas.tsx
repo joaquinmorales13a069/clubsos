@@ -4,10 +4,12 @@
  * AdminEmpresas — Full CRUD for empresas (Step 7.7).
  *
  * Server-side pagination (20/page). Filters: nombre search (debounced 300ms), estado dropdown.
- * EmpresaFormModal handles create/edit. Toggle estado inline with confirm (no delete exposed).
+ * Rows navigate to /admin/empresas/[id] (split-pane detail). Toggle estado inline with confirm (no delete exposed).
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { formatDateShortNI } from "@/lib/datetime";
 import { toast } from "sonner";
@@ -22,16 +24,8 @@ import {
   ChevronRight,
   Loader2,
   X,
-  RefreshCw,
   AlertTriangle,
-  Mail,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { createClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -52,23 +46,7 @@ type EmpresaRow = {
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
-const PAGE_SIZE   = 20;
-const CODE_CHARS  = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-const CODE_LENGTH = 8;
-
-const DEPARTAMENTOS_NI = [
-  "Boaco", "Carazo", "Chinandega", "Chontales", "Estelí", "Granada",
-  "Jinotega", "León", "Madriz", "Managua", "Masaya", "Matagalpa",
-  "Nueva Segovia", "Río San Juan", "Rivas",
-  "RACN (Costa Caribe Norte)", "RACS (Costa Caribe Sur)",
-] as const;
-
-function generateCodigo(): string {
-  return Array.from(
-    { length: CODE_LENGTH },
-    () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)],
-  ).join("");
-}
+const PAGE_SIZE = 20;
 
 function formatDate(iso: string, locale: "es" | "en"): string {
   return formatDateShortNI(iso, locale);
@@ -124,302 +102,6 @@ function CodigoCell({ codigo }: { codigo: string | null }) {
   );
 }
 
-// ── EmpresaFormModal ──────────────────────────────────────────────────────────
-
-interface FormModalProps {
-  open:    boolean;
-  empresa: EmpresaRow | null; // null = create mode
-  onClose: () => void;
-  onCreated: (e: EmpresaRow) => void;
-  onUpdated: (e: EmpresaRow) => void;
-}
-
-function EmpresaFormModal({ open, empresa, onClose, onCreated, onUpdated }: FormModalProps) {
-  const t      = useTranslations("Dashboard.admin.empresas");
-  const isEdit = !!empresa;
-
-  const [nombre,       setNombre]       = useState("");
-  const [codigo,       setCodigo]       = useState("");
-  const [notas,        setNotas]        = useState("");
-  const [autoConf,     setAutoConf]     = useState(false);
-  const [estado,       setEstado]       = useState<"activa" | "inactiva">("activa");
-  const [ruc,          setRuc]          = useState("");
-  const [dirCalle,     setDirCalle]     = useState("");
-  const [departamento, setDepartamento] = useState("");
-  const [saving,       setSaving]       = useState(false);
-  const [regenConfirm, setRegenConfirm] = useState(false);
-  const [sendingEmail, setSendingEmail] = useState(false);
-
-  // Populate form on open
-  useEffect(() => {
-    if (open) {
-      setNombre(empresa?.nombre ?? "");
-      setCodigo(empresa?.codigo_empresa ?? generateCodigo());
-      setNotas(empresa?.notas ?? "");
-      setAutoConf(empresa?.auto_confirmar_citas ?? false);
-      setEstado(empresa?.estado ?? "activa");
-      setRuc(empresa?.ruc ?? "");
-      setDirCalle(empresa?.direccion_calle ?? "");
-      setDepartamento(empresa?.departamento ?? "");
-      setRegenConfirm(false);
-    }
-  }, [open, empresa]);
-
-  const handleSendEmail = async () => {
-    if (!empresa) return;
-    setSendingEmail(true);
-    try {
-      const res = await fetch(`/api/admin/empresas/${empresa.id}/send-codigo`, { method: "POST" });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error);
-      toast.success(t("emailEnviado"));
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "";
-      if (msg === "Sin empresa_admin registrados") {
-        toast.error(t("emailSinAdmins"));
-      } else {
-        toast.error(t("emailError"));
-      }
-    } finally {
-      setSendingEmail(false);
-    }
-  };
-
-  const handleRegen = () => {
-    if (!regenConfirm) { setRegenConfirm(true); return; }
-    setCodigo(generateCodigo());
-    setRegenConfirm(false);
-  };
-
-  const handleSave = async () => {
-    if (!nombre.trim() || codigo.trim().length < 4) return;
-    setSaving(true);
-
-    const payload = {
-      nombre:               nombre.trim(),
-      codigo_empresa:       codigo.trim().toUpperCase(),
-      notas:                notas.trim() || null,
-      auto_confirmar_citas: autoConf,
-      ruc:                  ruc.trim() || null,
-      direccion_calle:      dirCalle.trim() || null,
-      departamento:         departamento || null,
-      ...(isEdit ? { estado } : {}),
-    };
-
-    if (isEdit && empresa) {
-      const res = await fetch(`/api/admin/empresas/${empresa.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const json = await res.json();
-      if (!res.ok) {
-        toast.error(t("errorGuardar"));
-      } else {
-        onUpdated(json.empresa as EmpresaRow);
-        toast.success(t("actualizado"));
-        onClose();
-      }
-    } else {
-      const res = await fetch("/api/admin/empresas", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const json = await res.json();
-      if (!res.ok) {
-        toast.error(t("errorGuardar"));
-      } else {
-        onCreated(json.empresa as EmpresaRow);
-        toast.success(t("creado"));
-        onClose();
-      }
-    }
-    setSaving(false);
-  };
-
-  const inputCls = "w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm font-roboto text-gray-800 focus:outline-none focus:border-secondary/60 focus:ring-2 focus:ring-secondary/10 transition-colors";
-  const labelCls = "block text-xs font-medium text-gray-500 mb-1 font-roboto";
-  const notasLen = notas.length;
-
-  return (
-    <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent className="max-w-lg rounded-2xl p-0 overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-0">
-          <DialogTitle className="font-poppins font-semibold text-gray-900">
-            {isEdit ? t("editarTitulo") : t("crearTitulo")}
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
-          {/* Nombre */}
-          <div>
-            <label className={labelCls}>{t("fieldNombre")} *</label>
-            <input
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              className={inputCls}
-              maxLength={120}
-              placeholder={t("fieldNombrePlaceholder")}
-            />
-          </div>
-
-          {/* Código empresa */}
-          <div>
-            <label className={labelCls}>{t("fieldCodigo")} *</label>
-            <div className="flex gap-2">
-              <input
-                value={codigo}
-                onChange={(e) => setCodigo(e.target.value.toUpperCase())}
-                className={cn(inputCls, "font-mono flex-1")}
-                maxLength={32}
-                placeholder="XXXXXXXX"
-              />
-              <button
-                onClick={handleRegen}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium border transition-colors whitespace-nowrap",
-                  regenConfirm
-                    ? "bg-amber-50 border-amber-300 text-amber-700 hover:bg-amber-100"
-                    : "bg-white border-gray-200 text-gray-600 hover:border-secondary/40 hover:text-secondary",
-                )}
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-                {regenConfirm ? t("regenConfirmar") : t("regenBtn")}
-              </button>
-            </div>
-            {regenConfirm && (
-              <p className="mt-1 text-xs text-amber-600 font-roboto">{t("regenWarning")}</p>
-            )}
-          </div>
-
-          {/* RUC */}
-          <div>
-            <label className={labelCls}>{t("fieldRuc")}</label>
-            <input
-              value={ruc}
-              onChange={(e) => setRuc(e.target.value)}
-              className={inputCls}
-              maxLength={20}
-              placeholder={t("fieldRucPlaceholder")}
-            />
-          </div>
-
-          {/* Dirección */}
-          <div className="space-y-3">
-            <label className={labelCls}>{t("fieldDireccion")}</label>
-            <input
-              value={dirCalle}
-              onChange={(e) => setDirCalle(e.target.value)}
-              className={inputCls}
-              maxLength={255}
-              placeholder={t("fieldDireccionCallePlaceholder")}
-            />
-            <select
-              value={departamento}
-              onChange={(e) => setDepartamento(e.target.value)}
-              className={inputCls}
-            >
-              <option value="">{t("fieldDepartamentoPlaceholder")}</option>
-              {DEPARTAMENTOS_NI.map((d) => (
-                <option key={d} value={d}>{d}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Auto confirmar */}
-          <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
-            <button
-              role="switch"
-              aria-checked={autoConf}
-              onClick={() => setAutoConf((v) => !v)}
-              className={cn(
-                "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors focus:outline-none",
-                autoConf ? "bg-secondary" : "bg-gray-300",
-              )}
-            >
-              <span
-                className={cn(
-                  "pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform",
-                  autoConf ? "translate-x-4" : "translate-x-0",
-                )}
-              />
-            </button>
-            <div>
-              <p className="text-sm font-medium text-gray-800 font-roboto">{t("fieldAutoConf")}</p>
-              <p className="text-xs text-gray-500 font-roboto mt-0.5">{t("fieldAutoConfDesc")}</p>
-            </div>
-          </div>
-
-          {/* Estado — edit only */}
-          {isEdit && (
-            <div>
-              <label className={labelCls}>{t("fieldEstado")}</label>
-              <select
-                value={estado}
-                onChange={(e) => setEstado(e.target.value as "activa" | "inactiva")}
-                className={inputCls}
-              >
-                <option value="activa">{t("estadoActiva")}</option>
-                <option value="inactiva">{t("estadoInactiva")}</option>
-              </select>
-            </div>
-          )}
-
-          {/* Notas */}
-          <div>
-            <label className={labelCls}>{t("fieldNotas")}</label>
-            <textarea
-              value={notas}
-              onChange={(e) => setNotas(e.target.value)}
-              className={cn(inputCls, "resize-none h-24")}
-              maxLength={1000}
-              placeholder={t("fieldNotasPlaceholder")}
-            />
-            <p className="mt-0.5 text-right text-xs text-gray-400">{notasLen}/1000</p>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-100 flex items-center gap-3 bg-gray-50/60">
-          {/* Send email — edit mode only */}
-          {isEdit && (
-            <button
-              onClick={handleSendEmail}
-              disabled={sendingEmail || saving}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-roboto font-medium border border-secondary/30 bg-secondary/5 text-secondary hover:bg-secondary/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {sendingEmail
-                ? <Loader2 className="w-4 h-4 animate-spin" />
-                : <Mail className="w-4 h-4" />
-              }
-              {sendingEmail ? t("emailEnviando") : t("emailBtn")}
-            </button>
-          )}
-
-          <div className="flex-1" />
-
-          <button
-            onClick={onClose}
-            disabled={saving}
-            className="px-4 py-2 rounded-xl text-sm font-roboto text-gray-600 hover:bg-gray-100 transition-colors"
-          >
-            {t("cancelar")}
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving || !nombre.trim() || codigo.trim().length < 4}
-            className="px-5 py-2 rounded-xl text-sm font-roboto font-medium bg-secondary text-white hover:bg-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-          >
-            {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-            {saving ? t("guardando") : t("guardarBtn")}
-          </button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
 // ── Main component ─────────────────────────────────────────────────────────────
 
 interface Props {
@@ -429,6 +111,9 @@ interface Props {
 export default function AdminEmpresas({ userId: _userId }: Props) {
   const t      = useTranslations("Dashboard.admin.empresas");
   const locale = useLocale() as "es" | "en";
+  const router = useRouter();
+  const params = useParams<{ id?: string }>();
+  const activeId = params?.id ?? null;
 
   // ── Data state ─────────────────────────────────────────────────────────────
   const [empresas,   setEmpresas]   = useState<EmpresaRow[]>([]);
@@ -456,10 +141,6 @@ export default function AdminEmpresas({ userId: _userId }: Props) {
       setPage(0);
     }, 300);
   };
-
-  // ── Modal ──────────────────────────────────────────────────────────────────
-  const [formOpen,    setFormOpen]    = useState(false);
-  const [editEmpresa, setEditEmpresa] = useState<EmpresaRow | null>(null);
 
   // ── Toggle estado confirm ──────────────────────────────────────────────────
   const [toggleConfirmId, setToggleConfirmId] = useState<string | null>(null);
@@ -498,19 +179,6 @@ export default function AdminEmpresas({ userId: _userId }: Props) {
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
   const fromItem   = totalCount === 0 ? 0 : page * PAGE_SIZE + 1;
   const toItem     = Math.min((page + 1) * PAGE_SIZE, totalCount);
-
-  // ── CRUD handlers ──────────────────────────────────────────────────────────
-  const handleCreated = (e: EmpresaRow) => {
-    setTotalCount((n) => n + 1);
-    setRefresh((n) => n + 1);
-  };
-
-  const handleUpdated = (updated: EmpresaRow) => {
-    setEmpresas((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
-  };
-
-  const openCreate = () => { setEditEmpresa(null); setFormOpen(true); };
-  const openEdit   = (e: EmpresaRow) => { setEditEmpresa(e); setFormOpen(true); };
 
   // Toggle estado inline
   const handleToggleEstado = async (empresa: EmpresaRow) => {
@@ -556,13 +224,13 @@ export default function AdminEmpresas({ userId: _userId }: Props) {
             <p className="text-sm font-roboto text-neutral">{t("subtitle")}</p>
           </div>
         </div>
-        <button
-          onClick={openCreate}
+        <Link
+          href={`/${locale}/dashboard/admin/empresas/nuevo`}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary text-white text-sm font-roboto font-medium hover:bg-secondary/90 transition-colors shrink-0"
         >
           <Plus className="w-4 h-4" />
           {t("crearBtn")}
-        </button>
+        </Link>
       </div>
 
       {/* Filters */}
@@ -628,11 +296,12 @@ export default function AdminEmpresas({ userId: _userId }: Props) {
                 {empresas.map((empresa) => (
                   <tr
                     key={empresa.id}
-                    className="hover:bg-gray-50/60 transition-colors"
-                    // Dismiss toggle confirm on outside click
+                    data-active={empresa.id === activeId ? "true" : undefined}
+                    className="hover:bg-gray-50/60 transition-colors cursor-pointer data-[active=true]:bg-primary/5 data-[active=true]:border-l-2 data-[active=true]:border-primary"
                     onClick={() => {
                       if (toggleConfirmId === empresa.id) return;
                       setToggleConfirmId(null);
+                      router.push(`/${locale}/dashboard/admin/empresas/${empresa.id}`);
                     }}
                   >
                     {/* Nombre */}
@@ -682,13 +351,13 @@ export default function AdminEmpresas({ userId: _userId }: Props) {
                     <td className={cn(tdCls, "text-right")} onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-2">
                         {/* Edit */}
-                        <button
-                          onClick={() => openEdit(empresa)}
+                        <Link
+                          href={`/${locale}/dashboard/admin/empresas/${empresa.id}/editar`}
                           title={t("editarBtn")}
                           className="p-1.5 rounded-lg text-gray-400 hover:text-secondary hover:bg-secondary/10 transition-colors"
                         >
                           <Pencil className="w-4 h-4" />
-                        </button>
+                        </Link>
 
                         {/* Toggle estado */}
                         {toggleConfirmId === empresa.id ? (
@@ -769,14 +438,6 @@ export default function AdminEmpresas({ userId: _userId }: Props) {
         )}
       </div>
 
-      {/* Form modal */}
-      <EmpresaFormModal
-        open={formOpen}
-        empresa={editEmpresa}
-        onClose={() => setFormOpen(false)}
-        onCreated={handleCreated}
-        onUpdated={handleUpdated}
-      />
     </div>
   );
 }
