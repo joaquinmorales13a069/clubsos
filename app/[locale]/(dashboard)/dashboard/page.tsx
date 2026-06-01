@@ -37,11 +37,12 @@ export default async function MiembroDashboardPage() {
         .eq("id", user.id)
         .single(),
 
-      // Next upcoming appointment (pendiente or confirmado)
+      // Next upcoming appointment (pendiente or confirmado), strictly in the future
       supabase
         .from("citas")
         .select("id, fecha_hora_cita, estado_sync, servicio_asociado")
         .in("estado_sync", ["pendiente", "confirmado"])
+        .gte("fecha_hora_cita", new Date().toISOString())
         .order("fecha_hora_cita", { ascending: true })
         .limit(1)
         .maybeSingle(),
