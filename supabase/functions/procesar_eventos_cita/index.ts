@@ -307,6 +307,18 @@ async function procesar(evt: EventoRow): Promise<{ ok: boolean; error?: string }
       }
       return { ok: true };
 
+    case "auto_completado":
+      // Background job marked a past confirmado cita as completado.
+      // In-app only — no WA, no email (would be noisy and the cita already happened).
+      await insertInApp(
+        cita.paciente_id,
+        "cita_completada",
+        "Tu cita fue marcada como completada",
+        `Tu cita de ${servicioNombre} con ${doctorNombre} el ${fechaTxt} ha finalizado.`,
+        "/dashboard/citas",
+      );
+      return { ok: true };
+
     default:
       return { ok: false, error: `Evento desconocido: ${evt.evento}` };
   }
