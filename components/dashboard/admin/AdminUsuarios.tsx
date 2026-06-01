@@ -4,32 +4,21 @@
  * AdminUsuarios — Global user management for admin (Step 7.6).
  *
  * Server-side pagination (20/page). Filters: empresa, estado, rol, search (debounced 300ms).
- * EditarUsuarioAdminModal handles inline editing with role/empresa change warnings.
+ * Row click navigates to /@detail/[id]. Pencil icon navigates to /@detail/[id]/editar.
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { toast } from "sonner";
 import {
   UserCog,
   Search,
   Pencil,
   ChevronLeft,
   ChevronRight,
-  Loader2,
   X,
-  AlertTriangle,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AdminUsuarioContratosUsage from "./AdminUsuarioContratosUsage";
 import { createClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -116,265 +105,6 @@ function EstadoBadge({ estado, t }: { estado: string; t: ReturnType<typeof useTr
   );
 }
 
-// ── EditarUsuarioAdminModal ────────────────────────────────────────────────────
-
-interface EditModalProps {
-  usuario:   UsuarioRow | null;
-  empresas:  EmpresaOption[];
-  onClose:   () => void;
-  onSaved:   (updated: UsuarioRow) => void;
-}
-
-function EditarUsuarioAdminModal({ usuario, empresas, onClose, onSaved }: EditModalProps) {
-  const t = useTranslations("Dashboard.admin.usuarios");
-
-  const [nombre,    setNombre]    = useState(usuario?.nombre_completo ?? "");
-  const [telefono,  setTelefono]  = useState(usuario?.telefono ?? "");
-  const [email,     setEmail]     = useState(usuario?.email ?? "");
-  const [documento, setDocumento] = useState(usuario?.documento_identidad ?? "");
-  const [estado,    setEstado]    = useState(usuario?.estado ?? "activo");
-  const [rol,       setRol]       = useState(usuario?.rol ?? "miembro");
-  const [empresaId, setEmpresaId] = useState(usuario?.empresa_id ?? "");
-  const [saving,    setSaving]    = useState(false);
-
-  // Track if empresa changed to show warning
-  const empresaChanged = empresaId !== (usuario?.empresa_id ?? "");
-
-  useEffect(() => {
-    if (!usuario) return;
-    setNombre(usuario.nombre_completo);
-    setTelefono(usuario.telefono ?? "");
-    setEmail(usuario.email ?? "");
-    setDocumento(usuario.documento_identidad ?? "");
-    setEstado(usuario.estado);
-    setRol(usuario.rol);
-    setEmpresaId(usuario.empresa_id ?? "");
-  }, [usuario]);
-
-  const handleSave = async () => {
-    if (!usuario) return;
-    if (!nombre.trim()) return;
-
-    setSaving(true);
-    const { error } = await createClient()
-      .from("users")
-      .update({
-        nombre_completo:     nombre.trim(),
-        telefono:            telefono.trim() || null,
-        email:               email.trim() || null,
-        documento_identidad: documento.trim() || null,
-        estado,
-        rol,
-        empresa_id:          empresaId || null,
-      })
-      .eq("id", usuario.id);
-
-    if (!error) {
-      const updatedEmpresa = empresas.find((e) => e.id === empresaId) ?? null;
-      onSaved({
-        ...usuario,
-        nombre_completo:     nombre.trim(),
-        telefono:            telefono.trim() || null,
-        email:               email.trim() || null,
-        documento_identidad: documento.trim() || null,
-        estado:              estado as UsuarioRow["estado"],
-        rol:                 rol    as UsuarioRow["rol"],
-        empresa_id:          empresaId || null,
-        empresa:             updatedEmpresa ? { nombre: updatedEmpresa.nombre } : null,
-      });
-      toast.success(t("actualizado"));
-      onClose();
-    } else {
-      toast.error(t("errorGuardar"));
-    }
-    setSaving(false);
-  };
-
-  const isAdmin    = usuario?.rol === "admin";
-  const isFamiliar = usuario?.tipo_cuenta === "familiar";
-
-  const inputCls = "w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm font-roboto text-gray-800 focus:outline-none focus:border-secondary/60 focus:ring-2 focus:ring-secondary/10 transition-colors";
-  const labelCls = "block text-xs font-medium text-gray-500 mb-1 font-roboto";
-
-  return (
-    <Dialog open={!!usuario} onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent className="max-w-lg rounded-2xl p-0 overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-0">
-          <DialogTitle className="font-poppins font-semibold text-gray-900">
-            {t("editarTitulo")}
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="px-6 pt-3 pb-5 max-h-[70vh] overflow-y-auto">
-          <Tabs defaultValue="info">
-            <TabsList className="grid grid-cols-2 w-full mb-4">
-              <TabsTrigger value="info">{t("tabInfo")}</TabsTrigger>
-              <TabsTrigger
-                value="uso"
-                disabled={!usuario?.empresa_id}
-              >
-                {t("tabUsoCitas")}
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="info" className="space-y-4">
-              {/* Auth email note */}
-          <div className="flex gap-2 p-3 bg-blue-50 rounded-xl text-xs text-blue-700 font-roboto">
-            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-            <span>{t("authEmailNote")}</span>
-          </div>
-
-          {/* Admin role warning */}
-          {isAdmin && (
-            <div className="flex gap-2 p-3 bg-red-50 rounded-xl text-xs text-red-700 font-roboto">
-              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>{t("adminGlobalWarning")}</span>
-            </div>
-          )}
-
-          {/* Empresa change warning */}
-          {empresaChanged && (
-            <div className="flex gap-2 p-3 bg-amber-50 rounded-xl text-xs text-amber-700 font-roboto">
-              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>{t("empresaChangeWarning")}</span>
-            </div>
-          )}
-
-          {/* Fields */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="sm:col-span-2">
-              <label className={labelCls}>{t("fieldNombre")}</label>
-              <input
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                disabled={isAdmin}
-                className={cn(inputCls, isAdmin && "opacity-50 cursor-not-allowed")}
-                maxLength={120}
-              />
-            </div>
-
-            <div>
-              <label className={labelCls}>{t("fieldTelefono")}</label>
-              <input
-                value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
-                disabled={isAdmin}
-                className={cn(inputCls, isAdmin && "opacity-50 cursor-not-allowed")}
-                type="tel"
-              />
-            </div>
-
-            <div>
-              <label className={labelCls}>{t("fieldEmail")}</label>
-              <input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isAdmin}
-                className={cn(inputCls, isAdmin && "opacity-50 cursor-not-allowed")}
-                type="email"
-              />
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className={labelCls}>{t("fieldDocumento")}</label>
-              <input
-                value={documento}
-                onChange={(e) => setDocumento(e.target.value.replace(/[^a-zA-Z0-9]/g, ""))}
-                disabled={isAdmin}
-                className={cn(inputCls, isAdmin && "opacity-50 cursor-not-allowed")}
-              />
-            </div>
-
-            <div>
-              <label className={labelCls}>{t("fieldEstado")}</label>
-              <select
-                value={estado}
-                onChange={(e) => setEstado(e.target.value as UsuarioRow["estado"])}
-                disabled={isAdmin}
-                className={cn(inputCls, isAdmin && "opacity-50 cursor-not-allowed")}
-              >
-                <option value="activo">{t("estadoActivo")}</option>
-                <option value="inactivo">{t("estadoInactivo")}</option>
-                <option value="pendiente">{t("estadoPendiente")}</option>
-              </select>
-            </div>
-
-            <div>
-              <label className={labelCls}>{t("fieldRol")}</label>
-              <select
-                value={rol}
-                onChange={(e) => setRol(e.target.value as UsuarioRow["rol"])}
-                disabled={isAdmin}
-                className={cn(inputCls, isAdmin && "opacity-50 cursor-not-allowed")}
-              >
-                <option value="miembro">{t("rolMiembro")}</option>
-                <option value="empresa_admin">{t("rolEmpresaAdmin")}</option>
-                {isAdmin && <option value="admin">{t("rolAdmin")}</option>}
-              </select>
-            </div>
-
-            <div className="sm:col-span-2">
-              <label className={labelCls}>{t("fieldEmpresa")}</label>
-              <select
-                value={empresaId}
-                onChange={(e) => setEmpresaId(e.target.value)}
-                disabled={isAdmin}
-                className={cn(inputCls, isAdmin && "opacity-50 cursor-not-allowed")}
-              >
-                <option value="">{t("sinEmpresa")}</option>
-                {empresas.map((e) => (
-                  <option key={e.id} value={e.id}>{e.nombre}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Titular ID — read-only for familiar */}
-            {isFamiliar && usuario?.titular_id && (
-              <div className="sm:col-span-2">
-                <label className={labelCls}>{t("titularIdLabel")}</label>
-                <p className="px-3 py-2 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-500 font-roboto font-mono">
-                  {usuario.titular_id}
-                </p>
-              </div>
-            )}
-          </div>
-            </TabsContent>
-
-            <TabsContent value="uso">
-              {usuario?.empresa_id && usuario?.id ? (
-                <AdminUsuarioContratosUsage userId={usuario.id} />
-              ) : (
-                <p className="text-sm text-gray-400 font-roboto py-6 text-center">
-                  {t("tabUsoNoAplica")}
-                </p>
-              )}
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50/60">
-          <button
-            onClick={onClose}
-            disabled={saving}
-            className="px-4 py-2 rounded-xl text-sm font-roboto text-gray-600 hover:bg-gray-100 transition-colors"
-          >
-            {t("cancelar")}
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving || !nombre.trim() || isAdmin}
-            className="px-5 py-2 rounded-xl text-sm font-roboto font-medium bg-secondary text-white hover:bg-secondary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-          >
-            {saving && <Loader2 className="w-4 h-4 animate-spin" />}
-            {saving ? t("guardando") : t("guardarBtn")}
-          </button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
 // ── Main component ─────────────────────────────────────────────────────────────
 
 interface Props {
@@ -396,10 +126,9 @@ export default function AdminUsuarios({ userId: _userId }: Props) {
   const [empresas,   setEmpresas]   = useState<EmpresaOption[]>([]);
 
   // ── Pagination ─────────────────────────────────────────────────────────────
-  const [page,    setPage]    = useState(0);
-  const [refresh, setRefresh] = useState(0);
-  const pageRef   = useRef(0);
-  pageRef.current = page;
+  const [page, setPage] = useState(0);
+  const pageRef         = useRef(0);
+  pageRef.current       = page;
 
   // ── Filters (server-side) ──────────────────────────────────────────────────
   const [filterEmpresa, setFilterEmpresa] = useState("");
@@ -418,9 +147,6 @@ export default function AdminUsuarios({ userId: _userId }: Props) {
       setPage(0);
     }, 300);
   };
-
-  // ── Modal ──────────────────────────────────────────────────────────────────
-  const [editUsuario, setEditUsuario] = useState<UsuarioRow | null>(null);
 
   // ── Fetch empresas once ────────────────────────────────────────────────────
   useEffect(() => {
@@ -461,7 +187,7 @@ export default function AdminUsuarios({ userId: _userId }: Props) {
     setLoading(false);
   }, [filterEmpresa, filterEstado, filterRol, searchQ]);
 
-  useEffect(() => { fetchUsuarios(); }, [fetchUsuarios, page, refresh]);
+  useEffect(() => { fetchUsuarios(); }, [fetchUsuarios, page]);
 
   // Reset page on filter change
   const handleFilterChange = (setter: (v: string) => void) => (val: string) => {
@@ -473,11 +199,6 @@ export default function AdminUsuarios({ userId: _userId }: Props) {
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
   const fromItem   = totalCount === 0 ? 0 : page * PAGE_SIZE + 1;
   const toItem     = Math.min((page + 1) * PAGE_SIZE, totalCount);
-
-  // ── Optimistic update after edit ──────────────────────────────────────────
-  const handleSaved = (updated: UsuarioRow) => {
-    setUsuarios((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
-  };
 
   // ── Table column styles ───────────────────────────────────────────────────
   const thCls = "px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-nowrap";
@@ -669,13 +390,6 @@ export default function AdminUsuarios({ userId: _userId }: Props) {
         )}
       </div>
 
-      {/* Edit modal */}
-      <EditarUsuarioAdminModal
-        usuario={editUsuario}
-        empresas={empresas}
-        onClose={() => setEditUsuario(null)}
-        onSaved={handleSaved}
-      />
     </div>
   );
 }
