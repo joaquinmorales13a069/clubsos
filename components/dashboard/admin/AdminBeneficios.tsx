@@ -87,7 +87,7 @@ interface Props {
   userId: string;
 }
 
-export default function AdminBeneficios({ userId: _userId }: Props) {
+export default function AdminBeneficios(_props: Props) {
   const t      = useTranslations("Dashboard.admin.beneficios");
   const locale = useLocale() as "es" | "en";
   const router = useRouter();
@@ -102,7 +102,7 @@ export default function AdminBeneficios({ userId: _userId }: Props) {
 
   // ── Pagination (pageRef allows stable fetchBeneficios callback) ───────────
   const [page,    setPage]    = useState(0);
-  const [refresh, setRefresh] = useState(0);
+  const [refresh] = useState(0);
   const pageRef = useRef(0);
   pageRef.current = page;
 
