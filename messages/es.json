@@ -137,6 +137,12 @@
       "verificando": "Verificando...",
       "aunPendiente": "Tu cuenta aún está pendiente de activación. Por favor espera a que sea activada."
     },
+    "shared": {
+      "detailEmpty": "Selecciona un registro de la lista para ver el detalle.",
+      "detailEmptyHint": "Tu selección se mostrará aquí.",
+      "back": "Volver",
+      "citaFinalizadaNoCancelable": "Cita finalizada — no se puede cancelar."
+    },
     "topbar": {
       "notifications": "Notificaciones",
       "goToSOS": "Ir a SOS Medical",
@@ -1729,6 +1735,7 @@
       "quota_exceeded": "Has alcanzado el límite de citas de este servicio.",
       "invalid_doctor_service": "Este doctor no ofrece el servicio seleccionado.",
       "cancel_too_late": "Las citas solo se pueden cancelar con suficiente anticipación.",
+      "cita_ya_paso": "La cita ya pasó; no se puede cancelar.",
       "invalid_state_transition": "No se puede realizar esta acción en el estado actual de la cita.",
       "cita_not_found": "Cita no encontrada.",
       "doctor_not_found": "Doctor no encontrado.",

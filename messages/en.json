@@ -137,6 +137,12 @@
       "verificando": "Checking...",
       "aunPendiente": "Your account is still pending activation. Please wait for it to be activated."
     },
+    "shared": {
+      "detailEmpty": "Select a record from the list to view details.",
+      "detailEmptyHint": "Your selection will appear here.",
+      "back": "Back",
+      "citaFinalizadaNoCancelable": "Past appointment — cannot be cancelled."
+    },
     "topbar": {
       "notifications": "Notifications",
       "goToSOS": "Go to SOS Medical",
@@ -1729,6 +1735,7 @@
       "quota_exceeded": "You've reached the appointment limit for this service.",
       "invalid_doctor_service": "This doctor does not offer the selected service.",
       "cancel_too_late": "Appointments can only be cancelled with enough notice.",
+      "cita_ya_paso": "The appointment has already passed; it cannot be cancelled.",
       "invalid_state_transition": "This action cannot be performed in the current appointment state.",
       "cita_not_found": "Appointment not found.",
       "doctor_not_found": "Doctor not found.",
