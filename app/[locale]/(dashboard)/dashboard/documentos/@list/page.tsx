@@ -1,8 +1,3 @@
-/**
- * DocumentosPage — Step 5.5
- * Server Component: prefetches first page + total count, passes to MisDocumentos.
- */
-
 import { redirect } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import { createClient } from "@/utils/supabase/server";
@@ -10,7 +5,7 @@ import MisDocumentos from "@/components/dashboard/miembro/documentos/MisDocument
 
 const PAGE_SIZE = 12;
 
-export default async function DocumentosPage() {
+export default async function DocumentosListPage() {
   const supabase = await createClient();
   const locale   = await getLocale();
 
