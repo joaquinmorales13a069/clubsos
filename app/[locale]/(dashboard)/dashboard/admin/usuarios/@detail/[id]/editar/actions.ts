@@ -23,16 +23,28 @@ export async function actualizarUsuarioAction(
     .single();
   if (actor?.rol !== "admin") return { error: "FORBIDDEN" };
 
-  const id             = String(formData.get("id") ?? "");
-  const rol            = String(formData.get("rol") ?? "");
-  const estado         = String(formData.get("estado") ?? "");
-  const empresa_id_raw = formData.get("empresa_id");
-  const empresa_id     = empresa_id_raw && String(empresa_id_raw) !== "" ? String(empresa_id_raw) : null;
-  const locale         = String(formData.get("locale") ?? "es");
+  const id              = String(formData.get("id") ?? "");
+  const nombre_completo = String(formData.get("nombre_completo") ?? "").trim();
+  const telefono_raw    = String(formData.get("telefono") ?? "").trim();
+  const email_raw       = String(formData.get("email") ?? "").trim();
+  const rol             = String(formData.get("rol") ?? "");
+  const estado          = String(formData.get("estado") ?? "");
+  const empresa_id_raw  = formData.get("empresa_id");
+  const empresa_id      = empresa_id_raw && String(empresa_id_raw) !== "" ? String(empresa_id_raw) : null;
+  const locale          = String(formData.get("locale") ?? "es");
+
+  if (!nombre_completo) return { error: "NOMBRE_REQUERIDO" };
 
   const { error } = await supabase
     .from("users")
-    .update({ rol, estado, empresa_id })
+    .update({
+      nombre_completo,
+      telefono: telefono_raw || null,
+      email:    email_raw    || null,
+      rol,
+      estado,
+      empresa_id,
+    })
     .eq("id", id);
 
   if (error) return { error: error.message };

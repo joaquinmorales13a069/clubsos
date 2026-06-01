@@ -17,7 +17,7 @@ export default async function EditarUsuarioPage({ params }: PageProps) {
   const [usuarioRes, empresasRes] = await Promise.all([
     supabase
       .from("users")
-      .select("id, nombre_completo, rol, estado, empresa_id")
+      .select("id, nombre_completo, telefono, email, rol, estado, empresa_id")
       .eq("id", id)
       .maybeSingle(),
     supabase

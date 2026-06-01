@@ -1109,6 +1109,8 @@
         "editar": {
           "title": "Editar usuario",
           "nombre": "Nombre completo",
+          "telefono": "Teléfono",
+          "email": "Correo",
           "rol": "Rol",
           "estado": "Estado",
           "empresa": "Empresa",

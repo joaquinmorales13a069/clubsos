@@ -8,6 +8,8 @@ import { actualizarUsuarioAction, type ActualizarUsuarioState } from "./actions"
 interface Usuario {
   id: string;
   nombre_completo: string | null;
+  telefono: string | null;
+  email: string | null;
   rol: string | null;
   estado: string | null;
   empresa_id: string | null;
@@ -40,10 +42,28 @@ export default function EditarUsuarioForm({ usuario, empresas, locale }: Props) 
 
       <Field label={t("nombre")}>
         <input
-          value={usuario.nombre_completo ?? ""}
-          disabled
-          className="w-full px-3 py-2 rounded-lg border border-gray-200 bg-gray-50 text-gray-500"
-          readOnly
+          name="nombre_completo"
+          defaultValue={usuario.nombre_completo ?? ""}
+          required
+          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary focus:outline-none"
+        />
+      </Field>
+
+      <Field label={t("telefono")}>
+        <input
+          name="telefono"
+          type="tel"
+          defaultValue={usuario.telefono ?? ""}
+          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary focus:outline-none"
+        />
+      </Field>
+
+      <Field label={t("email")}>
+        <input
+          name="email"
+          type="email"
+          defaultValue={usuario.email ?? ""}
+          className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary focus:outline-none"
         />
       </Field>
 
