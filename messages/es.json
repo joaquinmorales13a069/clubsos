@@ -1094,6 +1094,30 @@
         "tabInfo": "Información",
         "tabUsoCitas": "Uso de citas",
         "tabUsoNoAplica": "Sin empresa asignada — el uso por contrato solo aplica a miembros con empresa.",
+        "detalle": {
+          "untitled": "Usuario",
+          "editar": "Editar",
+          "email": "Correo",
+          "telefono": "Teléfono",
+          "rol": "Rol",
+          "tipoCuenta": "Tipo de cuenta",
+          "estado": "Estado",
+          "empresa": "Empresa",
+          "fechaNacimiento": "Fecha de nacimiento",
+          "contratos": "Servicios contratados"
+        },
+        "editar": {
+          "title": "Editar usuario",
+          "nombre": "Nombre completo",
+          "rol": "Rol",
+          "estado": "Estado",
+          "empresa": "Empresa",
+          "sinEmpresa": "Sin empresa",
+          "guardar": "Guardar cambios",
+          "guardando": "Guardando…",
+          "roles": { "admin": "Administrador", "empresa_admin": "Admin de empresa", "miembro": "Miembro" },
+          "estados": { "activo": "Activo", "inactivo": "Inactivo", "pendiente": "Pendiente" }
+        },
         "contratosUsage": {
           "loading": "Cargando uso de citas...",
           "empty": "Este usuario no tiene contratos activos.",

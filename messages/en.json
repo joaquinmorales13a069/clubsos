@@ -1094,6 +1094,30 @@
         "tabInfo": "Information",
         "tabUsoCitas": "Appointment usage",
         "tabUsoNoAplica": "No assigned company — per-contract usage only applies to members with a company.",
+        "detalle": {
+          "untitled": "User",
+          "editar": "Edit",
+          "email": "Email",
+          "telefono": "Phone",
+          "rol": "Role",
+          "tipoCuenta": "Account type",
+          "estado": "Status",
+          "empresa": "Company",
+          "fechaNacimiento": "Date of birth",
+          "contratos": "Contracted services"
+        },
+        "editar": {
+          "title": "Edit user",
+          "nombre": "Full name",
+          "rol": "Role",
+          "estado": "Status",
+          "empresa": "Company",
+          "sinEmpresa": "No company",
+          "guardar": "Save changes",
+          "guardando": "Saving…",
+          "roles": { "admin": "Administrator", "empresa_admin": "Company admin", "miembro": "Member" },
+          "estados": { "activo": "Active", "inactivo": "Inactive", "pendiente": "Pending" }
+        },
         "contratosUsage": {
           "loading": "Loading appointment usage...",
           "empty": "This user has no active contracts.",
