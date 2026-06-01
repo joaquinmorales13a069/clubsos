@@ -1,17 +1,22 @@
 "use client";
 
 /**
- * AdminDocumentos — Medical document management for global admin (Step 7.5).
+ * AdminDocumentos — Medical document management for global admin.
  *
  * Server-side pagination (20/page). Re-fetches on tipo_documento filter or page change.
  * Search is client-side over the current fetched page.
  *
- * Actions: view (signed URL → new tab), download (signed URL → anchor),
- *          edit metadata (Sheet), delete (inline confirm → storage + DB).
+ * Row click → navigates to /[id] detail panel.
+ * Pencil icon → <Link href="/[id]/editar">.
+ * "+ Subir documento" CTA → <Link href="/nuevo">.
+ * Download/View buttons remain as inline actions (createSignedUrl).
  */
 
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
+import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 import {
   FileText,
@@ -24,17 +29,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-  X,
 } from "lucide-react";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { createClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
-import SubirDocumentoModal from "./SubirDocumentoModal";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -101,7 +98,16 @@ interface Props {
 }
 
 export default function AdminDocumentos({ userId }: Props) {
-  const t = useTranslations("Dashboard.admin.documentos");
+  const t      = useTranslations("Dashboard.admin.documentos");
+  const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Derive the active doc ID from the URL if possible
+  const activeId = useMemo(() => {
+    const match = pathname.match(/\/documentos\/([^/]+)/);
+    return match ? match[1] : null;
+  }, [pathname]);
 
   // ── Data ──────────────────────────────────────────────────────────────────
   const [docs,       setDocs]       = useState<DocumentoRow[]>([]);
@@ -118,17 +124,6 @@ export default function AdminDocumentos({ userId }: Props) {
 
   // ── Client-side search ────────────────────────────────────────────────────
   const [search, setSearch] = useState("");
-
-  // ── Modals ────────────────────────────────────────────────────────────────
-  const [subirOpen, setSubirOpen] = useState(false);
-  const [editDoc,   setEditDoc]   = useState<DocumentoRow | null>(null);
-
-  // ── Edit metadata form state ───────────────────────────────────────────────
-  const [editNombre,  setEditNombre]  = useState("");
-  const [editTipo,    setEditTipo]    = useState("");
-  const [editFecha,   setEditFecha]   = useState("");
-  const [editEstado,  setEditEstado]  = useState("activo");
-  const [editSaving,  setEditSaving]  = useState(false);
 
   // ── Delete confirm ────────────────────────────────────────────────────────
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -186,14 +181,16 @@ export default function AdminDocumentos({ userId }: Props) {
   const toItem     = Math.min((page + 1) * PAGE_SIZE, totalCount);
 
   // ── Ver / Descargar via signed URL ────────────────────────────────────────
-  const handleVer = async (doc: DocumentoRow) => {
+  const handleVer = async (e: React.MouseEvent, doc: DocumentoRow) => {
+    e.stopPropagation();
     const { data, error: signErr } = await createClient().storage
       .from(BUCKET).createSignedUrl(doc.file_path, 300);
     if (signErr || !data?.signedUrl) { toast.error(t("errorSignedUrl")); return; }
     window.open(data.signedUrl, "_blank");
   };
 
-  const handleDescargar = async (doc: DocumentoRow) => {
+  const handleDescargar = async (e: React.MouseEvent, doc: DocumentoRow) => {
+    e.stopPropagation();
     const { data, error: signErr } = await createClient().storage
       .from(BUCKET).createSignedUrl(doc.file_path, 60);
     if (signErr || !data?.signedUrl) { toast.error(t("errorSignedUrl")); return; }
@@ -203,44 +200,9 @@ export default function AdminDocumentos({ userId }: Props) {
     a.click();
   };
 
-  // ── Open edit modal ───────────────────────────────────────────────────────
-  const openEdit = (doc: DocumentoRow) => {
-    setEditDoc(doc);
-    setEditNombre(doc.nombre_documento);
-    setEditTipo(doc.tipo_documento);
-    setEditFecha(doc.fecha_documento ?? "");
-    setEditEstado(doc.estado_archivo);
-  };
-
-  const handleEditSave = async () => {
-    if (!editDoc) return;
-    setEditSaving(true);
-    const { error: updateErr } = await createClient()
-      .from("documentos_medicos")
-      .update({
-        nombre_documento: editNombre.trim(),
-        tipo_documento:   editTipo,
-        fecha_documento:  editFecha || null,
-        estado_archivo:   editEstado,
-      })
-      .eq("id", editDoc.id);
-
-    if (!updateErr) {
-      setDocs((prev) => prev.map((d) =>
-        d.id === editDoc.id
-          ? { ...d, nombre_documento: editNombre.trim(), tipo_documento: editTipo, fecha_documento: editFecha || null, estado_archivo: editEstado }
-          : d,
-      ));
-      toast.success(t("metadatosGuardados"));
-      setEditDoc(null);
-    } else {
-      toast.error(t("errorGuardar"));
-    }
-    setEditSaving(false);
-  };
-
   // ── Delete ────────────────────────────────────────────────────────────────
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
     setDeletingId(id);
     const supabase = createClient();
     const target   = docs.find((d) => d.id === id);
@@ -254,14 +216,16 @@ export default function AdminDocumentos({ userId }: Props) {
       setDocs((prev) => prev.filter((d) => d.id !== id));
       setTotalCount((n) => n - 1);
       toast.success(t("eliminadoOk"));
+      // If we were viewing the deleted doc, navigate back to list
+      if (activeId === id) {
+        router.push(`/${locale}/dashboard/admin/documentos`);
+      }
     } else {
       toast.error(t("errorEliminar"));
     }
     setDeletingId(null);
     setConfirmDeleteId(null);
   };
-
-  const inputCls = "w-full px-3 py-2 rounded-xl border border-gray-200 bg-white text-sm font-roboto text-gray-800 focus:outline-none focus:border-secondary/60 focus:ring-2 focus:ring-secondary/10 transition-colors";
 
   const tipoBadgeColors: Record<string, string> = {
     laboratorio:     "bg-blue-100 text-blue-700",
@@ -281,15 +245,14 @@ export default function AdminDocumentos({ userId }: Props) {
           <h1 className="text-2xl font-poppins font-bold text-gray-900">{t("titulo")}</h1>
           <p className="text-sm font-roboto text-neutral mt-0.5">{t("subtitle")}</p>
         </div>
-        <button
-          type="button"
-          onClick={() => setSubirOpen(true)}
+        <Link
+          href={`/${locale}/dashboard/admin/documentos/nuevo`}
           className="shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary text-white
                      text-sm font-roboto font-semibold hover:bg-secondary/90 shadow-sm transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span className="hidden sm:inline">{t("subirBtn")}</span>
-        </button>
+        </Link>
       </div>
 
       {/* Filters */}
@@ -352,8 +315,17 @@ export default function AdminDocumentos({ userId }: Props) {
                   {displayed.map((doc) => {
                     const isConfirming = confirmDeleteId === doc.id;
                     const isDeleting   = deletingId      === doc.id;
+                    const isActive     = activeId        === doc.id;
                     return (
-                      <tr key={doc.id} className="hover:bg-gray-50/50 transition-colors">
+                      <tr
+                        key={doc.id}
+                        data-active={isActive || undefined}
+                        onClick={() => router.push(`/${locale}/dashboard/admin/documentos/${doc.id}`)}
+                        className={cn(
+                          "cursor-pointer hover:bg-gray-50/50 transition-colors",
+                          isActive && "bg-secondary/5 border-l-2 border-l-secondary",
+                        )}
+                      >
                         <td className="px-5 py-3.5">
                           <p className="font-poppins font-medium text-gray-900 truncate max-w-[160px]">{doc.nombre_documento}</p>
                         </td>
@@ -375,32 +347,36 @@ export default function AdminDocumentos({ userId }: Props) {
                         <td className="px-4 py-3.5 font-roboto text-xs text-gray-500 truncate max-w-[110px]">{doc.subido_por_user?.nombre_completo ?? "—"}</td>
                         <td className="px-4 py-3.5">
                           {isConfirming ? (
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                               <span className="text-xs text-red-600 font-medium font-roboto whitespace-nowrap">{t("confirmarEliminar")}</span>
-                              <button type="button" onClick={() => handleDelete(doc.id)} disabled={isDeleting}
+                              <button type="button" onClick={(e) => handleDelete(e, doc.id)} disabled={isDeleting}
                                 className="px-2.5 py-1 rounded-lg bg-red-500 text-white text-xs font-semibold disabled:opacity-50">
                                 {isDeleting ? <Loader2 className="w-3 h-3 animate-spin" /> : t("siEliminar")}
                               </button>
-                              <button type="button" onClick={() => setConfirmDeleteId(null)}
+                              <button type="button" onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); }}
                                 className="px-2.5 py-1 rounded-lg border border-gray-200 text-xs font-roboto text-gray-600">
                                 {t("cancelar")}
                               </button>
                             </div>
                           ) : (
-                            <div className="flex gap-1">
-                              <button type="button" onClick={() => handleVer(doc)} title={t("verBtn")}
+                            <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                              <button type="button" onClick={(e) => handleVer(e, doc)} title={t("verBtn")}
                                 className="p-1.5 rounded-lg text-gray-400 hover:text-secondary hover:bg-secondary/10 transition-colors">
                                 <Eye className="w-4 h-4" />
                               </button>
-                              <button type="button" onClick={() => handleDescargar(doc)} title={t("descargarBtn")}
+                              <button type="button" onClick={(e) => handleDescargar(e, doc)} title={t("descargarBtn")}
                                 className="p-1.5 rounded-lg text-gray-400 hover:text-secondary hover:bg-secondary/10 transition-colors">
                                 <Download className="w-4 h-4" />
                               </button>
-                              <button type="button" onClick={() => openEdit(doc)} title={t("editarBtn")}
-                                className="p-1.5 rounded-lg text-gray-400 hover:text-secondary hover:bg-secondary/10 transition-colors">
+                              <Link
+                                href={`/${locale}/dashboard/admin/documentos/${doc.id}/editar`}
+                                title={t("editarBtn")}
+                                onClick={(e) => e.stopPropagation()}
+                                className="p-1.5 rounded-lg text-gray-400 hover:text-secondary hover:bg-secondary/10 transition-colors"
+                              >
                                 <Pencil className="w-4 h-4" />
-                              </button>
-                              <button type="button" onClick={() => setConfirmDeleteId(doc.id)} title={t("eliminarBtn")}
+                              </Link>
+                              <button type="button" onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(doc.id); }} title={t("eliminarBtn")}
                                 className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors">
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -419,8 +395,17 @@ export default function AdminDocumentos({ userId }: Props) {
               {displayed.map((doc) => {
                 const isConfirming = confirmDeleteId === doc.id;
                 const isDeleting   = deletingId      === doc.id;
+                const isActive     = activeId        === doc.id;
                 return (
-                  <div key={doc.id} className="px-4 py-4">
+                  <div
+                    key={doc.id}
+                    data-active={isActive || undefined}
+                    onClick={() => router.push(`/${locale}/dashboard/admin/documentos/${doc.id}`)}
+                    className={cn(
+                      "px-4 py-4 cursor-pointer transition-colors",
+                      isActive && "bg-secondary/5 border-l-2 border-l-secondary",
+                    )}
+                  >
                     <div className="flex items-start gap-3">
                       <div className="shrink-0 w-9 h-9 rounded-xl bg-purple-50 flex items-center justify-center">
                         <FileText className="w-4 h-4 text-purple-500" />
@@ -438,24 +423,30 @@ export default function AdminDocumentos({ userId }: Props) {
                           <span className="text-[10px] font-roboto text-gray-400">{formatDate(doc.fecha_documento)}</span>
                         </div>
                       </div>
-                      <div className="shrink-0 flex flex-col gap-1 items-end">
+                      <div className="shrink-0 flex flex-col gap-1 items-end" onClick={(e) => e.stopPropagation()}>
                         {isConfirming ? (
                           <>
-                            <button type="button" onClick={() => handleDelete(doc.id)} disabled={isDeleting}
+                            <button type="button" onClick={(e) => handleDelete(e, doc.id)} disabled={isDeleting}
                               className="px-2.5 py-1 rounded-lg bg-red-500 text-white text-xs font-semibold disabled:opacity-50">
                               {isDeleting ? <Loader2 className="w-3 h-3 animate-spin" /> : t("siEliminar")}
                             </button>
-                            <button type="button" onClick={() => setConfirmDeleteId(null)}
+                            <button type="button" onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(null); }}
                               className="px-2.5 py-1 rounded-lg border border-gray-200 text-xs text-gray-600">
                               {t("cancelar")}
                             </button>
                           </>
                         ) : (
                           <div className="flex gap-0.5">
-                            <button type="button" onClick={() => handleVer(doc)} className="p-1.5 rounded-lg text-gray-400 hover:text-secondary"><Eye className="w-4 h-4" /></button>
-                            <button type="button" onClick={() => handleDescargar(doc)} className="p-1.5 rounded-lg text-gray-400 hover:text-secondary"><Download className="w-4 h-4" /></button>
-                            <button type="button" onClick={() => openEdit(doc)} className="p-1.5 rounded-lg text-gray-400 hover:text-secondary"><Pencil className="w-4 h-4" /></button>
-                            <button type="button" onClick={() => setConfirmDeleteId(doc.id)} className="p-1.5 rounded-lg text-gray-400 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
+                            <button type="button" onClick={(e) => handleVer(e, doc)} className="p-1.5 rounded-lg text-gray-400 hover:text-secondary"><Eye className="w-4 h-4" /></button>
+                            <button type="button" onClick={(e) => handleDescargar(e, doc)} className="p-1.5 rounded-lg text-gray-400 hover:text-secondary"><Download className="w-4 h-4" /></button>
+                            <Link
+                              href={`/${locale}/dashboard/admin/documentos/${doc.id}/editar`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="p-1.5 rounded-lg text-gray-400 hover:text-secondary"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Link>
+                            <button type="button" onClick={(e) => { e.stopPropagation(); setConfirmDeleteId(doc.id); }} className="p-1.5 rounded-lg text-gray-400 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
                           </div>
                         )}
                       </div>
@@ -486,75 +477,6 @@ export default function AdminDocumentos({ userId }: Props) {
           </div>
         </div>
       )}
-
-      {/* Edit metadata sheet */}
-      <Sheet open={!!editDoc} onOpenChange={(o) => { if (!o && !editSaving) setEditDoc(null); }}>
-        <SheetContent side="right" className="w-full sm:max-w-sm bg-white flex flex-col">
-          <SheetHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
-            <div className="flex items-center justify-between">
-              <SheetTitle className="text-base font-poppins font-semibold text-gray-900">
-                {t("editarTitulo")}
-              </SheetTitle>
-            </div>
-          </SheetHeader>
-          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold font-roboto text-gray-700 uppercase tracking-wide">{t("colNombre")}</label>
-              <input type="text" maxLength={200} value={editNombre} onChange={(e) => setEditNombre(e.target.value)} className={inputCls} />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold font-roboto text-gray-700 uppercase tracking-wide">{t("colTipo")}</label>
-              <select value={editTipo} onChange={(e) => setEditTipo(e.target.value)} className={inputCls}>
-                {["laboratorio","radiologia","consulta_medica","especialidades","receta","otro"].map((tipo) => (
-                  <option key={tipo} value={tipo}>{t(`tipo_${tipo}` as Parameters<typeof t>[0])}</option>
-                ))}
-              </select>
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold font-roboto text-gray-700 uppercase tracking-wide">{t("colFecha")}</label>
-              <input type="date" value={editFecha} onChange={(e) => setEditFecha(e.target.value)} className={inputCls} />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-semibold font-roboto text-gray-700 uppercase tracking-wide">{t("colEstado")}</label>
-              <div className="flex gap-2">
-                {["activo","inactivo"].map((est) => (
-                  <button key={est} type="button" onClick={() => setEditEstado(est)}
-                    className={cn("flex-1 py-2 rounded-xl text-xs font-semibold font-roboto border transition-colors",
-                      editEstado === est
-                        ? est === "activo" ? "bg-emerald-600 text-white border-emerald-600" : "bg-gray-500 text-white border-gray-500"
-                        : "border-gray-200 text-gray-600 hover:bg-gray-50"
-                    )}>
-                    {est === "activo" ? t("estadoActivo") : t("estadoInactivo")}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="px-6 py-4 border-t border-gray-100 flex gap-3">
-            <button type="button" onClick={() => setEditDoc(null)} disabled={editSaving}
-              className="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-roboto text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors">
-              {t("cancelar")}
-            </button>
-            <button type="button" onClick={handleEditSave} disabled={editSaving || !editNombre.trim()}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-secondary text-white text-sm font-roboto font-semibold hover:bg-secondary/90 disabled:opacity-50 transition-colors">
-              {editSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-              {editSaving ? t("guardando") : t("guardarBtn")}
-            </button>
-          </div>
-        </SheetContent>
-      </Sheet>
-
-      {/* Upload modal */}
-      <SubirDocumentoModal
-        open={subirOpen}
-        uploadedBy={userId}
-        onClose={() => setSubirOpen(false)}
-        onSuccess={() => {
-          setSubirOpen(false);
-          setPage(0);
-          setRefresh((r) => r + 1);
-        }}
-      />
     </div>
   );
 }
