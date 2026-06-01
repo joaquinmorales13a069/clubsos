@@ -12,11 +12,12 @@
  */
 
 import { useState, useEffect, useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 import {
   Search,
-  Loader2,
   Users,
   ChevronLeft,
   ChevronRight,
@@ -24,7 +25,6 @@ import {
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
-import EditarUsuarioModal from "./EditarUsuarioModal";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -93,7 +93,11 @@ function initials(name: string | null) {
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function EmpresaUsuarios() {
-  const t = useTranslations("Dashboard.empresa.gestionarUsuarios");
+  const t      = useTranslations("Dashboard.empresa.gestionarUsuarios");
+  const locale = useLocale();
+  const router = useRouter();
+  const params = useParams<{ id?: string }>();
+  const activeId = (params?.id as string | undefined) ?? null;
 
   // ── Data state ──────────────────────────────────────────────────────────
   const [usuarios, setUsuarios] = useState<UsuarioEmpresa[]>([]);
@@ -102,11 +106,6 @@ export default function EmpresaUsuarios() {
   // ── UI state ─────────────────────────────────────────────────────────────
   const [search, setSearch] = useState("");
   const [page,   setPage]   = useState(0);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-
-  // ── Modal state ──────────────────────────────────────────────────────────
-  const [selectedUser, setSelectedUser] = useState<UsuarioEmpresa | null>(null);
-  const [modalOpen,    setModalOpen]    = useState(false);
 
   // ── Fetch on mount ───────────────────────────────────────────────────────
   useEffect(() => {
@@ -126,14 +125,6 @@ export default function EmpresaUsuarios() {
       });
   }, [t]);
 
-  // ── Fetch current user ID ────────────────────────────────────────────────
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      setCurrentUserId(data.user?.id ?? null);
-    });
-  }, []);
-
   // ── Filtered + paged data ────────────────────────────────────────────────
   const filtered = useMemo(() => {
     if (!search.trim()) return usuarios;
@@ -148,21 +139,6 @@ export default function EmpresaUsuarios() {
   const paged      = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   const handleSearchChange = (val: string) => { setSearch(val); setPage(0); };
-
-  // ── Open modal ────────────────────────────────────────────────────────────
-  const openModal = (user: UsuarioEmpresa) => {
-    setSelectedUser(user);
-    setModalOpen(true);
-  };
-
-  // ── Optimistic update after save ─────────────────────────────────────────
-  const handleSaved = (updated: UsuarioEmpresa) => {
-    setUsuarios((prev) =>
-      prev.map((u) => (u.id === updated.id ? updated : u)),
-    );
-    // Keep modal in sync
-    setSelectedUser(updated);
-  };
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -243,7 +219,9 @@ export default function EmpresaUsuarios() {
                     return (
                       <tr
                         key={user.id}
-                        className="hover:bg-gray-50/60 transition-colors"
+                        data-active={user.id === activeId ? "true" : undefined}
+                        onClick={() => router.push(`/${locale}/dashboard/empresa/usuarios/${user.id}`)}
+                        className="hover:bg-gray-50/60 data-[active=true]:bg-primary/5 data-[active=true]:border-l-2 data-[active=true]:border-primary cursor-pointer transition-colors"
                       >
                         {/* Nombre */}
                         <td className="px-5 py-3.5">
@@ -300,17 +278,16 @@ export default function EmpresaUsuarios() {
                         </td>
 
                         {/* Edit action */}
-                        <td className="px-4 py-3.5">
-                          <button
-                            type="button"
-                            onClick={() => openModal(user)}
+                        <td className="px-4 py-3.5" onClick={(e) => e.stopPropagation()}>
+                          <Link
+                            href={`/${locale}/dashboard/empresa/usuarios/${user.id}/editar`}
                             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold font-roboto
                                        bg-secondary/5 text-secondary border border-secondary/20
                                        hover:bg-secondary/10 transition-colors whitespace-nowrap"
                           >
                             <Pencil className="w-3.5 h-3.5" />
                             {t("editarBtn")}
-                          </button>
+                          </Link>
                         </td>
                       </tr>
                     );
@@ -329,7 +306,9 @@ export default function EmpresaUsuarios() {
                 return (
                   <div
                     key={user.id}
-                    className="px-4 py-4"
+                    data-active={user.id === activeId ? "true" : undefined}
+                    onClick={() => router.push(`/${locale}/dashboard/empresa/usuarios/${user.id}`)}
+                    className="px-4 py-4 cursor-pointer data-[active=true]:bg-primary/5 data-[active=true]:border-l-2 data-[active=true]:border-primary"
                   >
                     <div className="flex items-start gap-3">
                       {/* Avatar */}
@@ -363,15 +342,15 @@ export default function EmpresaUsuarios() {
                       </div>
 
                       {/* Edit button */}
-                      <button
-                        type="button"
-                        onClick={() => openModal(user)}
+                      <Link
+                        href={`/${locale}/dashboard/empresa/usuarios/${user.id}/editar`}
+                        onClick={(e) => e.stopPropagation()}
                         className="shrink-0 p-2 rounded-xl bg-secondary/5 text-secondary border border-secondary/20
                                    hover:bg-secondary/10 transition-colors"
                         aria-label={t("editarBtn")}
                       >
                         <Pencil className="w-4 h-4" />
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 );
@@ -414,14 +393,6 @@ export default function EmpresaUsuarios() {
         </div>
       )}
 
-      {/* Edit modal (Sheet) */}
-      <EditarUsuarioModal
-        open={modalOpen}
-        user={selectedUser}
-        onClose={() => setModalOpen(false)}
-        onSaved={handleSaved}
-        currentUserId={currentUserId}
-      />
     </div>
   );
 }
