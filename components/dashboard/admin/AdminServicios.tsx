@@ -5,11 +5,15 @@
  *
  * Phase 4 · Step 4 of the native citas module. Loads the full list from
  * /api/admin/servicios (small dataset, no pagination needed yet) and
- * coordinates the create/edit modal + the soft-delete action.
+ * provides per-row navigate-to-detail, activate/deactivate toggle.
+ * Create/edit now go through dedicated parallel-route pages.
  */
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 import { toast } from "sonner";
 import {
   Stethoscope,
@@ -22,7 +26,6 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import AdminServicioFormModal from "./AdminServicioFormModal";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -76,15 +79,15 @@ function doctorCount(s: ServicioRow): number {
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function AdminServicios() {
-  const t = useTranslations("Dashboard.admin.servicios");
+  const t      = useTranslations("Dashboard.admin.servicios");
+  const router = useRouter();
+  const params = useParams<{ id?: string }>();
+  const activeId = params?.id ?? null;
+  const locale = useLocale();
 
   const [rows,    setRows]    = useState<ServicioRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState(false);
-
-  // Modal state
-  const [formOpen, setFormOpen] = useState(false);
-  const [editing,  setEditing]  = useState<ServicioRow | null>(null);
 
   // Soft delete confirm state
   const [confirmId, setConfirmId] = useState<string | null>(null);
@@ -109,14 +112,6 @@ export default function AdminServicios() {
   useEffect(() => { void load(); }, [load]);
 
   // ── Handlers ───────────────────────────────────────────────────────────────
-  const openCreate = () => { setEditing(null); setFormOpen(true); };
-  const openEdit   = (s: ServicioRow) => { setEditing(s); setFormOpen(true); };
-
-  const handleSaved = () => {
-    setFormOpen(false);
-    toast.success(t("saved"));
-    void load();
-  };
 
   const handleToggleActivo = async (s: ServicioRow) => {
     // Deactivating requires confirm; reactivating is one-click
@@ -163,13 +158,13 @@ export default function AdminServicios() {
             <p className="text-sm font-roboto text-neutral">{t("subtitle")}</p>
           </div>
         </div>
-        <button
-          onClick={openCreate}
+        <Link
+          href={`/${locale}/dashboard/admin/servicios/nuevo`}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary text-white text-sm font-roboto font-medium hover:bg-secondary/90 transition-colors shrink-0"
         >
           <Plus className="w-4 h-4" />
           {t("nueva")}
-        </button>
+        </Link>
       </div>
 
       {/* Table */}
@@ -203,10 +198,12 @@ export default function AdminServicios() {
                 {rows.map((s) => (
                   <tr
                     key={s.id}
-                    className="hover:bg-gray-50/60 transition-colors"
+                    data-active={activeId === s.id}
+                    className="hover:bg-gray-50/60 transition-colors cursor-pointer data-[active=true]:bg-primary/5 data-[active=true]:border-l-2 data-[active=true]:border-primary"
                     onClick={() => {
                       if (confirmId === s.id) return;
                       setConfirmId(null);
+                      router.push(`/${locale}/dashboard/admin/servicios/${s.id}`);
                     }}
                   >
                     <td className={cn(tdCls, "font-medium text-gray-900")}>
@@ -244,14 +241,14 @@ export default function AdminServicios() {
                     </td>
                     <td className={cn(tdCls, "text-right")} onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => openEdit(s)}
+                        <Link
+                          href={`/${locale}/dashboard/admin/servicios/${s.id}/editar`}
                           title={t("editar")}
                           aria-label={t("editar")}
                           className="p-1.5 rounded-lg text-gray-400 hover:text-secondary hover:bg-secondary/10 transition-colors"
                         >
                           <Pencil className="w-4 h-4" />
-                        </button>
+                        </Link>
 
                         {confirmId === s.id ? (
                           <div className="flex items-center gap-1.5">
@@ -308,14 +305,6 @@ export default function AdminServicios() {
           </div>
         )}
       </div>
-
-      {/* Form modal */}
-      <AdminServicioFormModal
-        open={formOpen}
-        servicio={editing}
-        onClose={() => setFormOpen(false)}
-        onSaved={handleSaved}
-      />
     </div>
   );
 }
