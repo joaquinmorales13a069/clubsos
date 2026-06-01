@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { createClient } from "@/utils/supabase/server";
 import DetailPanel from "@/components/dashboard/shared/DetailPanel";
 import BackButton from "@/components/dashboard/shared/BackButton";

@@ -44,7 +44,7 @@ export default async function DocumentoDetallePage({ params }: PageProps) {
   if (error) redirect(`/${locale}/dashboard/admin/documentos`);
   if (!doc) notFound();
 
-  const owner = doc.usuario as { nombre_completo: string | null; documento_identidad: string | null } | null;
+  const owner = doc.usuario as unknown as { nombre_completo: string | null; documento_identidad: string | null } | null;
 
   function formatDate(dateStr: string | null): string {
     if (!dateStr) return "—";
