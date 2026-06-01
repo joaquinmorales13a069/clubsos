@@ -885,7 +885,8 @@
             "si_cancelar_cita": "Yes, cancel appointment",
             "si_rechazar_cita": "Yes, reject appointment",
             "cargando": "Loading...",
-            "error_cargar": "Could not load the appointment details"
+            "error_cargar": "Could not load the appointment details",
+            "finalizada_no_cancelable": "Past appointment — cannot be cancelled"
           },
           "estados": {
             "pendiente": "Pending",
@@ -1729,6 +1730,7 @@
       "quota_exceeded": "You've reached the appointment limit for this service.",
       "invalid_doctor_service": "This doctor does not offer the selected service.",
       "cancel_too_late": "Appointments can only be cancelled with enough notice.",
+      "cita_ya_paso": "The appointment has already passed; it cannot be cancelled.",
       "invalid_state_transition": "This action cannot be performed in the current appointment state.",
       "cita_not_found": "Appointment not found.",
       "doctor_not_found": "Doctor not found.",
