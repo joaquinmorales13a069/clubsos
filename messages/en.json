@@ -1192,7 +1192,22 @@
         "emailEnviando": "Sending...",
         "emailEnviado": "Code sent to the company administrators.",
         "emailError": "Error sending email. Please try again.",
-        "emailSinAdmins": "This company has no registered administrators."
+        "emailSinAdmins": "This company has no registered administrators.",
+        "detalle": {
+          "untitled": "Company",
+          "editar": "Edit",
+          "codigo": "Code",
+          "estado": "Status",
+          "autoConfirma": "Auto-confirm appointments",
+          "ruc": "Tax ID",
+          "direccion": "Address",
+          "departamento": "Department",
+          "notas": "Notes",
+          "usuariosCount": "Registered users",
+          "creado": "Created",
+          "si": "Yes",
+          "no": "No"
+        }
       },
       "ubicaciones": {
         "title": "Locations",

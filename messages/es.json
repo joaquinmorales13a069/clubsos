@@ -1192,7 +1192,22 @@
         "emailEnviando": "Enviando...",
         "emailEnviado": "Código enviado a los administradores de la empresa.",
         "emailError": "Error al enviar el correo. Intenta de nuevo.",
-        "emailSinAdmins": "Esta empresa no tiene administradores registrados."
+        "emailSinAdmins": "Esta empresa no tiene administradores registrados.",
+        "detalle": {
+          "untitled": "Empresa",
+          "editar": "Editar",
+          "codigo": "Código",
+          "estado": "Estado",
+          "autoConfirma": "Auto-confirma citas",
+          "ruc": "RUC",
+          "direccion": "Dirección",
+          "departamento": "Departamento",
+          "notas": "Notas",
+          "usuariosCount": "Usuarios registrados",
+          "creado": "Creado",
+          "si": "Sí",
+          "no": "No"
+        }
       },
       "ubicaciones": {
         "title": "Ubicaciones",
