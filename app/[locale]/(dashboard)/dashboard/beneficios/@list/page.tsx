@@ -1,6 +1,6 @@
 /**
- * BeneficiosPage — Step 5.4
- * Server Component: prefetches first page + total count, passes to BeneficiosGrid.
+ * BeneficiosListPage — Server Component: prefetches first page + total count,
+ * passes to BeneficiosGrid.
  */
 
 import { redirect } from "next/navigation";
@@ -10,9 +10,9 @@ import BeneficiosGrid from "@/components/dashboard/miembro/beneficios/Beneficios
 
 const PAGE_SIZE = 12;
 
-export default async function BeneficiosPage() {
+export default async function BeneficiosListPage() {
   const supabase = await createClient();
-  const locale   = await getLocale();
+  const locale = await getLocale();
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
