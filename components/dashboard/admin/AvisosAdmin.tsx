@@ -89,7 +89,7 @@ interface Props {
   empresas: EmpresaOption[];
 }
 
-export default function AvisosAdmin({ userId: _userId, empresas: _empresas }: Props) {
+export default function AvisosAdmin(_props: Props) {
   const t      = useTranslations("Dashboard.admin.avisos");
   const locale = useLocale() as "es" | "en";
   const router = useRouter();
