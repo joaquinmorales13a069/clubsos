@@ -12,6 +12,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -22,12 +23,10 @@ import type {
   EventClickArg,
   EventInput,
   DateSelectArg,
+  EventContentArg,
 } from "@fullcalendar/core";
 import { createClient } from "@/utils/supabase/client";
-import AdminExcepcionFormModal, {
-  type ExcepcionFormValue,
-  type ExcepcionScope,
-} from "./AdminExcepcionFormModal";
+import type { ExcepcionScope } from "./AdminExcepcionFormModal";
 
 interface ExcepcionRow {
   id:           string;
@@ -70,19 +69,19 @@ interface Props {
 }
 
 export default function AdminExcepcionesCalendario({
-  doctores, ubicaciones, doctorFilter, ubicacionFilter,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  doctores: _doctores, ubicaciones: _ubicaciones, doctorFilter, ubicacionFilter,
 }: Props) {
   const t      = useTranslations("Dashboard.admin.excepciones");
   const locale = useLocale();
+  const router = useRouter();
 
   const supabase    = useMemo(() => createClient(), []);
   const calendarRef = useRef<FullCalendar>(null);
 
-  const [range, setRange]     = useState<{ start: Date; end: Date } | null>(null);
-  const [events, setEvents]   = useState<EventInput[]>([]);
-  const [rows, setRows]       = useState<ExcepcionRow[]>([]);
-  const [modalOpen, setModalOpen]       = useState(false);
-  const [initialValue, setInitialValue] = useState<ExcepcionFormValue | null>(null);
+  const [range, setRange]   = useState<{ start: Date; end: Date } | null>(null);
+  const [events, setEvents] = useState<EventInput[]>([]);
+  const [rows, setRows]     = useState<ExcepcionRow[]>([]);
 
   const fetchEvents = useCallback(async () => {
     if (!range) return;
@@ -137,35 +136,12 @@ export default function AdminExcepcionesCalendario({
   }, []);
 
   const handleEventClick = useCallback((arg: EventClickArg) => {
-    const row = rows.find((r) => r.id === arg.event.id);
-    if (!row) return;
-    const sc = scopeOf(row);
-    setInitialValue({
-      id:           row.id,
-      scope:        sc,
-      doctor_id:    row.doctor_id,
-      ubicacion_id: row.ubicacion_id,
-      fecha_inicio: row.fecha_inicio,
-      fecha_fin:    row.fecha_fin,
-      motivo:       row.motivo ?? "",
-    });
-    setModalOpen(true);
-  }, [rows]);
+    router.push(`/${locale}/dashboard/admin/excepciones/${arg.event.id}`);
+  }, [router, locale]);
 
-  const handleSelect = useCallback((arg: DateSelectArg) => {
-    const pad = (n: number) => String(n).padStart(2, "0");
-    const toLocal = (d: Date) =>
-      `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    setInitialValue({
-      scope:        "global",
-      doctor_id:    null,
-      ubicacion_id: null,
-      fecha_inicio: toLocal(arg.start),
-      fecha_fin:    toLocal(arg.end),
-      motivo:       "",
-    });
-    setModalOpen(true);
-  }, []);
+  const handleSelect = useCallback((_arg: DateSelectArg) => {
+    router.push(`/${locale}/dashboard/admin/excepciones/nuevo`);
+  }, [router, locale]);
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
@@ -189,15 +165,9 @@ export default function AdminExcepcionesCalendario({
         allDaySlot={false}
         slotMinTime="06:00:00"
         slotMaxTime="22:00:00"
-      />
-
-      <AdminExcepcionFormModal
-        open={modalOpen}
-        initial={initialValue}
-        doctores={doctores}
-        ubicaciones={ubicaciones}
-        onClose={() => setModalOpen(false)}
-        onSaved={() => { void fetchEvents(); }}
+        eventClassNames={(arg: EventContentArg) =>
+          arg.event.start && arg.event.start.getTime() < Date.now() ? ["opacity-60"] : []
+        }
       />
     </div>
   );

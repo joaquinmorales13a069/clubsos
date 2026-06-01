@@ -8,14 +8,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import Link from "next/link";
 import { List, CalendarRange, Plus, CalendarX } from "lucide-react";
 import { cn } from "@/lib/utils";
 import AdminExcepcionesCalendario from "./AdminExcepcionesCalendario";
 import AdminExcepcionesTabla from "./AdminExcepcionesTabla";
-import AdminExcepcionFormModal, {
-  type ExcepcionFormValue,
-} from "./AdminExcepcionFormModal";
 
 interface DoctorOption    { id: string; nombre: string; ubicacion_id: string | null }
 interface UbicacionOption { id: string; nombre: string }
@@ -25,6 +23,7 @@ function readView(v: string | null): View { return v === "tabla" ? "tabla" : "ca
 
 export default function AdminExcepcionesView() {
   const t       = useTranslations("Dashboard.admin.excepciones");
+  const locale  = useLocale();
   const router  = useRouter();
   const params  = useSearchParams();
   const view    = readView(params.get("view"));
@@ -34,10 +33,6 @@ export default function AdminExcepcionesView() {
 
   const [doctores,    setDoctores]    = useState<DoctorOption[]>([]);
   const [ubicaciones, setUbicaciones] = useState<UbicacionOption[]>([]);
-
-  const [modalOpen, setModalOpen]       = useState(false);
-  const [initialValue, setInitialValue] = useState<ExcepcionFormValue | null>(null);
-  const [refreshKey, setRefreshKey]     = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,10 +59,6 @@ export default function AdminExcepcionesView() {
     router.replace(qs ? `?${qs}` : "?", { scroll: false });
   }, [params, router]);
 
-  const handleNew = useCallback(() => {
-    setInitialValue(null);
-    setModalOpen(true);
-  }, []);
 
   return (
     <div className="space-y-5">
@@ -82,14 +73,13 @@ export default function AdminExcepcionesView() {
             <p className="text-sm font-roboto text-neutral">{t("subtitle")}</p>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={handleNew}
+        <Link
+          href={`/${locale}/dashboard/admin/excepciones/nuevo`}
           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-sm font-semibold font-roboto hover:bg-primary/90 transition-colors"
         >
           <Plus className="w-4 h-4" aria-hidden="true" />
           {t("newBtn")}
-        </button>
+        </Link>
       </div>
 
       {/* Toggle */}
@@ -124,10 +114,9 @@ export default function AdminExcepcionesView() {
         </button>
       </div>
 
-      {/* Active view (key forces remount on refresh, so the child fetches anew) */}
+      {/* Active view */}
       {view === "calendario" ? (
         <AdminExcepcionesCalendario
-          key={`cal-${refreshKey}`}
           doctores={doctores}
           ubicaciones={ubicaciones}
           doctorFilter={doctorFilter}
@@ -135,7 +124,6 @@ export default function AdminExcepcionesView() {
         />
       ) : (
         <AdminExcepcionesTabla
-          key={`tab-${refreshKey}`}
           doctores={doctores}
           ubicaciones={ubicaciones}
           doctorFilter={doctorFilter}
@@ -143,14 +131,6 @@ export default function AdminExcepcionesView() {
         />
       )}
 
-      <AdminExcepcionFormModal
-        open={modalOpen}
-        initial={initialValue}
-        doctores={doctores}
-        ubicaciones={ubicaciones}
-        onClose={() => setModalOpen(false)}
-        onSaved={() => setRefreshKey((k) => k + 1)}
-      />
     </div>
   );
 }

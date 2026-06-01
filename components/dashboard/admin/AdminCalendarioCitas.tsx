@@ -21,6 +21,7 @@ import type {
   EventClickArg,
   EventInput,
   DatesSetArg,
+  EventContentArg,
 } from "@fullcalendar/core";
 import { CalendarDays } from "lucide-react";
 
@@ -309,6 +310,9 @@ export default function AdminCalendarioCitas() {
           allDaySlot={false}
           slotMinTime="06:00:00"
           slotMaxTime="22:00:00"
+          eventClassNames={(arg: EventContentArg) =>
+            arg.event.start && arg.event.start.getTime() < Date.now() ? ["opacity-60"] : []
+          }
         />
       </div>
 

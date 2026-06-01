@@ -6,14 +6,13 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 import { Loader2, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatDateTimeNI } from "@/lib/datetime";
-import AdminExcepcionFormModal, {
-  type ExcepcionFormValue,
-  type ExcepcionScope,
-} from "./AdminExcepcionFormModal";
+import type { ExcepcionScope } from "./AdminExcepcionFormModal";
 
 interface ExcepcionRow {
   id:           string;
@@ -58,10 +57,12 @@ interface Props {
 const PAGE_SIZE = 25;
 
 export default function AdminExcepcionesTabla({
-  doctores, ubicaciones, doctorFilter, ubicacionFilter,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  doctores: _doctores, ubicaciones: _ubicaciones, doctorFilter, ubicacionFilter,
 }: Props) {
   const t      = useTranslations("Dashboard.admin.excepciones");
   const locale = useLocale() as "es" | "en";
+  const router = useRouter();
 
   const [rows, setRows]       = useState<ExcepcionRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,10 +73,6 @@ export default function AdminExcepcionesTabla({
   const [scopeFilter, setScopeFilter] = useState<"all" | ExcepcionScope>("all");
   const [desde, setDesde] = useState<string>("");
   const [hasta, setHasta] = useState<string>("");
-
-  // Modal state
-  const [modalOpen, setModalOpen]       = useState(false);
-  const [initialValue, setInitialValue] = useState<ExcepcionFormValue | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -116,17 +113,8 @@ export default function AdminExcepcionesTabla({
     }
   }
 
-  function openEdit(row: ExcepcionRow) {
-    setInitialValue({
-      id:           row.id,
-      scope:        scopeOf(row),
-      doctor_id:    row.doctor_id,
-      ubicacion_id: row.ubicacion_id,
-      fecha_inicio: row.fecha_inicio,
-      fecha_fin:    row.fecha_fin,
-      motivo:       row.motivo ?? "",
-    });
-    setModalOpen(true);
+  function handleRowClick(id: string) {
+    router.push(`/${locale}/dashboard/admin/excepciones/${id}`);
   }
 
   const pageRows = useMemo(
@@ -195,7 +183,11 @@ export default function AdminExcepcionesTabla({
                   const doc = pickOne(row.doctor);
                   const ubi = pickOne(row.ubicacion);
                   return (
-                    <tr key={row.id} className="hover:bg-gray-50">
+                    <tr
+                      key={row.id}
+                      className="hover:bg-gray-50 cursor-pointer"
+                      onClick={() => handleRowClick(row.id)}
+                    >
                       <td className="px-4 py-2">
                         <span className={cn("inline-block px-2 py-0.5 rounded-full text-xs font-medium", BADGE_BY_SCOPE[sc])}>
                           {t(`scope.${sc === "both" ? "doctorYUbicacion" : sc}`)}
@@ -207,16 +199,15 @@ export default function AdminExcepcionesTabla({
                       <td className="px-4 py-2 text-gray-700">{formatDateTimeNI(row.fecha_fin, locale)}</td>
                       <td className="px-4 py-2 text-gray-700 truncate max-w-[200px]">{row.motivo ?? "—"}</td>
                       <td className="px-4 py-2">
-                        <div className="flex items-center justify-end gap-1">
-                          <button
-                            type="button"
-                            onClick={() => openEdit(row)}
+                        <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+                          <Link
+                            href={`/${locale}/dashboard/admin/excepciones/${row.id}/editar`}
                             className="p-1.5 rounded-lg text-gray-400 hover:text-secondary hover:bg-secondary/10 transition-colors"
                             aria-label={t("editBtn")}
                             title={t("editBtn")}
                           >
                             <Pencil className="w-4 h-4" aria-hidden="true" />
-                          </button>
+                          </Link>
                           <button
                             type="button"
                             onClick={() => handleDelete(row.id)}
@@ -266,14 +257,6 @@ export default function AdminExcepcionesTabla({
         )}
       </div>
 
-      <AdminExcepcionFormModal
-        open={modalOpen}
-        initial={initialValue}
-        doctores={doctores}
-        ubicaciones={ubicaciones}
-        onClose={() => setModalOpen(false)}
-        onSaved={() => { void load(); }}
-      />
     </div>
   );
 }
