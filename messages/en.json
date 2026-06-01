@@ -1527,6 +1527,18 @@
         "empty": "No exceptions match the current filters.",
         "loading": "Loading exceptions…",
         "errorCargar": "Could not load exceptions.",
+        "detalle": {
+          "untitled": "Exception",
+          "editar": "Edit",
+          "scope": "Scope",
+          "scopeGlobal": "Global",
+          "scopeDoctor": "Doctor",
+          "scopeUbicacion": "Location",
+          "fechaInicio": "From",
+          "fechaFin": "To",
+          "motivo": "Reason",
+          "creado": "Created"
+        },
         "toast": {
           "creado": "Exception created.",
           "creadoConCancelaciones": "Exception created. {n} appointment(s) cancelled.",

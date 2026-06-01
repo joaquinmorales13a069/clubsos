@@ -1527,6 +1527,18 @@
         "empty": "No hay excepciones que coincidan con los filtros.",
         "loading": "Cargando excepciones…",
         "errorCargar": "No se pudieron cargar las excepciones.",
+        "detalle": {
+          "untitled": "Excepción",
+          "editar": "Editar",
+          "scope": "Alcance",
+          "scopeGlobal": "Global",
+          "scopeDoctor": "Doctor",
+          "scopeUbicacion": "Ubicación",
+          "fechaInicio": "Desde",
+          "fechaFin": "Hasta",
+          "motivo": "Motivo",
+          "creado": "Creada"
+        },
         "toast": {
           "creado": "Excepción creada.",
           "creadoConCancelaciones": "Excepción creada. {n} cita(s) cancelada(s).",
