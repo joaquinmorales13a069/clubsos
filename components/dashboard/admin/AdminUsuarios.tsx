@@ -7,8 +7,10 @@
  * EditarUsuarioAdminModal handles inline editing with role/empresa change warnings.
  */
 
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { useTranslations, useLocale } from "next-intl";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 import {
   UserCog,
@@ -381,6 +383,10 @@ interface Props {
 
 export default function AdminUsuarios({ userId: _userId }: Props) {
   const t = useTranslations("Dashboard.admin.usuarios");
+  const locale = useLocale();
+  const router = useRouter();
+  const params = useParams<{ id?: string }>();
+  const activeId = (params?.id as string | undefined) ?? null;
 
   // ── Data state ─────────────────────────────────────────────────────────────
   const [usuarios,   setUsuarios]   = useState<UsuarioRow[]>([]);
@@ -588,7 +594,12 @@ export default function AdminUsuarios({ userId: _userId }: Props) {
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {usuarios.map((u) => (
-                  <tr key={u.id} className="hover:bg-gray-50/60 transition-colors">
+                  <tr
+                    key={u.id}
+                    data-active={u.id === activeId ? "true" : undefined}
+                    onClick={() => router.push(`/${locale}/dashboard/admin/usuarios/${u.id}`)}
+                    className="hover:bg-gray-50/60 data-[active=true]:bg-primary/5 data-[active=true]:border-l-2 data-[active=true]:border-primary cursor-pointer transition-colors"
+                  >
                     <td className={cn(tdCls, "font-medium text-gray-900 max-w-[180px] truncate")}>
                       {u.nombre_completo}
                     </td>
@@ -613,13 +624,14 @@ export default function AdminUsuarios({ userId: _userId }: Props) {
                       {u.email ?? <span className="text-gray-300">—</span>}
                     </td>
                     <td className={cn(tdCls, "text-right")}>
-                      <button
-                        onClick={() => setEditUsuario(u)}
+                      <Link
+                        href={`/${locale}/dashboard/admin/usuarios/${u.id}/editar`}
+                        onClick={(e) => e.stopPropagation()}
                         title={t("editarBtn")}
-                        className="p-1.5 rounded-lg text-gray-400 hover:text-secondary hover:bg-secondary/10 transition-colors"
+                        className="inline-flex p-1.5 rounded-lg text-gray-400 hover:text-secondary hover:bg-secondary/10 transition-colors"
                       >
                         <Pencil className="w-4 h-4" />
-                      </button>
+                      </Link>
                     </td>
                   </tr>
                 ))}
