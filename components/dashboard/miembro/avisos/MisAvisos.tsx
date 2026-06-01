@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
 import { Megaphone, ChevronLeft, ChevronRight, ImageIcon } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { cn } from "@/lib/utils";
-import AvisoDetailModal from "./AvisoDetailModal";
 import { formatDateShortNI, calendarDateNI } from "@/lib/datetime";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -54,13 +54,13 @@ function CardSkeleton() {
 export default function MisAvisos() {
   const t      = useTranslations("Dashboard.miembro.avisos");
   const locale = useLocale() as "es" | "en";
+  const router = useRouter();
 
-  const [avisos,        setAvisos]        = useState<AvisoRow[]>([]);
-  const [totalCount,    setTotalCount]    = useState(0);
-  const [loading,       setLoading]       = useState(true);
-  const [error,         setError]         = useState(false);
-  const [page,          setPage]          = useState(0);
-  const [selectedAviso, setSelectedAviso] = useState<AvisoRow | null>(null);
+  const [avisos,     setAvisos]     = useState<AvisoRow[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading,    setLoading]    = useState(true);
+  const [error,      setError]      = useState(false);
+  const [page,       setPage]       = useState(0);
 
   const pageRef   = useRef(0);
   pageRef.current = page;
@@ -125,7 +125,7 @@ export default function MisAvisos() {
             <div
               key={aviso.id}
               className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => setSelectedAviso(aviso)}
+              onClick={() => router.push(`/${locale}/dashboard/avisos/${aviso.id}`)}
             >
               {/* Image */}
               {aviso.aviso_image_url ? (
@@ -175,13 +175,6 @@ export default function MisAvisos() {
           ))}
         </div>
       )}
-
-      {/* Detail modal */}
-      <AvisoDetailModal
-        open={!!selectedAviso}
-        onClose={() => setSelectedAviso(null)}
-        aviso={selectedAviso}
-      />
 
       {/* Pagination */}
       {!loading && !error && totalCount > PAGE_SIZE && (
