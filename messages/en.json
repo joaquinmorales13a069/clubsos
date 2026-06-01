@@ -1207,6 +1207,23 @@
           "creado": "Created",
           "si": "Yes",
           "no": "No"
+        },
+        "form": {
+          "editarTitle": "Edit company",
+          "nuevoTitle": "New company",
+          "nombre": "Name",
+          "codigoEmpresa": "Company code",
+          "codigoPlaceholder": "Leave empty to auto-generate",
+          "ruc": "Tax ID",
+          "direccion": "Address",
+          "departamento": "Department",
+          "estado": "Status",
+          "autoConfirma": "Auto-confirm appointments",
+          "notas": "Notes",
+          "guardar": "Save changes",
+          "crear": "Create company",
+          "guardando": "Saving…",
+          "estados": { "activa": "Active", "inactiva": "Inactive" }
         }
       },
       "ubicaciones": {

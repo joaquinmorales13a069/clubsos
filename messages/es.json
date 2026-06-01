@@ -1207,6 +1207,23 @@
           "creado": "Creado",
           "si": "Sí",
           "no": "No"
+        },
+        "form": {
+          "editarTitle": "Editar empresa",
+          "nuevoTitle": "Nueva empresa",
+          "nombre": "Nombre",
+          "codigoEmpresa": "Código de empresa",
+          "codigoPlaceholder": "Dejar vacío para generar automáticamente",
+          "ruc": "RUC",
+          "direccion": "Dirección",
+          "departamento": "Departamento",
+          "estado": "Estado",
+          "autoConfirma": "Auto-confirmar citas",
+          "notas": "Notas",
+          "guardar": "Guardar cambios",
+          "crear": "Crear empresa",
+          "guardando": "Guardando…",
+          "estados": { "activa": "Activa", "inactiva": "Inactiva" }
         }
       },
       "ubicaciones": {

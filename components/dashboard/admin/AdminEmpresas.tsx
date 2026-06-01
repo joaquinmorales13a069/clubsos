@@ -122,9 +122,8 @@ export default function AdminEmpresas({ userId: _userId }: Props) {
   const [error,      setError]      = useState(false);
 
   // ── Pagination ─────────────────────────────────────────────────────────────
-  const [page,    setPage]    = useState(0);
-  const [refresh, setRefresh] = useState(0);
-  const pageRef   = useRef(0);
+  const [page,  setPage]  = useState(0);
+  const pageRef = useRef(0);
   pageRef.current = page;
 
   // ── Filters ────────────────────────────────────────────────────────────────
@@ -171,7 +170,7 @@ export default function AdminEmpresas({ userId: _userId }: Props) {
     setLoading(false);
   }, [filterEstado, searchQ]);
 
-  useEffect(() => { fetchEmpresas(); }, [fetchEmpresas, page, refresh]);
+  useEffect(() => { fetchEmpresas(); }, [fetchEmpresas, page]);
 
   const handleFilterEstadoChange = (val: string) => { setFilterEstado(val); setPage(0); };
 
