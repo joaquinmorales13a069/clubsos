@@ -5,11 +5,14 @@
  *
  * Phase 4 · Step 3 of the native citas module. Loads the full list from
  * /api/admin/ubicaciones (small dataset, no pagination needed yet) and
- * coordinates the create/edit modal + the soft-delete action.
+ * provides per-row navigate-to-detail, activate/deactivate toggle.
+ * Create/edit now go through dedicated parallel-route pages.
  */
 
 import { useCallback, useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
+import { useTranslations, useLocale } from "next-intl";
 import { toast } from "sonner";
 import {
   MapPin,
@@ -22,7 +25,6 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import AdminUbicacionFormModal from "./AdminUbicacionFormModal";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -60,15 +62,15 @@ function TableSkeleton() {
 // ── Main component ────────────────────────────────────────────────────────────
 
 export default function AdminUbicaciones() {
-  const t = useTranslations("Dashboard.admin.ubicaciones");
+  const t      = useTranslations("Dashboard.admin.ubicaciones");
+  const router = useRouter();
+  const params = useParams<{ id?: string }>();
+  const activeId = params?.id ?? null;
+  const locale = useLocale();
 
   const [rows,    setRows]    = useState<UbicacionRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState(false);
-
-  // Modal state
-  const [formOpen, setFormOpen] = useState(false);
-  const [editing,  setEditing]  = useState<UbicacionRow | null>(null);
 
   // Soft delete confirm state
   const [confirmId, setConfirmId] = useState<string | null>(null);
@@ -93,14 +95,6 @@ export default function AdminUbicaciones() {
   useEffect(() => { void load(); }, [load]);
 
   // ── Handlers ───────────────────────────────────────────────────────────────
-  const openCreate = () => { setEditing(null); setFormOpen(true); };
-  const openEdit   = (u: UbicacionRow) => { setEditing(u); setFormOpen(true); };
-
-  const handleSaved = () => {
-    setFormOpen(false);
-    toast.success(t("saved"));
-    void load();
-  };
 
   const handleToggleActivo = async (u: UbicacionRow) => {
     // Deactivating requires confirm; reactivating is one-click
@@ -147,13 +141,13 @@ export default function AdminUbicaciones() {
             <p className="text-sm font-roboto text-neutral">{t("subtitle")}</p>
           </div>
         </div>
-        <button
-          onClick={openCreate}
+        <Link
+          href={`/${locale}/dashboard/admin/ubicaciones/nuevo`}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-secondary text-white text-sm font-roboto font-medium hover:bg-secondary/90 transition-colors shrink-0"
         >
           <Plus className="w-4 h-4" />
           {t("nueva")}
-        </button>
+        </Link>
       </div>
 
       {/* Table */}
@@ -184,10 +178,12 @@ export default function AdminUbicaciones() {
                 {rows.map((u) => (
                   <tr
                     key={u.id}
-                    className="hover:bg-gray-50/60 transition-colors"
+                    data-active={activeId === u.id}
+                    className="hover:bg-gray-50/60 transition-colors cursor-pointer data-[active=true]:bg-primary/5 data-[active=true]:border-l-2 data-[active=true]:border-primary"
                     onClick={() => {
                       if (confirmId === u.id) return;
                       setConfirmId(null);
+                      router.push(`/${locale}/dashboard/admin/ubicaciones/${u.id}`);
                     }}
                   >
                     <td className={cn(tdCls, "font-medium text-gray-900")}>
@@ -216,14 +212,14 @@ export default function AdminUbicaciones() {
                     </td>
                     <td className={cn(tdCls, "text-right")} onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => openEdit(u)}
+                        <Link
+                          href={`/${locale}/dashboard/admin/ubicaciones/${u.id}/editar`}
                           title={t("editar")}
                           aria-label={t("editar")}
                           className="p-1.5 rounded-lg text-gray-400 hover:text-secondary hover:bg-secondary/10 transition-colors"
                         >
                           <Pencil className="w-4 h-4" />
-                        </button>
+                        </Link>
 
                         {confirmId === u.id ? (
                           <div className="flex items-center gap-1.5">
@@ -281,13 +277,6 @@ export default function AdminUbicaciones() {
         )}
       </div>
 
-      {/* Form modal */}
-      <AdminUbicacionFormModal
-        open={formOpen}
-        ubicacion={editing}
-        onClose={() => setFormOpen(false)}
-        onSaved={handleSaved}
-      />
     </div>
   );
 }
