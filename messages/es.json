@@ -194,11 +194,11 @@
       },
       "groupMiPerfil": "Mi Perfil",
       "groupAdministrar": "Administrar Empresa",
-      "groupCitas":    "Citas",
+      "groupCitas": "Citas",
       "groupClientes": "Clientes",
       "groupRecursos": "Recursos",
       "groupReportes": "Reportes",
-      "groupSistema":  "Sistema",
+      "groupSistema": "Sistema",
       "role": {
         "admin": "Admin Global",
         "empresaAdmin": "Admin de Empresa",
@@ -419,7 +419,20 @@
         "cerrar": "Cerrar",
         "modalTitulo": "Detalle del beneficio",
         "noDescripcion": "Sin descripción disponible.",
-        "fieldVigencia": "Vigencia"
+        "fieldVigencia": "Vigencia",
+        "detalle": {
+          "untitled": "Beneficio",
+          "tipoBeneficio": "Tipo",
+          "tipoDescuento": "Descuento",
+          "tipoPromocion": "Promoción",
+          "vigencia": "Vigencia",
+          "desde": "Desde",
+          "hasta": "Hasta",
+          "porcentaje": "Porcentaje de descuento",
+          "noDescripcion": "Sin descripción disponible.",
+          "estadoActiva": "Activa",
+          "estadoExpirada": "Expirada"
+        }
       },
       "avisos": {
         "title": "Avisos",
@@ -971,6 +984,63 @@
           "validTituloReq": "El título es requerido.",
           "validFechas": "La fecha fin debe ser igual o posterior a la fecha inicio.",
           "validImagenSize": "La imagen no debe superar 5 MB."
+        },
+        "detalle": {
+          "untitled": "Beneficio",
+          "editar": "Editar",
+          "descripcion": "Descripción",
+          "tipoBeneficio": "Tipo",
+          "tipoDescuento": "Descuento",
+          "tipoPromocion": "Promoción",
+          "estado": "Estado",
+          "estadoActiva": "Activa",
+          "estadoExpirada": "Expirada",
+          "fechaInicio": "Desde",
+          "fechaFin": "Hasta",
+          "porcentaje": "Porcentaje",
+          "empresas": "Empresas asociadas",
+          "empresasTodas": "Todas las empresas",
+          "creado": "Creado"
+        },
+        "form": {
+          "nuevoTitle": "Nuevo beneficio",
+          "editarTitle": "Editar beneficio",
+          "fieldTitulo": "Título",
+          "fieldDescripcion": "Descripción",
+          "fieldTipo": "Tipo de beneficio",
+          "fieldEstado": "Estado",
+          "fieldFechaInicio": "Fecha inicio",
+          "fieldFechaFin": "Fecha fin",
+          "fieldEmpresas": "Empresas (vacío = global)",
+          "fieldImagen": "Imagen (opcional)",
+          "fieldPorcentaje": "Porcentaje de descuento",
+          "fieldPorcentajePlaceholder": "ej. 25 o hasta 30%",
+          "imagenActual": "Imagen actual",
+          "imagenEliminada": "Imagen eliminada. Selecciona una nueva o guarda sin imagen.",
+          "eliminarImagen": "Eliminar imagen",
+          "subirImagen": "Haz clic para subir una imagen",
+          "subirImagenHint": "JPG, PNG, WEBP o GIF · Máx. 5 MB",
+          "deshacer": "Deshacer",
+          "tipoDescuento": "Descuento",
+          "tipoPromocion": "Promoción",
+          "estadoActiva": "Activa",
+          "estadoExpirada": "Expirada",
+          "empresasGlobal": "Sin selección = global (aplica a todos)",
+          "empresasSeleccionadas": "{count} empresa(s) seleccionada(s)",
+          "sinEmpresas": "No hay empresas disponibles.",
+          "buscarEmpresa": "Buscar empresa...",
+          "sinResultados": "Sin resultados.",
+          "guardar": "Guardar",
+          "crear": "Crear",
+          "cancelar": "Cancelar",
+          "guardando": "Guardando...",
+          "creadoOk": "Beneficio creado exitosamente.",
+          "editadoOk": "Beneficio actualizado.",
+          "errorGuardar": "Error al guardar. Intenta de nuevo.",
+          "errorImagen": "Error al subir la imagen. Intenta de nuevo.",
+          "validTituloReq": "El título es requerido.",
+          "validFechas": "La fecha fin debe ser igual o posterior a la fecha inicio.",
+          "validImagenSize": "La imagen no debe superar 5 MB."
         }
       },
       "documentos": {
@@ -1117,8 +1187,16 @@
           "sinEmpresa": "Sin empresa",
           "guardar": "Guardar cambios",
           "guardando": "Guardando…",
-          "roles": { "admin": "Administrador", "empresa_admin": "Admin de empresa", "miembro": "Miembro" },
-          "estados": { "activo": "Activo", "inactivo": "Inactivo", "pendiente": "Pendiente" }
+          "roles": {
+            "admin": "Administrador",
+            "empresa_admin": "Admin de empresa",
+            "miembro": "Miembro"
+          },
+          "estados": {
+            "activo": "Activo",
+            "inactivo": "Inactivo",
+            "pendiente": "Pendiente"
+          }
         },
         "contratosUsage": {
           "loading": "Cargando uso de citas...",
@@ -1223,7 +1301,10 @@
           "guardar": "Guardar cambios",
           "crear": "Crear empresa",
           "guardando": "Guardando…",
-          "estados": { "activa": "Activa", "inactiva": "Inactiva" }
+          "estados": {
+            "activa": "Activa",
+            "inactiva": "Inactiva"
+          }
         }
       },
       "ubicaciones": {
@@ -1435,11 +1516,11 @@
           "duracion_help": "Tiempo estimado por cita en minutos. Sólo informativo.",
           "slot_duracion": "Slots consumidos",
           "slot_duracion_help": "Cuántos slots del horario consume esta cita (1 = un slot, 2 = dos slots consecutivos).",
-          "precio": "Precio",
+          "precio": "Precio (C$)",
           "activo": "Activo",
           "activoDesc": "Los servicios inactivos no aparecen al agendar citas nuevas.",
           "cancelar": "Cancelar",
-          "guardar": "Guardar",
+          "guardar": "Guardar cambios",
           "guardando": "Guardando...",
           "validNombre": "El nombre es obligatorio.",
           "validSlot": "Los slots deben ser un número entero mayor o igual a 1.",
@@ -1449,8 +1530,6 @@
           "editarTitle": "Editar servicio",
           "nuevoTitle": "Nuevo servicio",
           "slotDuracion": "Duración (slots)",
-          "precio": "Precio (C$)",
-          "guardar": "Guardar cambios",
           "crear": "Crear servicio"
         },
         "detalle": {
