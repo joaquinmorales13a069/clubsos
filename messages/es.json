@@ -1430,7 +1430,26 @@
           "validSlot": "Los slots deben ser un número entero mayor o igual a 1.",
           "validDuracion": "La duración debe ser un número entero válido.",
           "validPrecio": "El precio debe ser un número válido.",
-          "errorGuardar": "No se pudo guardar el servicio."
+          "errorGuardar": "No se pudo guardar el servicio.",
+          "editarTitle": "Editar servicio",
+          "nuevoTitle": "Nuevo servicio",
+          "slotDuracion": "Duración (slots)",
+          "precio": "Precio (C$)",
+          "guardar": "Guardar cambios",
+          "crear": "Crear servicio"
+        },
+        "detalle": {
+          "untitled": "Servicio",
+          "editar": "Editar",
+          "descripcion": "Descripción",
+          "duracion": "Duración",
+          "slotDuracion": "Duración (slots)",
+          "precio": "Precio",
+          "activo": "Activo",
+          "doctoresCount": "Doctores que lo ofrecen",
+          "creado": "Creado",
+          "si": "Sí",
+          "no": "No"
         }
       },
       "excepciones": {

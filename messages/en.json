@@ -1430,7 +1430,26 @@
           "validSlot": "Slots must be an integer greater than or equal to 1.",
           "validDuracion": "Duration must be a valid integer.",
           "validPrecio": "Price must be a valid number.",
-          "errorGuardar": "Failed to save service."
+          "errorGuardar": "Failed to save service.",
+          "editarTitle": "Edit service",
+          "nuevoTitle": "New service",
+          "slotDuracion": "Duration (slots)",
+          "precio": "Price (C$)",
+          "guardar": "Save changes",
+          "crear": "Create service"
+        },
+        "detalle": {
+          "untitled": "Service",
+          "editar": "Edit",
+          "descripcion": "Description",
+          "duracion": "Duration",
+          "slotDuracion": "Duration (slots)",
+          "precio": "Price",
+          "activo": "Active",
+          "doctoresCount": "Doctors offering it",
+          "creado": "Created",
+          "si": "Yes",
+          "no": "No"
         }
       },
       "excepciones": {
