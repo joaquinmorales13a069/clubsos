@@ -1522,7 +1522,20 @@
             "missingFields": "Completa las fechas de inicio y fin.",
             "missingDoctor": "Selecciona un doctor para este scope.",
             "missingUbicacion": "Selecciona una ubicación para este scope."
-          }
+          },
+          "editarTitle": "Editar excepción",
+          "nuevoTitle": "Nueva excepción",
+          "scopeGlobal": "Global",
+          "scopeDoctor": "Doctor específico",
+          "scopeUbicacion": "Ubicación específica",
+          "scopeBoth": "Doctor + Ubicación",
+          "doctor": "Doctor",
+          "ubicacion": "Ubicación",
+          "guardar": "Guardar cambios",
+          "crear": "Crear excepción",
+          "guardando": "Guardando…",
+          "citasAfectadas": "Citas afectadas",
+          "errorFechas": "La fecha de fin debe ser posterior al inicio."
         },
         "empty": "No hay excepciones que coincidan con los filtros.",
         "loading": "Cargando excepciones…",

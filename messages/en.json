@@ -1522,7 +1522,20 @@
             "missingFields": "Fill in the start and end dates.",
             "missingDoctor": "Select a doctor for this scope.",
             "missingUbicacion": "Select a location for this scope."
-          }
+          },
+          "editarTitle": "Edit exception",
+          "nuevoTitle": "New exception",
+          "scopeGlobal": "Global",
+          "scopeDoctor": "Specific doctor",
+          "scopeUbicacion": "Specific location",
+          "scopeBoth": "Doctor + Location",
+          "doctor": "Doctor",
+          "ubicacion": "Location",
+          "guardar": "Save changes",
+          "crear": "Create exception",
+          "guardando": "Saving…",
+          "citasAfectadas": "Affected appointments",
+          "errorFechas": "End date must be after start date."
         },
         "empty": "No exceptions match the current filters.",
         "loading": "Loading exceptions…",
