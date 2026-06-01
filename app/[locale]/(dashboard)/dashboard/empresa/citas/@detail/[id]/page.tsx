@@ -4,7 +4,25 @@ import { createClient } from "@/utils/supabase/server";
 import DetailPanel from "@/components/dashboard/shared/DetailPanel";
 import BackButton from "@/components/dashboard/shared/BackButton";
 import { cn } from "@/lib/utils";
-import CitaEmpresaActions, { badgeCls } from "./CitaEmpresaActions";
+import CitaEmpresaActions from "./CitaEmpresaActions";
+
+const ESTADO_COLORS: Record<string, string> = {
+  pendiente:         "bg-amber-100 text-amber-700",
+  pendiente_empresa: "bg-amber-100 text-amber-700",
+  pendiente_pago:    "bg-amber-100 text-amber-700",
+  pendiente_admin:   "bg-amber-100 text-amber-700",
+  confirmado:        "bg-emerald-100 text-emerald-700",
+  completado:        "bg-gray-100 text-gray-600",
+  cancelado:         "bg-red-100 text-red-700",
+  rechazado:         "bg-red-100 text-red-700",
+};
+
+function badgeCls(estado: string): string {
+  return cn(
+    "inline-block px-2 py-0.5 rounded-full text-xs font-medium",
+    ESTADO_COLORS[estado] ?? "bg-gray-100 text-gray-600",
+  );
+}
 
 type RelOne<T> = T | T[] | null;
 function pickOne<T>(rel: RelOne<T>): T | null {
