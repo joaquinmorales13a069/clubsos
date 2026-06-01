@@ -60,7 +60,7 @@ export default function MisServiciosCubiertos({ userId }: { userId: string }) {
   const firstRow = rows[0];
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 space-y-4">
+    <div className="h-full rounded-2xl border border-gray-200 bg-white p-4 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-poppins font-semibold text-gray-900">
           Mis Servicios Cubiertos
@@ -78,7 +78,7 @@ export default function MisServiciosCubiertos({ userId }: { userId: string }) {
         </p>
       )}
 
-      <div className="space-y-3">
+      <div className="flex-1 space-y-3 md:max-h-[280px] md:overflow-y-auto md:pr-1">
         {rows.map((r) => {
           const pct =
             r.cuota_por_titular > 0

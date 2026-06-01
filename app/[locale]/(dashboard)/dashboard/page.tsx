@@ -101,21 +101,21 @@ export default async function MiembroDashboardPage() {
         <p className="text-sm font-roboto text-neutral mt-0.5">{t("greetingSub")}</p>
       </div>
 
-      {/* Digital Credential Card */}
-      <CredentialCard
-        id={profile?.id ?? ""}
-        nombreCompleto={profile?.nombre_completo ?? "—"}
-        empresaNombre={empresas?.nombre ?? null}
-        estado={(profile?.estado as "activo" | "inactivo" | "pendiente") ?? "pendiente"}
-        sexo={(profile?.sexo as "masculino" | "femenino") ?? null}
-        fechaNacimiento={profile?.fecha_nacimiento ?? null}
-      />
+      {/* Credential + covered services share a row on md+ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+        <CredentialCard
+          id={profile?.id ?? ""}
+          nombreCompleto={profile?.nombre_completo ?? "—"}
+          empresaNombre={empresas?.nombre ?? null}
+          estado={(profile?.estado as "activo" | "inactivo" | "pendiente") ?? "pendiente"}
+          sexo={(profile?.sexo as "masculino" | "femenino") ?? null}
+          fechaNacimiento={profile?.fecha_nacimiento ?? null}
+        />
+        <MisServiciosCubiertos userId={user.id} />
+      </div>
 
       {/* Quick action shortcuts */}
       <QuickActions locale={locale} />
-
-      {/* Covered services KPI — client component, renders nothing if no contract rows */}
-      <MisServiciosCubiertos userId={user.id} />
 
       {/* 2×2 info cards grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
