@@ -138,6 +138,9 @@ export default function AdminCitaDetalleModal({
   const estado = cita?.estado_sync ?? "";
   const isPendiente = estado.startsWith("pendiente");
   const isConfirmado = estado === "confirmado";
+  const esPasada = cita?.fecha_hora_cita
+    ? new Date(cita.fecha_hora_cita).getTime() < Date.now()
+    : false;
 
   // ── Actions ────────────────────────────────────────────────────────────────
   const safeErrorMsg = (j: { i18nKey?: string; error?: string }): string => {
@@ -342,7 +345,14 @@ export default function AdminCitaDetalleModal({
               </>
             )}
 
-            {isConfirmado && !showCancelar && (
+            {isConfirmado && esPasada && (
+              <span className="inline-flex items-center gap-1.5 text-xs font-roboto text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full">
+                <Ban className="w-3.5 h-3.5" />
+                {t("finalizada_no_cancelable")}
+              </span>
+            )}
+
+            {isConfirmado && !esPasada && !showCancelar && (
               <button
                 type="button"
                 onClick={() => { setShowCancelar(true); setMotivo(""); }}
@@ -354,7 +364,7 @@ export default function AdminCitaDetalleModal({
               </button>
             )}
 
-            {isConfirmado && showCancelar && (
+            {isConfirmado && !esPasada && showCancelar && (
               <>
                 <button
                   type="button"

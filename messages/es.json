@@ -885,7 +885,8 @@
             "si_cancelar_cita": "Sí, cancelar cita",
             "si_rechazar_cita": "Sí, rechazar cita",
             "cargando": "Cargando...",
-            "error_cargar": "No se pudo cargar el detalle de la cita"
+            "error_cargar": "No se pudo cargar el detalle de la cita",
+            "finalizada_no_cancelable": "Cita finalizada — no se puede cancelar"
           },
           "estados": {
             "pendiente": "Pendiente",
@@ -1729,6 +1730,7 @@
       "quota_exceeded": "Has alcanzado el límite de citas de este servicio.",
       "invalid_doctor_service": "Este doctor no ofrece el servicio seleccionado.",
       "cancel_too_late": "Las citas solo se pueden cancelar con suficiente anticipación.",
+      "cita_ya_paso": "La cita ya pasó; no se puede cancelar.",
       "invalid_state_transition": "No se puede realizar esta acción en el estado actual de la cita.",
       "cita_not_found": "Cita no encontrada.",
       "doctor_not_found": "Doctor no encontrado.",
