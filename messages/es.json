@@ -303,6 +303,7 @@
           "stepPaciente": "Paciente",
           "stepPago": "Pago",
           "stepTransferencia": "Transferencia",
+          "stepPagadito": "Pagadito",
           "stepConfirmar": "Confirmar",
           "ubicacion": {
             "title": "¿Dónde deseas tu cita?",

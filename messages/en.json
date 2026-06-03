@@ -303,6 +303,7 @@
           "stepPaciente": "Patient",
           "stepPago": "Payment",
           "stepTransferencia": "Transfer",
+          "stepPagadito": "Pagadito",
           "stepConfirmar": "Confirm",
           "ubicacion": {
             "title": "Where do you want your appointment?",
