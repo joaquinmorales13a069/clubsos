@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { createServiceClient } from "@/utils/supabase/service";
 import { pagadito } from "@/lib/pagadito/client";
 import { PAGADITO } from "@/lib/pagadito/config";
 import { PagaditoError } from "@/lib/pagadito/errors";
@@ -121,7 +122,9 @@ export async function POST(
     // so the member can pay; the cron will reconcile.
   }
 
-  await logAction(supabase, {
+  // audit_logs has a policy that blocks all client INSERTs (audit_no_client_insert).
+  // The member's session client cannot write here — use the service-role client.
+  await logAction(createServiceClient(), {
     actorId:      user.id,
     actorRol:     "miembro",
     accion:       "pago.pagadito.init",

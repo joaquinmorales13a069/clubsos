@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Loader2, AlertCircle } from "lucide-react";
 
@@ -15,6 +15,11 @@ export default function PasoPagaditoRedirect({ citaId, onChangeMetodo }: PasoPag
   const t = useTranslations("Dashboard.miembro.citas.wizard.pagadito");
   const [status, setStatus]     = useState<Status>("generando_link");
   const [errorMsg, setErrorMsg] = useState<string>("");
+  // Guard against React StrictMode dev double-mount: each init call creates a
+  // real Pagadito transaction (different ERN per second) and only the second
+  // would be persisted to pagos.pagadito_token; the first would orphan until
+  // Pagadito EXPIREs it. Ref persists across the StrictMode unmount/remount.
+  const firedRef = useRef(false);
 
   async function generate(): Promise<void> {
     setStatus("generando_link");
@@ -40,7 +45,8 @@ export default function PasoPagaditoRedirect({ citaId, onChangeMetodo }: PasoPag
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (firedRef.current) return;
+    firedRef.current = true;
     void generate();
     // citaId is set once when this step mounts; no need to re-run.
     // eslint-disable-next-line react-hooks/exhaustive-deps
