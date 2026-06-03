@@ -16,6 +16,7 @@ interface PasoConfirmarProps {
   onBack: () => void;
   onSuccess: () => void;
   onTransferenciaRequired: (citaId: string) => void;
+  onPagaditoRequired: (citaId: string) => void;
   onSlotTaken: () => void;
 }
 
@@ -32,7 +33,7 @@ function formatDate(dateStr: string, locale: "es" | "en"): string {
 
 
 export default function PasoConfirmar({
-  wizard, userProfile, onBack, onSuccess, onTransferenciaRequired, onSlotTaken,
+  wizard, userProfile, onBack, onSuccess, onTransferenciaRequired, onPagaditoRequired, onSlotTaken,
 }: PasoConfirmarProps) {
   const t      = useTranslations("Dashboard.miembro.citas.wizard");
   const tc     = useTranslations("Dashboard.miembro.citas.wizard.confirmar");
@@ -128,6 +129,8 @@ export default function PasoConfirmar({
       toast.success(tc("success"));
       if (wizard.metodo_pago === "transferencia" && j.cita) {
         onTransferenciaRequired(j.cita.id);
+      } else if (wizard.metodo_pago === "link_pago" && j.cita) {
+        onPagaditoRequired(j.cita.id);
       } else {
         onSuccess();
       }

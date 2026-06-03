@@ -23,6 +23,7 @@ export default function WizardProgressBar({ currentStep }: WizardProgressBarProp
     paciente:     t("stepPaciente"),
     pago:         t("stepPago"),
     transferencia: t("stepTransferencia"),
+    pagadito_redirect: t("stepPagadito"),
     confirmar:    t("stepConfirmar"),
   };
 

@@ -21,8 +21,10 @@ import PasoFecha        from "./steps/PasoFecha";
 import PasoHorario      from "./steps/PasoHorario";
 import PasoPaciente     from "./steps/PasoPaciente";
 import PasoPago         from "./steps/PasoPago";
-import PasoTransferencia from "./steps/PasoTransferencia";
-import PasoConfirmar    from "./steps/PasoConfirmar";
+import PasoTransferencia    from "./steps/PasoTransferencia";
+import PasoPagaditoRedirect from "./steps/PasoPagaditoRedirect";
+import PasoConfirmar        from "./steps/PasoConfirmar";
+import PagoBanner           from "./PagoBanner";
 import {
   INITIAL_WIZARD,
   WIZARD_STEPS,
@@ -169,6 +171,9 @@ export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) 
               onTransferenciaRequired={(citaId) =>
                 setWizard((w) => ({ ...w, cita_id: citaId, step: "transferencia" }))
               }
+              onPagaditoRequired={(citaId) =>
+                setWizard((w) => ({ ...w, cita_id: citaId, step: "pagadito_redirect" }))
+              }
               onSlotTaken={() =>
                 setWizard((w) => ({ ...w, step: "horario", fechaHoraCita: null }))
               }
@@ -179,6 +184,12 @@ export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) 
               citaId={wizard.cita_id}
               datosBancarios={datosBancarios}
               onSuccess={exitWizard}
+            />
+          )}
+          {wizard.step === "pagadito_redirect" && wizard.cita_id && (
+            <PasoPagaditoRedirect
+              citaId={wizard.cita_id}
+              onChangeMetodo={() => setWizard((w) => ({ ...w, step: "pago" }))}
             />
           )}
         </div>
@@ -194,6 +205,7 @@ export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) 
 
   return (
     <div className="space-y-6">
+      <PagoBanner />
       {/* Page header */}
       <div className="flex items-start justify-between gap-3">
         <div>

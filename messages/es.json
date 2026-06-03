@@ -303,6 +303,7 @@
           "stepPaciente": "Paciente",
           "stepPago": "Pago",
           "stepTransferencia": "Transferencia",
+          "stepPagadito": "Pagadito",
           "stepConfirmar": "Confirmar",
           "ubicacion": {
             "title": "¿Dónde deseas tu cita?",
@@ -368,7 +369,7 @@
             "title": "Método de pago",
             "subtitle": "Este servicio requiere pago. Selecciona cómo deseas pagarlo.",
             "link": "Link de pago",
-            "link_desc": "Recibirás un enlace de pago por WhatsApp o correo.",
+            "link_desc": "Paga con tarjeta o cuenta Pagadito. Te llevamos al checkout seguro.",
             "transferencia": "Transferencia bancaria",
             "transferencia_desc": "Realiza la transferencia y envía el número de referencia.",
             "clinica": "Pago en clínica",
@@ -390,6 +391,47 @@
             "error_toast": "Error al enviar la referencia.",
             "done_title": "¡Referencia enviada!",
             "done_subtitle": "Verificaremos tu transferencia pronto."
+          },
+          "pagadito": {
+            "creando_cita":   "Reservando tu cita...",
+            "generando_link": "Generando enlace de pago seguro...",
+            "redirigiendo":   "Te llevamos a Pagadito...",
+            "errors": {
+              "pagadito_not_configured": "Pagos en línea no disponibles. Contacta a soporte.",
+              "invalid_credentials":  "Servicio de pagos no disponible. Intenta más tarde.",
+              "invalid_amount":       "Monto inválido. Contacta a soporte.",
+              "invalid_ern":          "Identificador de transacción inválido. Reintenta.",
+              "currency_not_enabled": "Moneda no habilitada. Contacta a soporte.",
+              "wrong_method":         "Método de pago incorrecto para Pagadito.",
+              "already_paid":         "Este pago ya fue verificado.",
+              "no_pago":              "No encontramos el registro de pago.",
+              "cita_not_payable":     "Esta cita no admite pago en línea.",
+              "ern_duplicate":        "Identificador duplicado. Reintenta en unos segundos.",
+              "incomplete_data":      "Datos incompletos. Reintenta.",
+              "invalid_format":       "Formato inválido. Contacta a soporte.",
+              "invalid_custom_params":"Parámetros personalizados inválidos.",
+              "connection_failed":    "No se pudo conectar con la pasarela. Reintenta.",
+              "connection_disabled":  "Conexión deshabilitada. Contacta a soporte.",
+              "amount_mismatch":      "El monto no coincide con el calculado.",
+              "amount_exceeded_max":  "El monto excede el máximo permitido.",
+              "amount_below_min":     "El monto es menor al mínimo permitido.",
+              "tx_not_owned":         "Transacción no pertenece al comercio.",
+              "unregistered_tx":      "Transacción no registrada.",
+              "permission_denied":    "Permiso denegado.",
+              "xss_detected":         "Caracteres no permitidos en los datos.",
+              "generic":              "No pudimos generar el enlace. Reintenta.",
+              "transaction_registered": "La transacción fue registrada pero no puede procesarse ahora.",
+              "transaction_status":     "Estado de transacción desconocido. Contacta a soporte."
+            },
+            "retorno": {
+              "ok":          "¡Pago confirmado! Tu cita está agendada.",
+              "pendiente":   "Estamos verificando tu pago. Te avisaremos por WhatsApp.",
+              "rechazado":   "El pago no se completó. Puedes reintentar.",
+              "desconocido": "No encontramos esta transacción. Contacta a soporte.",
+              "error":       "Hubo un problema procesando tu pago."
+            },
+            "reintentar":     "Reintentar pago",
+            "cambiar_metodo": "Cambiar método de pago"
           }
         }
       },

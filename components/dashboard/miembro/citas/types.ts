@@ -9,6 +9,7 @@ export type WizardStep =
   | "paciente"
   | "pago"
   | "transferencia"
+  | "pagadito_redirect"
   | "confirmar";
 
 export interface WizardState {
