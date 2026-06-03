@@ -369,7 +369,7 @@
             "title": "Método de pago",
             "subtitle": "Este servicio requiere pago. Selecciona cómo deseas pagarlo.",
             "link": "Link de pago",
-            "link_desc": "Recibirás un enlace de pago por WhatsApp o correo.",
+            "link_desc": "Paga con tarjeta o cuenta Pagadito. Te llevamos al checkout seguro.",
             "transferencia": "Transferencia bancaria",
             "transferencia_desc": "Realiza la transferencia y envía el número de referencia.",
             "clinica": "Pago en clínica",

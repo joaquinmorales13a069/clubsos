@@ -369,7 +369,7 @@
             "title": "Payment method",
             "subtitle": "This service requires payment. Select how you'd like to pay.",
             "link": "Payment link",
-            "link_desc": "You'll receive a payment link via WhatsApp or email.",
+            "link_desc": "Pay with card or Pagadito account. We'll take you to the secure checkout.",
             "transferencia": "Bank transfer",
             "transferencia_desc": "Transfer the amount and submit your reference number.",
             "clinica": "Pay at clinic",
