@@ -136,6 +136,15 @@ export class PagaditoClient {
     body:    Record<string, unknown>,
     opName:  string,
   ): Promise<RawResponse<T>> {
+    if (!PAGADITO.isConfigured) {
+      throw new PagaditoError(
+        "CONFIG_ERROR",
+        "pagadito_not_configured",
+        503,
+        "Pagadito client not configured (missing UID/WSK)",
+      );
+    }
+
     const startedAt = Date.now();
     console.info(`[pagadito] ${opName} starting`);
 
@@ -145,7 +154,8 @@ export class PagaditoClient {
         "Content-Type":  "application/json",
         "Authorization": this.buildAuthHeader(),
       },
-      body: JSON.stringify(body),
+      body:   JSON.stringify(body),
+      signal: AbortSignal.timeout(15_000), // 15s — generous for a payment API
     });
 
     if (!res.ok) {
