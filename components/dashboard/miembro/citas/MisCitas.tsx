@@ -24,6 +24,7 @@ import PasoPago         from "./steps/PasoPago";
 import PasoTransferencia    from "./steps/PasoTransferencia";
 import PasoPagaditoRedirect from "./steps/PasoPagaditoRedirect";
 import PasoConfirmar        from "./steps/PasoConfirmar";
+import PagoBanner           from "./PagoBanner";
 import {
   INITIAL_WIZARD,
   WIZARD_STEPS,
@@ -204,6 +205,7 @@ export default function MisCitas({ citas, userProfile, locale }: MisCitasProps) 
 
   return (
     <div className="space-y-6">
+      <PagoBanner />
       {/* Page header */}
       <div className="flex items-start justify-between gap-3">
         <div>
