@@ -4,7 +4,7 @@
 
 **Goal:** Integrate Pagadito as the primary payment gateway for appointments excluded from contract coverage, replacing the current manual link-paste flow.
 
-**Architecture:** 100% Next.js. TypeScript client over WSPG (Pagadito's raw web service). Return URL as primary reconciliation path + `pg_cron` every 10 min as fallback. Feature flag (`PAGADITO_UID` empty → init returns 503, wizard hides `link_pago`).
+**Architecture:** 100% Next.js. TypeScript client over Pagadito Connect (REST v2, JSON) with HTTP Basic Auth. Return URL as primary reconciliation path + `pg_cron` every 2 min as fallback. Feature flag (`PAGADITO_UID` empty → init returns 503, wizard hides `link_pago`).
 
 **Tech Stack:** Next.js 16 App Router · React 19 · TypeScript · Supabase (Postgres + RPC + pg_cron + pg_net) · sonner toasts · next-intl
 
@@ -35,8 +35,8 @@
 | `lib/pagadito/types.ts` | `PagaditoCurrency`, `PagaditoDetail`, `ExecTransInput`, `GetStatusResult` |
 | `lib/pagadito/config.ts` | reads env, exposes endpoints sandbox/prod, feature-flag check |
 | `lib/pagadito/errors.ts` | `PagaditoError` class + code-to-i18n mapping |
-| `lib/pagadito/client.ts` | `PagaditoClient` with `connect/execTrans/getStatus` + cached token |
-| `scripts/pagadito-smoke.ts` | manual end-to-end smoke: connect → execTrans → getStatus |
+| `lib/pagadito/client.ts` | `PagaditoClient` with `execTrans/getStatus` over Pagadito Connect, Basic Auth per request |
+| `scripts/pagadito-smoke.ts` | manual end-to-end smoke: execTrans → getStatus |
 | `app/api/citas/[id]/pagadito/init/route.ts` | POST — member-owned cita, generates link |
 | `app/api/pagadito/return/route.ts` | GET — return URL handler, idempotent |
 | `app/api/internal/pagadito/reconcile/route.ts` | POST — cron-called, batch reconcile |
@@ -83,11 +83,11 @@ ALTER TABLE public.pagos
   ADD COLUMN IF NOT EXISTS pagadito_payload JSONB,
   ADD COLUMN IF NOT EXISTS iniciado_at      TIMESTAMPTZ;
 
-COMMENT ON COLUMN public.pagos.pagadito_token   IS 'Token returned by Pagadito exec_trans (opaque, used by return URL).';
+COMMENT ON COLUMN public.pagos.pagadito_token   IS 'Token returned by Pagadito exec-trans (opaque, used by return URL).';
 COMMENT ON COLUMN public.pagos.pagadito_ern     IS 'External Reference Number we send to Pagadito. Unique per transaction.';
-COMMENT ON COLUMN public.pagos.pagadito_estado  IS 'Raw last-known Pagadito status code (e.g. PG3002, PG3003).';
-COMMENT ON COLUMN public.pagos.pagadito_payload IS 'Snapshot of the last get_status response for audit.';
-COMMENT ON COLUMN public.pagos.iniciado_at      IS 'When exec_trans was called. Used by the reconcile cron.';
+COMMENT ON COLUMN public.pagos.pagadito_estado  IS 'Raw last-known Pagadito transaction status (COMPLETED, EXPIRED, VERIFYING, FAILED, ...).';
+COMMENT ON COLUMN public.pagos.pagadito_payload IS 'Snapshot of the last get-status response for audit.';
+COMMENT ON COLUMN public.pagos.iniciado_at      IS 'When exec-trans was called. Used by the reconcile cron.';
 
 -- 3. Indexes.
 --    Unique partial index prevents ERN collisions from concurrent init calls.
@@ -130,7 +130,7 @@ with supporting indexes."
 ```sql
 -- Atomic RPC: mark pago verificado, advance cita to confirmado, enqueue cita_eventos.
 -- Called by:
---   * GET /api/pagadito/return  (when get_status reports completed)
+--   * GET /api/pagadito/return  (when get-status reports completed)
 --   * POST /api/internal/pagadito/reconcile  (cron, same condition)
 -- Idempotent: if pago is already 'verificado', no-op.
 
@@ -285,11 +285,11 @@ Expected: 1 row, args `p_pago_id uuid, p_pagadito_payload jsonb, p_reference tex
 
 ```ts
 /**
- * Pagadito client public types.
+ * Pagadito Connect client public types.
  *
- * Supported by Pagadito per region. Add to the union as Pagadito enables more.
- * The merchant account decides which currencies are actually accepted — runtime
- * errors map to `currency_not_enabled`.
+ * Currencies supported by Pagadito per the official 2023 docs. The merchant
+ * account decides which are actually accepted — runtime errors map to
+ * `currency_not_enabled` (PG3008).
  */
 export type PagaditoCurrency =
   | "NIO" // Nicaragua
@@ -300,20 +300,32 @@ export type PagaditoCurrency =
   | "DOP" // República Dominicana
   | "PAB"; // Panamá
 
+/** country_code soportado por Connect. Default "SV" si se omite. */
+export type PagaditoCountry = "SV" | "GT";
+
+/** Custom params keys aceptadas (param1..param5). Deben habilitarse en panel del comercio. */
+export type PagaditoCustomParamKey = "param1" | "param2" | "param3" | "param4" | "param5";
+
 export interface PagaditoDetail {
-  quantity:    number;
-  description: string;
-  amount:      number;
+  quantity:     number;
+  description:  string;
+  /** Per-unit price. Sum of (price * quantity) over details MUST equal ExecTransInput.amount. */
+  price:        number;
+  url_product?: string;
 }
 
 export interface ExecTransInput {
-  /** External Reference Number — unique per transaction. */
-  ern:          string;
-  amount:       number;
-  currency:     PagaditoCurrency;
-  details:      PagaditoDetail[];
-  /** Optional KV that Pagadito echoes back via get_status custom params. */
-  customParams?: Record<string, string>;
+  /** External Reference Number — unique per transaction. Pagadito returns PG3018 on dup. */
+  ern:                  string;
+  amount:               number;
+  currency:             PagaditoCurrency;
+  details:              PagaditoDetail[];
+  /** Defaults to "SV" if omitted. */
+  countryCode?:         PagaditoCountry;
+  /** If true, transaction is allowed to live past the default 10-minute expiry. */
+  extendedExpiration?:  boolean;
+  /** Custom params echoed back via get-status. Must be enabled in merchant panel. */
+  customParams?:        Partial<Record<PagaditoCustomParamKey, string>>;
 }
 
 export interface ExecTransResult {
@@ -323,14 +335,25 @@ export interface ExecTransResult {
   token: string;
 }
 
+/** Internal coarse-grained status, derived from Pagadito's data.status string. */
 export type PagaditoStatus = "completed" | "pending" | "failed" | "cancelled";
 
+/** Raw Pagadito transaction status string (data.status field). */
+export type PagaditoRawStatus =
+  | "REGISTERED" | "COMPLETED" | "VERIFYING" | "REVOKED"
+  | "FAILED" | "CANCELED" | "EXPIRED" | "PENDING" | "UNCOLLECTABLE";
+
 export interface GetStatusResult {
-  /** Raw Pagadito code (e.g. PG3001, PG3002, PG3003). */
+  /** Pagadito response code (PG1003 on success, PGxxxx on errors). */
   code:        string;
+  /** Coarse-grained mapping for the route handlers / cron. */
   status:      PagaditoStatus;
+  /** Raw status string from Pagadito (stored in pagos.pagadito_estado). */
+  rawStatus:   PagaditoRawStatus | string;
   /** Bank authorization reference, present on success. */
   reference?:  string;
+  /** Transaction date as reported by Pagadito. */
+  dateTrans?:  string;
   /** Full response payload for audit (stored in pagos.pagadito_payload). */
   raw:         unknown;
 }
@@ -380,22 +403,24 @@ function required(key: string): string {
 const PAGADITO_ENV: PagaditoEnv =
   (env("PAGADITO_ENV") as PagaditoEnv | undefined) ?? "sandbox";
 
-// Endpoints. Verify these against the official Pagadito PHP SDK before going live.
-// Production endpoint is documented at https://comercios.pagadito.com/wspg/charges.php
-// Sandbox is documented at https://sandbox.pagadito.com/comercios/wspg/charges.php
-const ENDPOINTS: Record<PagaditoEnv, string> = {
-  sandbox:    "https://sandbox.pagadito.com/comercios/wspg/charges.php",
-  production: "https://comercios.pagadito.com/wspg/charges.php",
+// Pagadito Connect base URLs (REST v2, JSON). Confirmed against official 2023 docs.
+// Endpoints derived: `${baseUrl}/api/v2/exec-trans` and `${baseUrl}/api/v2/get-status`.
+const BASE_URLS: Record<PagaditoEnv, string> = {
+  sandbox:    "https://sandbox-connect.pagadito.com",
+  production: "https://connect.pagadito.com",
 };
 
 export const PAGADITO = {
   env:             PAGADITO_ENV,
-  endpoint:        ENDPOINTS[PAGADITO_ENV],
+  baseUrl:         BASE_URLS[PAGADITO_ENV],
+  execTransUrl:    `${BASE_URLS[PAGADITO_ENV]}/api/v2/exec-trans`,
+  getStatusUrl:    `${BASE_URLS[PAGADITO_ENV]}/api/v2/get-status`,
   /** True when minimum env is set; routes/wizard should gate on this. */
   isConfigured:    Boolean(env("PAGADITO_UID") && env("PAGADITO_WSK")),
   /** Lazy accessors — throw at call-time, not at module load. */
   get uid()             { return required("PAGADITO_UID"); },
   get wsk()             { return required("PAGADITO_WSK"); },
+  /** Configured in panel del comercio. Kept here as source-of-truth only. */
   get returnUrl()       { return required("PAGADITO_RETURN_URL"); },
   get reconcileSecret() { return required("PAGADITO_RECONCILE_SECRET"); },
 };
@@ -424,12 +449,12 @@ git commit -m "feat(pagadito): add config with sandbox/prod endpoints and featur
 
 ```ts
 /**
- * Pagadito error codes (subset documented at dev.pagadito.com).
- * Extend as new codes are encountered in sandbox/production.
+ * Pagadito Connect response codes (per official 2023 docs).
+ * PG1xxx = success, PG2xxx = data validation, PG3xxx = service/business errors.
  */
 export class PagaditoError extends Error {
   constructor(
-    public code:       string,   // "PG2003", "PG2004", "PG2005", …
+    public code:       string,   // "PG2001", "PG3007", "PG3018", …
     public i18nKey:    string,   // "invalid_credentials", "invalid_amount", …
     public httpStatus: number,   // 400, 502, …
     message:           string,
@@ -441,21 +466,36 @@ export class PagaditoError extends Error {
 
 type Mapping = { i18nKey: string; status: number };
 
+/**
+ * Subset of Pagadito codes we map. Full list in the official docs PDF
+ * (section "Listado de respuestas de APIPG, WSPG y Connect"). Codes not
+ * mapped here fall through to FALLBACK.
+ */
 const CODE_MAP: Record<string, Mapping> = {
-  // Success / intermediate
-  PG1001: { i18nKey: "transaction_registered", status: 200 },
-  PG3001: { i18nKey: "transaction_pending",    status: 200 },
-  PG3002: { i18nKey: "transaction_completed",  status: 200 },
-  PG3003: { i18nKey: "transaction_failed",     status: 200 },
+  // Success (treated as 200 — the client checks for these before throwing)
+  PG1002: { i18nKey: "transaction_registered", status: 200 },  // exec-trans OK
+  PG1003: { i18nKey: "transaction_status",     status: 200 },  // get-status OK
 
-  // Auth / config errors (502: our side, retry later)
-  PG2003: { i18nKey: "invalid_credentials",    status: 502 },
-  PG2004: { i18nKey: "session_expired",        status: 502 },
-  PG2006: { i18nKey: "currency_not_enabled",   status: 502 },
+  // Data validation errors (400: caller / our side has bad data)
+  PG2001: { i18nKey: "incomplete_data",        status: 400 },
+  PG2002: { i18nKey: "invalid_format",         status: 400 },
+  PG2003: { i18nKey: "invalid_custom_params",  status: 400 },
 
-  // Bad request from us (400: caller error)
-  PG2005: { i18nKey: "invalid_amount",         status: 400 },
-  PG2007: { i18nKey: "invalid_ern",            status: 400 },
+  // Service / business errors (mostly 502: Pagadito's side or merchant config)
+  PG3001: { i18nKey: "connection_failed",      status: 502 },
+  PG3002: { i18nKey: "generic",                status: 502 },
+  PG3003: { i18nKey: "unregistered_tx",        status: 502 },
+  PG3004: { i18nKey: "amount_mismatch",        status: 400 },
+  PG3005: { i18nKey: "connection_disabled",    status: 502 },
+  PG3006: { i18nKey: "amount_exceeded_max",    status: 400 },
+  PG3007: { i18nKey: "invalid_credentials",    status: 502 },  // "Denied access"
+  PG3008: { i18nKey: "currency_not_enabled",   status: 502 },
+  PG3009: { i18nKey: "amount_below_min",       status: 400 },
+  PG3017: { i18nKey: "tx_not_owned",           status: 502 },
+  PG3018: { i18nKey: "ern_duplicate",          status: 502 },  // already-sent ERN
+  PG3023: { i18nKey: "invalid_custom_params",  status: 400 },
+  PG3024: { i18nKey: "permission_denied",      status: 502 },
+  PG3025: { i18nKey: "xss_detected",           status: 400 },
 };
 
 const FALLBACK: Mapping = { i18nKey: "generic", status: 502 };
@@ -486,7 +526,7 @@ git commit -m "feat(pagadito): add error class and code-to-i18n mapping"
 
 ### Task 7: `lib/pagadito/client.ts`
 
-**IMPORTANT — Wire format:** Pagadito's WSPG accepts POST requests with form-encoded or XML bodies and returns JSON when `format=json` is passed. The exact field names below are derived from the public Pagadito PHP SDK at github.com/pagadito and the implementation manual PDF (`Manual_Integracion_API_Pagadito_v1.1.pdf`). **Before testing against sandbox, verify the field names match the current official SDK.** If they differ, only this file needs updating — types/errors/config stay the same.
+**Wire format:** Pagadito Connect (REST v2). Both endpoints are `POST` with `Content-Type: application/json`, body as JSON, HTTP Basic Auth on every request. Response is JSON with shape `{ code, data, message }`. Field names below are taken verbatim from the official 2023 docs PDF.
 
 **Files:**
 - Create: `lib/pagadito/client.ts`
@@ -501,110 +541,88 @@ import type {
   ExecTransResult,
   GetStatusResult,
   PagaditoStatus,
+  PagaditoRawStatus,
 } from "./types";
 
-const TOKEN_TTL_MS = 25 * 60 * 1000; // 25 min; real TTL ≈ 30 min, refresh early.
-
-interface RawResponse {
+/** Raw Pagadito Connect response envelope: { code, data, message }. */
+interface RawResponse<T = unknown> {
   code:    string;
+  data?:   T;
   message: string;
-  value?:  unknown;
-  timestamp?: string;
+}
+
+interface ExecTransData {
+  url?:   string;
+  token?: string;
+}
+
+interface GetStatusData {
+  status?:     string;  // "COMPLETED" | "EXPIRED" | "VERIFYING" | ...
+  reference?:  string;
+  date_trans?: string;
 }
 
 export class PagaditoClient {
-  private token: string | null = null;
-  private tokenExpiresAt = 0;
-
   /**
-   * connect — authenticate and cache session token.
-   * Returns the token; safe to call without awaiting if you only need the
-   * side effect of populating the cache.
-   */
-  async connect(): Promise<string> {
-    const res = await this.callRaw({
-      operation: "connect",
-      uid:       PAGADITO.uid,
-      wsk:       PAGADITO.wsk,
-    });
-    if (res.code !== "PG1002" /* connect success per docs */) {
-      throw pagaditoErrorFromCode(res.code, res.message);
-    }
-    const token = (res.value as { token?: string } | undefined)?.token;
-    if (!token) {
-      throw pagaditoErrorFromCode(res.code, "connect: missing token in response");
-    }
-    this.token = token;
-    this.tokenExpiresAt = Date.now() + TOKEN_TTL_MS;
-    return token;
-  }
-
-  /** Returns a valid token, calling connect() if cache is empty/expired. */
-  private async ensureToken(): Promise<string> {
-    if (this.token && Date.now() < this.tokenExpiresAt) return this.token;
-    return this.connect();
-  }
-
-  /**
-   * exec_trans — register a transaction. Returns the checkout URL + token.
-   * On PG2004 (session expired) automatically reconnects and retries once.
+   * exec-trans — register a transaction. Returns the checkout URL + token.
+   * POST {baseUrl}/api/v2/exec-trans with Basic Auth.
    */
   async execTrans(input: ExecTransInput): Promise<ExecTransResult> {
     this.validateExecTrans(input);
 
-    const call = async (sessionToken: string) => this.callRaw({
-      operation:     "exec_trans",
-      token:         sessionToken,
-      ern:           input.ern,
-      amount:        input.amount.toFixed(2),
-      currency:      input.currency,
-      details:       JSON.stringify(input.details),
-      return_url:    PAGADITO.returnUrl,
-      ...(input.customParams ?? {}),
-    });
+    const body = {
+      ern:                 input.ern,
+      amount:              Number(input.amount.toFixed(2)),
+      currency:            input.currency,
+      country_code:        input.countryCode ?? "SV",
+      extended_expiration: input.extendedExpiration ?? false,
+      details:             input.details.map((d) => ({
+        quantity:    d.quantity,
+        description: d.description,
+        price:       Number(d.price.toFixed(2)),
+        ...(d.url_product ? { url_product: d.url_product } : {}),
+      })),
+      ...(input.customParams ? { custom_params: input.customParams } : {}),
+    };
 
-    let token = await this.ensureToken();
-    let res   = await call(token);
+    const res = await this.callRaw<ExecTransData>(PAGADITO.execTransUrl, body, "exec-trans");
 
-    if (res.code === "PG2004") {
-      // Session expired mid-call — invalidate and retry exactly once.
-      this.token = null;
-      token = await this.connect();
-      res   = await call(token);
-    }
-
-    if (res.code !== "PG1003" /* exec_trans success per docs */) {
+    // PG1002 = "Transaction register successful." per docs.
+    if (res.code !== "PG1002") {
       throw pagaditoErrorFromCode(res.code, res.message);
     }
-
-    const v = res.value as { url?: string; token?: string } | undefined;
-    if (!v?.url || !v?.token) {
-      throw pagaditoErrorFromCode(res.code, "exec_trans: missing url/token");
+    if (!res.data?.url || !res.data?.token) {
+      throw pagaditoErrorFromCode(res.code, "exec-trans: missing data.url / data.token");
     }
-    return { url: v.url, token: v.token };
+    return { url: res.data.url, token: res.data.token };
   }
 
   /**
-   * get_status — query a transaction by its token.
-   * Idempotent. Safe to call multiple times.
+   * get-status — query a transaction by its token.
+   * POST {baseUrl}/api/v2/get-status with Basic Auth. Idempotent.
    */
-  async getStatus(transactionToken: string): Promise<GetStatusResult> {
-    const sessionToken = await this.ensureToken();
-    const res = await this.callRaw({
-      operation:        "get_status",
-      token:            sessionToken,
-      transaction_token: transactionToken,
-    });
+  async getStatus(
+    transactionToken: string,
+    countryCode: "SV" | "GT" = "SV",
+  ): Promise<GetStatusResult> {
+    const res = await this.callRaw<GetStatusData>(
+      PAGADITO.getStatusUrl,
+      { token: transactionToken, country_code: countryCode },
+      "get-status",
+    );
 
-    // get_status returns a code that DESCRIBES the transaction state, not whether
-    // the call succeeded. Map both axes here.
-    const status = this.codeToStatus(res.code);
-    const reference = (res.value as { reference?: string } | undefined)?.reference;
+    // PG1003 = "Transaction status." per docs.
+    if (res.code !== "PG1003") {
+      throw pagaditoErrorFromCode(res.code, res.message);
+    }
 
+    const rawStatus = (res.data?.status ?? "PENDING") as PagaditoRawStatus;
     return {
       code:      res.code,
-      status,
-      reference: reference ?? undefined,
+      status:    this.rawStatusToStatus(rawStatus),
+      rawStatus,
+      reference: res.data?.reference,
+      dateTrans: res.data?.date_trans,
       raw:       res,
     };
   }
@@ -613,13 +631,19 @@ export class PagaditoClient {
   // Internals
   // ──────────────────────────────────────────────────────────────────────────
 
-  private codeToStatus(code: string): PagaditoStatus {
-    switch (code) {
-      case "PG3002": return "completed";   // payment confirmed
-      case "PG3001": return "pending";     // initialized / in progress
-      case "PG3003": return "failed";      // declined / failed
-      case "PG3004": return "cancelled";   // explicitly cancelled by buyer
-      default:       return "pending";     // unknown → conservative
+  /** Map Pagadito's raw status string to our coarse-grained enum. */
+  private rawStatusToStatus(raw: string): PagaditoStatus {
+    switch (raw) {
+      case "COMPLETED":      return "completed";
+      case "FAILED":
+      case "REVOKED":
+      case "UNCOLLECTABLE":  return "failed";
+      case "CANCELED":
+      case "EXPIRED":        return "cancelled";
+      case "REGISTERED":
+      case "VERIFYING":
+      case "PENDING":        return "pending";
+      default:               return "pending";  // unknown → conservative
     }
   }
 
@@ -630,23 +654,34 @@ export class PagaditoClient {
       throw new PagaditoError("LOCAL_VALIDATION", "invalid_amount", 400, "amount must be > 0");
     if (input.details.length === 0)
       throw new PagaditoError("LOCAL_VALIDATION", "invalid_amount", 400, "details required");
-    const sum = input.details.reduce((a, d) => a + d.amount * d.quantity, 0);
+    const sum = input.details.reduce((a, d) => a + d.price * d.quantity, 0);
     // Allow 1¢ rounding tolerance.
     if (Math.abs(sum - input.amount) > 0.01)
       throw new PagaditoError("LOCAL_VALIDATION", "invalid_amount", 400,
         `details sum (${sum}) does not match amount (${input.amount})`);
   }
 
-  private async callRaw(params: Record<string, string>): Promise<RawResponse> {
-    const body = new URLSearchParams({ ...params, format: "json" });
+  private buildAuthHeader(): string {
+    // Basic Auth: base64(UID:WSK). Pagadito accepts the same credentials on every request.
+    const credentials = Buffer.from(`${PAGADITO.uid}:${PAGADITO.wsk}`).toString("base64");
+    return `Basic ${credentials}`;
+  }
+
+  private async callRaw<T>(
+    url:     string,
+    body:    Record<string, unknown>,
+    opName:  string,
+  ): Promise<RawResponse<T>> {
     const startedAt = Date.now();
+    console.info(`[pagadito] ${opName} starting`);
 
-    console.info(`[pagadito] ${params.operation} starting`);
-
-    const res = await fetch(PAGADITO.endpoint, {
+    const res = await fetch(url, {
       method:  "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body:    body.toString(),
+      headers: {
+        "Content-Type":  "application/json",
+        "Authorization": this.buildAuthHeader(),
+      },
+      body: JSON.stringify(body),
     });
 
     if (!res.ok) {
@@ -654,16 +689,14 @@ export class PagaditoClient {
         `Pagadito HTTP ${res.status}: ${await res.text().catch(() => "(no body)")}`);
     }
 
-    const json = (await res.json()) as RawResponse;
+    const json = (await res.json()) as RawResponse<T>;
     const elapsed = Date.now() - startedAt;
-    console.info(`[pagadito] ${params.operation} ok code=${json.code} elapsed=${elapsed}ms`);
+    console.info(`[pagadito] ${opName} ok code=${json.code} elapsed=${elapsed}ms`);
     return json;
   }
 }
 
-// Singleton — fine to share across requests within one Next.js worker because
-// the only mutable state is the cached session token, which Pagadito accepts
-// from concurrent callers.
+// Singleton — no mutable state; safe across concurrent requests within one Next.js worker.
 export const pagadito = new PagaditoClient();
 ```
 
@@ -681,11 +714,11 @@ Expected: no errors in `lib/pagadito/`.
 
 ```bash
 git add lib/pagadito/client.ts
-git commit -m "feat(pagadito): add WSPG client with connect/execTrans/getStatus
+git commit -m "feat(pagadito): add Connect client with execTrans/getStatus
 
-Implements session token caching with 25min TTL, auto-retry on PG2004,
-and runtime validation of exec_trans inputs. Wire format derived from
-official PHP SDK; verify against sandbox before going live."
+POST JSON requests with HTTP Basic Auth on every call. Maps Pagadito's
+raw data.status string (COMPLETED, EXPIRED, VERIFYING, ...) to a
+coarse-grained internal enum. Runtime validation of exec-trans inputs."
 ```
 
 ---
@@ -699,7 +732,7 @@ official PHP SDK; verify against sandbox before going live."
 
 ```ts
 /**
- * Manual end-to-end smoke test of the Pagadito client.
+ * Manual end-to-end smoke test of the Pagadito Connect client.
  *
  * Usage:
  *   PAGADITO_ENV=sandbox \
@@ -715,34 +748,30 @@ import { pagadito } from "../lib/pagadito/client";
 import { PAGADITO } from "../lib/pagadito/config";
 
 async function main() {
-  console.log(`[smoke] env=${PAGADITO.env} endpoint=${PAGADITO.endpoint}`);
+  console.log(`[smoke] env=${PAGADITO.env} baseUrl=${PAGADITO.baseUrl}`);
 
   if (!PAGADITO.isConfigured) {
     console.error("[smoke] PAGADITO_UID / PAGADITO_WSK not set");
     process.exit(1);
   }
 
-  // 1. connect
-  console.log("[smoke] step 1: connect");
-  const sessionToken = await pagadito.connect();
-  console.log(`[smoke] got session token (len=${sessionToken.length})`);
-
-  // 2. exec_trans
+  // 1. exec-trans
   const ern = `SMOKE-${Date.now()}`;
-  console.log(`[smoke] step 2: exec_trans ern=${ern} amount=1.00 NIO`);
+  console.log(`[smoke] step 1: exec-trans ern=${ern} amount=1.00 NIO country=SV`);
   const trans = await pagadito.execTrans({
     ern,
-    amount:   1.0,
-    currency: "NIO",
-    details:  [{ quantity: 1, description: "Smoke test", amount: 1.0 }],
+    amount:      1.0,
+    currency:    "NIO",
+    countryCode: "SV",
+    details:     [{ quantity: 1, description: "Smoke test", price: 1.0 }],
   });
   console.log(`[smoke] checkout url=${trans.url}`);
   console.log(`[smoke] transaction token=${trans.token}`);
 
-  // 3. get_status (will be pending until a human pays in sandbox)
-  console.log("[smoke] step 3: get_status");
-  const status = await pagadito.getStatus(trans.token);
-  console.log(`[smoke] code=${status.code} status=${status.status} ref=${status.reference ?? "-"}`);
+  // 2. get-status (will be REGISTERED/PENDING until a human pays in sandbox)
+  console.log("[smoke] step 2: get-status");
+  const status = await pagadito.getStatus(trans.token, "SV");
+  console.log(`[smoke] code=${status.code} rawStatus=${status.rawStatus} status=${status.status} ref=${status.reference ?? "-"}`);
 
   console.log("[smoke] OK");
 }
@@ -774,9 +803,9 @@ Expected: exits 1 with `[smoke] PAGADITO_UID / PAGADITO_WSK not set`.
 git add scripts/pagadito-smoke.ts package.json pnpm-lock.yaml
 git commit -m "feat(pagadito): add manual smoke script
 
-Runs connect -> exec_trans -> get_status against the configured Pagadito
-environment. Used to validate credentials and wire format before
-integrating into the wizard."
+Runs exec-trans -> get-status against the configured Pagadito Connect
+environment. Used to validate credentials, Basic Auth, and the
+country/currency combination before integrating into the wizard."
 ```
 
 ---
@@ -865,14 +894,16 @@ export async function POST(
   const description = servicio?.nombre ?? cita.servicio_asociado ?? "Consulta médica";
 
   // 5. Call Pagadito.
+  // - countryCode "SV" + currency "NIO": SV is the default entorno; Pagadito converts to USD at checkout.
+  // - No customParams in MVP: param1..param5 must be enabled in the merchant panel first.
   let result;
   try {
     result = await pagadito.execTrans({
       ern,
       amount,
-      currency: "NIO",
-      details:  [{ quantity: 1, description, amount }],
-      customParams: { cita_id: citaId },
+      currency:    "NIO",
+      countryCode: "SV",
+      details:     [{ quantity: 1, description, price: amount }],
     });
   } catch (err) {
     if (err instanceof PagaditoError) {
@@ -933,7 +964,7 @@ git add app/api/citas/[id]/pagadito/init/route.ts
 git commit -m "feat(pagadito): add POST /api/citas/[id]/pagadito/init
 
 Auth-guarded, idempotent within 30min window, validates ownership and
-state, calls exec_trans, persists token + ERN, returns checkout URL."
+state, calls exec-trans, persists token + ERN, returns checkout URL."
 ```
 
 ---
@@ -953,7 +984,7 @@ import { PAGADITO } from "@/lib/pagadito/config";
 
 /**
  * Return URL handler — Pagadito redirects the buyer's browser here with ?token=…
- * after the payment attempt completes. Validates the transaction via get_status
+ * after the payment attempt completes. Validates the transaction via get-status
  * and redirects to the cita detail page with a status query param.
  *
  * No session is guaranteed (member may have used a different device). Uses the
@@ -981,8 +1012,11 @@ function redirectWithStatus(
 
 export async function GET(req: NextRequest) {
   const url = req.nextUrl;
+  // Pagadito injects ?token={value}&ern={ern_value} via the return URL template
+  // configured in the merchant panel.
   const transactionToken = url.searchParams.get("token");
-  const locale = url.searchParams.get("locale") ?? "es";
+  const queryErn         = url.searchParams.get("ern");
+  const locale           = url.searchParams.get("locale") ?? "es";
 
   if (!PAGADITO.isConfigured) {
     return redirectWithStatus(req, null, locale, "error");
@@ -993,14 +1027,34 @@ export async function GET(req: NextRequest) {
 
   const supabase = serviceClient();
 
-  // Look up by opaque token.
-  const { data: pago } = await supabase
+  // Primary lookup: opaque token.
+  let { data: pago } = await supabase
     .from("pagos")
-    .select("id, cita_id, estado")
+    .select("id, cita_id, estado, pagadito_ern")
     .eq("pagadito_token", transactionToken)
-    .single();
+    .maybeSingle();
+
+  // Fallback lookup by ERN: rescues the rare case where the post-execTrans
+  // UPDATE on pagos failed and pagadito_token never got persisted.
+  if (!pago && queryErn) {
+    const { data: byErn } = await supabase
+      .from("pagos")
+      .select("id, cita_id, estado, pagadito_ern")
+      .eq("pagadito_ern", queryErn)
+      .maybeSingle();
+    pago = byErn ?? null;
+    if (pago) console.warn(`[pagadito/return] recovered pago ${pago.id} by ERN fallback`);
+  }
 
   if (!pago) return redirectWithStatus(req, null, locale, "desconocido");
+
+  // Cross-validation: log discrepancy but trust the token (it's the canonical key).
+  if (queryErn && pago.pagadito_ern && pago.pagadito_ern !== queryErn) {
+    console.warn(
+      `[pagadito/return] ERN mismatch for pago=${pago.id} ` +
+      `db='${pago.pagadito_ern}' query='${queryErn}'`,
+    );
+  }
 
   // Idempotent fast-path: already verified.
   if (pago.estado === "verificado") return redirectWithStatus(req, pago.cita_id, locale, "ok");
@@ -1009,7 +1063,7 @@ export async function GET(req: NextRequest) {
   try {
     result = await pagadito.getStatus(transactionToken);
   } catch (err) {
-    console.error("[pagadito/return] get_status failed:", err);
+    console.error("[pagadito/return] get-status failed:", err);
     // Don't mark anything — let the cron retry.
     return redirectWithStatus(req, pago.cita_id, locale, "pendiente");
   }
@@ -1063,7 +1117,7 @@ Expected: `HTTP/1.1 307 Temporary Redirect` with `location:` containing `?pago=d
 git add app/api/pagadito/return/route.ts
 git commit -m "feat(pagadito): add GET /api/pagadito/return handler
 
-Service-role client looks up pago by opaque token, calls get_status, and
+Service-role client looks up pago by opaque token, calls get-status, and
 either invokes confirmar_cita_por_pago RPC, marks rechazado, or defers
 to the cron. Idempotent."
 ```
@@ -1083,9 +1137,11 @@ import { createClient as createBrowserSafeClient } from "@supabase/supabase-js";
 import { pagadito } from "@/lib/pagadito/client";
 import { PAGADITO } from "@/lib/pagadito/config";
 
-const BATCH_LIMIT      = 100;
-const MIN_AGE_MS       = 5  * 60 * 1000;  // don't reconcile transactions younger than 5 min
-const HARD_EXPIRY_MS   = 6  * 60 * 60 * 1000; // 6 h → rechazado
+const BATCH_LIMIT = 100;
+// Don't reconcile transactions younger than 1 min — let the return URL handler win.
+// Pagadito itself marks transactions EXPIRED at 10 min by default, so we don't need
+// our own hard expiry; the next cron cycle will see EXPIRED and mark rechazado.
+const MIN_AGE_MS  = 1 * 60 * 1000;
 
 function serviceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -1117,23 +1173,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "query_failed" }, { status: 500 });
   }
 
-  const results = { scanned: pendientes?.length ?? 0, confirmados: 0, rechazados: 0, expirados: 0, errores: 0 };
+  const results = { scanned: pendientes?.length ?? 0, confirmados: 0, rechazados: 0, errores: 0 };
 
   for (const pago of pendientes ?? []) {
-    if (!pago.iniciado_at || !pago.pagadito_token) {
+    if (!pago.pagadito_token) {
       results.errores++;
-      continue;
-    }
-
-    const ageMs = Date.now() - new Date(pago.iniciado_at).getTime();
-
-    // Hard expiry: > 6h without confirmation → rechazado so member can retry.
-    if (ageMs > HARD_EXPIRY_MS) {
-      await supabase
-        .from("pagos")
-        .update({ estado: "rechazado", pagadito_estado: "EXPIRED_BY_CRON" })
-        .eq("id", pago.id);
-      results.expirados++;
       continue;
     }
 
@@ -1152,17 +1196,18 @@ export async function POST(req: NextRequest) {
           results.confirmados++;
         }
       } else if (r.status === "failed" || r.status === "cancelled") {
+        // Includes EXPIRED (Pagadito's 10-min auto-expiry), CANCELED, FAILED, REVOKED, UNCOLLECTABLE.
         await supabase
           .from("pagos")
           .update({
             estado:           "rechazado",
-            pagadito_estado:  r.code,
+            pagadito_estado:  r.rawStatus,
             pagadito_payload: r.raw as object,
           })
           .eq("id", pago.id);
         results.rechazados++;
       }
-      // status === 'pending' → no-op, next cycle.
+      // status === 'pending' (REGISTERED / VERIFYING / PENDING) → no-op, next cycle.
     } catch (err) {
       results.errores++;
       console.error(`[pagadito/reconcile] ${pago.id}:`, err);
@@ -1195,8 +1240,9 @@ Expected: both return `HTTP/1.1 401`.
 git add app/api/internal/pagadito/reconcile/route.ts
 git commit -m "feat(pagadito): add reconcile endpoint for pg_cron
 
-Batch-reconciles pagos in 'iniciado' older than 5min via get_status.
-Hard-expires entries older than 6h to 'rechazado'. Guarded by
+Batch-reconciles pagos in 'iniciado' older than 1min via get-status.
+Pagadito's EXPIRED state (auto at 10min) flows through the
+failed/cancelled branch — no separate hard expiry. Guarded by
 x-cron-secret header shared with pg_cron."
 ```
 
@@ -1683,7 +1729,7 @@ Expected: both present. If `pg_net` is missing, install via the Supabase Dashboa
 - [ ] **Step 2: Set the GUC settings via Dashboard or SQL**
 
 ```sql
-ALTER DATABASE postgres SET app.settings.next_base_url             = 'https://YOUR_APP_URL';
+ALTER DATABASE postgres SET app.settings.next_base_url             = 'https://clubsos.sosmedical.com.ni';
 ALTER DATABASE postgres SET app.settings.pagadito_reconcile_secret = 'SAME_VALUE_AS_PAGADITO_RECONCILE_SECRET_ENV';
 ```
 Re-connect to pick up the new settings.
@@ -1691,7 +1737,9 @@ Re-connect to pick up the new settings.
 - [ ] **Step 3: Write the migration**
 
 ```sql
--- Schedule the Pagadito reconcile endpoint every 10 minutes.
+-- Schedule the Pagadito reconcile endpoint every 2 minutes.
+-- The aggressive cadence pairs with Pagadito's 10-minute default expiry so the
+-- member sees status updates within minutes of paying/abandoning.
 -- Requires:
 --   * pg_cron extension
 --   * pg_net extension
@@ -1704,7 +1752,7 @@ SELECT cron.unschedule('pagadito_reconcile')
 
 SELECT cron.schedule(
   'pagadito_reconcile',
-  '*/10 * * * *',
+  '*/2 * * * *',
   $job$
     SELECT net.http_post(
       url     := current_setting('app.settings.next_base_url') || '/api/internal/pagadito/reconcile',
@@ -1730,9 +1778,9 @@ Expected: migration applied.
 ```sql
 SELECT jobid, jobname, schedule, active FROM cron.job WHERE jobname = 'pagadito_reconcile';
 ```
-Expected: 1 row, `schedule='*/10 * * * *'`, `active=true`.
+Expected: 1 row, `schedule='*/2 * * * *'`, `active=true`.
 
-- [ ] **Step 6: Inspect first run after 10 min**
+- [ ] **Step 6: Inspect first run after 2 min**
 
 ```sql
 SELECT runid, job_pid, status, return_message, start_time, end_time
@@ -1746,7 +1794,7 @@ Expected: `status='succeeded'`. If `failed`, check `return_message` for hints (m
 
 ```bash
 git add supabase/migrations/20260601120200_pagadito_pg_cron.sql
-git commit -m "feat(pagadito): schedule reconcile endpoint via pg_cron every 10min"
+git commit -m "feat(pagadito): schedule reconcile endpoint via pg_cron every 2min"
 ```
 
 ---
@@ -1764,7 +1812,9 @@ In the `## Environment Variables` block, append after the existing entries:
 PAGADITO_ENV               # 'sandbox' | 'production' (default sandbox)
 PAGADITO_UID               # Pagadito merchant UID (feature flag: empty disables)
 PAGADITO_WSK               # Pagadito merchant WSK (secret)
-PAGADITO_RETURN_URL        # https://app.clubsos.com/api/pagadito/return
+PAGADITO_RETURN_URL        # https://clubsos.sosmedical.com.ni/api/pagadito/return?token={value}&ern={ern_value}
+                           # Configured in the merchant panel, not sent per request.
+                           # {value} → transaction token, {ern_value} → ERN we sent in exec-trans.
 PAGADITO_RECONCILE_SECRET  # shared with pg_cron GUC app.settings.pagadito_reconcile_secret
 ```
 
@@ -1773,14 +1823,15 @@ PAGADITO_RECONCILE_SECRET  # shared with pg_cron GUC app.settings.pagadito_recon
 Insert before the closing of `### External Integrations`:
 
 ```markdown
-**Pagadito**: Payment gateway used by `link_pago` method. WSPG client lives in
-`lib/pagadito/`. Member flow: wizard creates cita → calls
-`POST /api/citas/[id]/pagadito/init` → redirected to Pagadito checkout → returns
-via `GET /api/pagadito/return` → RPC `confirmar_cita_por_pago` advances cita to
-`confirmado`. A `pg_cron` job calls `POST /api/internal/pagadito/reconcile`
-every 10 min as fallback for abandoned returns; pagos in `iniciado` for more
-than 6h are hard-expired to `rechazado`. Feature flag: when `PAGADITO_UID` is
-empty, the init route returns 503 and `PasoPagaditoRedirect` shows the
+**Pagadito**: Payment gateway used by `link_pago` method. Pagadito Connect
+(REST v2, JSON, HTTP Basic Auth) client lives in `lib/pagadito/`. Member flow:
+wizard creates cita → calls `POST /api/citas/[id]/pagadito/init` → redirected
+to Pagadito checkout → returns via `GET /api/pagadito/return` → RPC
+`confirmar_cita_por_pago` advances cita to `confirmado`. A `pg_cron` job calls
+`POST /api/internal/pagadito/reconcile` every 2 min as fallback for abandoned
+returns; Pagadito itself auto-EXPIREs transactions at 10 min, which the cron
+reflects as `rechazado` on the next cycle. Feature flag: when `PAGADITO_UID`
+is empty, the init route returns 503 and `PasoPagaditoRedirect` shows the
 "unavailable" error state.
 ```
 
@@ -1791,8 +1842,8 @@ In the `### Citas (Appointments) State Machine` section, add a note after the ex
 ```markdown
 `pagos.estado` follows: `pendiente → iniciado → verificado | rechazado`.
 - `iniciado` = Pagadito link emitted, awaiting completion.
-- `verificado` = payment confirmed (via return URL or reconcile cron).
-- `rechazado` = payment failed, cancelled, or hard-expired (>6h in `iniciado`).
+- `verificado` = payment confirmed (via return URL or reconcile cron) when Pagadito reports `COMPLETED`.
+- `rechazado` = Pagadito reported `FAILED`, `CANCELED`, `EXPIRED`, `REVOKED`, or `UNCOLLECTABLE`.
 ```
 
 - [ ] **Step 4: Verify the file still parses**
@@ -1812,11 +1863,11 @@ git commit -m "docs(pagadito): document env vars, flow, and estado_pago states"
 ## Self-Review (already performed by plan author)
 
 **Spec coverage:**
-- WSPG vs APIPG → Task 7 (client) + comment
+- Pagadito Connect (REST v2, Basic Auth) → Task 7 (client)
 - `link_pago` repurposed → Task 15 (PasoConfirmar branch)
 - Multi-currency at client level → Task 4 (types)
-- Return URL + cron reconciliation → Tasks 10, 11, 18
-- 6h hard expiry → Task 11
+- Return URL + cron reconciliation (every 2 min, no own hard expiry) → Tasks 10, 11, 18
+- Pagadito 10-min auto-expiry surfaces as `rechazado` via cron → Task 11
 - No WhatsApp on this flow → not added anywhere ✓
 - Feature flag → Tasks 5, 9
 - RPC `confirmar_cita_por_pago` → Task 2
@@ -1827,16 +1878,16 @@ git commit -m "docs(pagadito): document env vars, flow, and estado_pago states"
 
 **Placeholder scan:** none — all code shown, all paths exact.
 
-**Type consistency:** `PagaditoClient.execTrans` returns `ExecTransResult` (from `types.ts`) which has `{ url, token }`. The route handler reads `result.url` and `result.token` → consistent. RPC params `p_pago_id, p_pagadito_payload, p_reference` match between SQL definition (Task 2) and TS callers (Tasks 10, 11). ✓
+**Type consistency:** `PagaditoClient.execTrans` returns `ExecTransResult` (from `types.ts`) which has `{ url, token }`. The route handler reads `result.url` and `result.token` → consistent. `GetStatusResult.rawStatus` flows from client → reconcile route → `pagos.pagadito_estado`. RPC params `p_pago_id, p_pagadito_payload, p_reference` match between SQL definition (Task 2) and TS callers (Tasks 10, 11). ✓
 
 ---
 
 ## Open verifications (engineer must confirm during implementation)
 
-1. **WSPG wire format.** The exact POST field names (`operation`, `format`, `details` JSON-encoded vs nested form fields) are derived from the public Pagadito PHP SDK and the implementation manual PDF the user has locally (`Manual_Integracion_API_Pagadito_v1.1.pdf`). Before testing against sandbox, open the PHP SDK source and reconcile any discrepancies in `lib/pagadito/client.ts:callRaw`. If sandbox returns `PG2007` or similar on a known-good request, the field encoding is wrong.
+1. **country_code='SV' + currency='NIO' combination.** The Connect docs only list `SV` and `GT` as supported country codes, but `NIO` is a supported currency. The smoke script in Task 8 validates this against sandbox. If Pagadito returns `PG3008` (currency not supported) or similar on a known-good request, contact developers@pagadito.com to confirm the correct entorno for Nicaraguan merchants.
 
-2. **Pagadito success codes.** The mapping `PG1002 → connect success`, `PG1003 → exec_trans success`, `PG3001/2/3/4 → status` is based on community references. Verify against the manual PDF — if the codes differ, update `lib/pagadito/client.ts` and `lib/pagadito/errors.ts` together.
+2. **Custom params habilitation in merchant panel.** MVP does NOT send custom params, so this is informational. If a future iteration wants to echo `cita_id` back via `get-status`, the merchant must first activate `param1..param5` from *Configuración Técnica → Parámetros de Integración → Parámetros Personalizados* in the Pagadito panel.
 
-3. **Sandbox endpoint URL.** `https://sandbox.pagadito.com/comercios/wspg/charges.php` is the documented sandbox URL. Confirm it's reachable from your environment before the first smoke run.
+3. **Return URL configured in merchant panel.** The `PAGADITO_RETURN_URL` env var is documentation only — Pagadito reads the return URL from *Configuración Técnica → Parámetros de Integración → URL de retorno*. Before the first sandbox smoke, set this in the panel to `${app_url}/api/pagadito/return`.
 
 4. **`cita_eventos` event names.** Task 2's RPC inserts events with `evento='confirmada'` and `evento='pago_sin_cita_activa'`. If the column is an enum, both values must already exist or be added in Task 2 (a sub-step is included to check).
