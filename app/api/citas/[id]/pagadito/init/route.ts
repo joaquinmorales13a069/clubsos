@@ -39,6 +39,15 @@ export async function POST(
   if (citaErr || !cita) return NextResponse.json({ error: "Not found" }, { status: 404 });
   if (cita.paciente_id !== user.id) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
+  // Only citas in pendiente_pago are payable via Pagadito. Other states
+  // (cancelado, rechazado, confirmado, completado) must not issue links.
+  if (cita.estado_sync !== "pendiente_pago") {
+    return NextResponse.json(
+      { error: "Cita not payable", i18nKey: "cita_not_payable" },
+      { status: 409 },
+    );
+  }
+
   const pago = Array.isArray(cita.pago) ? cita.pago[0] : cita.pago;
   const servicio = Array.isArray(cita.servicio) ? cita.servicio[0] : cita.servicio;
 
