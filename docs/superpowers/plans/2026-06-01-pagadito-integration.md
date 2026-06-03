@@ -29,9 +29,9 @@
 
 | Path | Responsibility |
 |---|---|
-| `supabase/migrations/20260601120000_pagadito_integration.sql` | enum `estado_pago += 'iniciado'`, columns + indexes on `pagos` |
-| `supabase/migrations/20260601120100_confirmar_cita_por_pago_rpc.sql` | atomic RPC: pago → verificado + cita → confirmado + cita_eventos |
-| `supabase/migrations/20260601120200_pagadito_pg_cron.sql` | scheduled reconcile (separate PR) |
+| `supabase/migrations/20260601130000_pagadito_integration.sql` | enum `estado_pago += 'iniciado'`, columns + indexes on `pagos` |
+| `supabase/migrations/20260601130100_confirmar_cita_por_pago_rpc.sql` | atomic RPC: pago → verificado + cita → confirmado + cita_eventos |
+| `supabase/migrations/20260601130200_pagadito_pg_cron.sql` | scheduled reconcile (separate PR) |
 | `lib/pagadito/types.ts` | `PagaditoCurrency`, `PagaditoDetail`, `ExecTransInput`, `GetStatusResult` |
 | `lib/pagadito/config.ts` | reads env, exposes endpoints sandbox/prod, feature-flag check |
 | `lib/pagadito/errors.ts` | `PagaditoError` class + code-to-i18n mapping |
@@ -60,7 +60,7 @@
 ### Task 1: Migration — `pagadito_integration` schema
 
 **Files:**
-- Create: `supabase/migrations/20260601120000_pagadito_integration.sql`
+- Create: `supabase/migrations/20260601130000_pagadito_integration.sql`
 
 - [ ] **Step 1: Create the migration file**
 
@@ -104,13 +104,13 @@ COMMIT;
 
 - [ ] **Step 2: Type-check syntax with a dry parse**
 
-Run: `psql --no-psqlrc -f supabase/migrations/20260601120000_pagadito_integration.sql --set ON_ERROR_STOP=on -d postgres -h localhost -p 54322 -U postgres` (against local supabase if available)
+Run: `psql --no-psqlrc -f supabase/migrations/20260601130000_pagadito_integration.sql --set ON_ERROR_STOP=on -d postgres -h localhost -p 54322 -U postgres` (against local supabase if available)
 OR just inspect visually. Skip if local supabase isn't running — the next task applies it.
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add supabase/migrations/20260601120000_pagadito_integration.sql
+git add supabase/migrations/20260601130000_pagadito_integration.sql
 git commit -m "feat(pagadito): add schema migration for tracking columns
 
 Extends estado_pago enum with 'iniciado' and adds pagadito_token,
@@ -123,7 +123,7 @@ with supporting indexes."
 ### Task 2: Migration — `confirmar_cita_por_pago` RPC
 
 **Files:**
-- Create: `supabase/migrations/20260601120100_confirmar_cita_por_pago_rpc.sql`
+- Create: `supabase/migrations/20260601130100_confirmar_cita_por_pago_rpc.sql`
 
 - [ ] **Step 1: Create the migration file**
 
@@ -225,7 +225,7 @@ Expected: `evento` is a TEXT column (no enum constraint), OR an enum that needs 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add supabase/migrations/20260601120100_confirmar_cita_por_pago_rpc.sql
+git add supabase/migrations/20260601130100_confirmar_cita_por_pago_rpc.sql
 git commit -m "feat(pagadito): add confirmar_cita_por_pago RPC
 
 Atomically marks pago as verificado, advances cita to confirmado when
@@ -1716,7 +1716,7 @@ firing so a refresh doesn't re-fire the toast."
 ### Task 18: Migration — `pg_cron` reconcile schedule
 
 **Files:**
-- Create: `supabase/migrations/20260601120200_pagadito_pg_cron.sql`
+- Create: `supabase/migrations/20260601130200_pagadito_pg_cron.sql`
 
 - [ ] **Step 1: Verify pg_cron and pg_net are installed**
 
@@ -1793,7 +1793,7 @@ Expected: `status='succeeded'`. If `failed`, check `return_message` for hints (m
 - [ ] **Step 7: Commit**
 
 ```bash
-git add supabase/migrations/20260601120200_pagadito_pg_cron.sql
+git add supabase/migrations/20260601130200_pagadito_pg_cron.sql
 git commit -m "feat(pagadito): schedule reconcile endpoint via pg_cron every 2min"
 ```
 
