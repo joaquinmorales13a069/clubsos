@@ -390,6 +390,45 @@
             "error_toast": "Error submitting reference.",
             "done_title": "Reference submitted!",
             "done_subtitle": "We'll verify your transfer soon."
+          },
+          "pagadito": {
+            "creando_cita":   "Reserving your appointment...",
+            "generando_link": "Generating secure payment link...",
+            "redirigiendo":   "Taking you to Pagadito...",
+            "errors": {
+              "pagadito_not_configured": "Online payments unavailable. Contact support.",
+              "invalid_credentials":  "Payment service unavailable. Try again later.",
+              "invalid_amount":       "Invalid amount. Contact support.",
+              "invalid_ern":          "Invalid transaction identifier. Please retry.",
+              "currency_not_enabled": "Currency not enabled. Contact support.",
+              "wrong_method":         "Wrong payment method for Pagadito.",
+              "already_paid":         "This payment has already been verified.",
+              "no_pago":              "Payment record not found.",
+              "cita_not_payable":     "This appointment is not eligible for online payment.",
+              "ern_duplicate":        "Duplicate identifier. Try again in a few seconds.",
+              "incomplete_data":      "Incomplete data. Please retry.",
+              "invalid_format":       "Invalid format. Contact support.",
+              "invalid_custom_params":"Invalid custom parameters.",
+              "connection_failed":    "Could not connect to the payment gateway. Please retry.",
+              "connection_disabled":  "Connection disabled. Contact support.",
+              "amount_mismatch":      "Amount does not match the calculated total.",
+              "amount_exceeded_max":  "Amount exceeds the maximum allowed.",
+              "amount_below_min":     "Amount is below the minimum allowed.",
+              "tx_not_owned":         "Transaction does not belong to the merchant.",
+              "unregistered_tx":      "Unregistered transaction.",
+              "permission_denied":    "Permission denied.",
+              "xss_detected":         "Invalid characters in input.",
+              "generic":              "Could not generate the link. Please retry."
+            },
+            "retorno": {
+              "ok":          "Payment confirmed! Your appointment is scheduled.",
+              "pendiente":   "We're verifying your payment. We'll notify you via WhatsApp.",
+              "rechazado":   "Payment was not completed. You can retry.",
+              "desconocido": "Transaction not found. Contact support.",
+              "error":       "There was a problem processing your payment."
+            },
+            "reintentar":     "Retry payment",
+            "cambiar_metodo": "Change payment method"
           }
         }
       },
