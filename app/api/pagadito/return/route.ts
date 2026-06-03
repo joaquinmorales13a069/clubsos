@@ -19,16 +19,35 @@ function serviceClient() {
   });
 }
 
+/**
+ * Reconstruct the public-facing base URL, honoring reverse-proxy headers.
+ *
+ * Behind EasyPanel / Vercel / any proxy, `req.url` reports the internal host
+ * (e.g. `https://localhost:80`) because Next.js builds it from the incoming
+ * `Host` header which the proxy rewrites. The proxy forwards the real public
+ * host in `x-forwarded-host` and the original protocol in `x-forwarded-proto`.
+ * Falling back to `req.url` keeps local dev working.
+ *
+ * The cita detail page does NOT exist yet — always redirect to the list page
+ * where <PagoBanner /> fires the toast based on `?pago=<status>`.
+ */
+function publicBaseUrl(req: NextRequest): string {
+  const xfHost  = req.headers.get("x-forwarded-host");
+  const xfProto = req.headers.get("x-forwarded-proto");
+  if (xfHost) return `${xfProto ?? "https"}://${xfHost}`;
+  return new URL(req.url).origin;
+}
+
 function redirectWithStatus(
   req: NextRequest,
-  citaId: string | null,
+  _citaId: string | null,
   locale: string,
   status: "ok" | "rechazado" | "pendiente" | "desconocido" | "error",
 ) {
-  const path = citaId
-    ? `/${locale}/dashboard/citas/${citaId}?pago=${status}`
-    : `/${locale}/dashboard/citas?pago=${status}`;
-  return NextResponse.redirect(new URL(path, req.url));
+  // Always land on the list page — PagoBanner handles the toast there.
+  // The cita-detail route does not exist; keeping citaId in the path 404s.
+  const path = `/${locale}/dashboard/citas?pago=${status}`;
+  return NextResponse.redirect(new URL(path, publicBaseUrl(req)));
 }
 
 export async function GET(req: NextRequest) {
