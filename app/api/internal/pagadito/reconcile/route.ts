@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
         }
       } else if (r.status === "failed" || r.status === "cancelled") {
         // Includes EXPIRED (Pagadito's 10-min auto-expiry), CANCELED, FAILED, REVOKED, UNCOLLECTABLE.
-        await supabase
+        const { error: updateErr } = await supabase
           .from("pagos")
           .update({
             estado:           "rechazado",
@@ -71,7 +71,12 @@ export async function POST(req: NextRequest) {
             pagadito_payload: r.raw as object,
           })
           .eq("id", pago.id);
-        results.rechazados++;
+        if (updateErr) {
+          console.error(`[pagadito/reconcile] update failed for ${pago.id}:`, updateErr);
+          results.errores++;
+        } else {
+          results.rechazados++;
+        }
       }
       // status === 'pending' (REGISTERED / VERIFYING / PENDING) → no-op, next cycle.
     } catch (err) {
