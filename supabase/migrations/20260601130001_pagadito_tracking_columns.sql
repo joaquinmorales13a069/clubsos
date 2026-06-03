@@ -1,14 +1,12 @@
--- Pagadito integration: extend estado_pago enum and add tracking columns to pagos.
+-- Pagadito integration (2/2): add tracking columns + indexes on pagos.
 -- Spec: docs/superpowers/specs/2026-06-01-pagadito-integration-design.md
+--
+-- Depends on 20260601130000 having committed the 'iniciado' enum value first;
+-- the partial index below filters on `estado = 'iniciado'`.
 
 BEGIN;
 
--- 1. Extend estado_pago enum with 'iniciado' (link issued, awaiting completion).
---    ADD VALUE cannot run in the same tx as DDL on tables that USE the type in some
---    PG versions; if `supabase db push` complains, split this into its own migration.
-ALTER TYPE public.estado_pago ADD VALUE IF NOT EXISTS 'iniciado' BEFORE 'verificado';
-
--- 2. Pagadito tracking columns on pagos.
+-- 1. Pagadito tracking columns on pagos.
 ALTER TABLE public.pagos
   ADD COLUMN IF NOT EXISTS pagadito_token   TEXT,
   ADD COLUMN IF NOT EXISTS pagadito_ern     TEXT,
@@ -22,7 +20,7 @@ COMMENT ON COLUMN public.pagos.pagadito_estado  IS 'Raw last-known Pagadito tran
 COMMENT ON COLUMN public.pagos.pagadito_payload IS 'Snapshot of the last get-status response for audit.';
 COMMENT ON COLUMN public.pagos.iniciado_at      IS 'When exec-trans was called. Used by the reconcile cron.';
 
--- 3. Indexes.
+-- 2. Indexes.
 --    Unique partial index prevents ERN collisions from concurrent init calls.
 CREATE UNIQUE INDEX IF NOT EXISTS idx_pagos_pagadito_ern
   ON public.pagos (pagadito_ern) WHERE pagadito_ern IS NOT NULL;

@@ -29,7 +29,8 @@
 
 | Path | Responsibility |
 |---|---|
-| `supabase/migrations/20260601130000_pagadito_integration.sql` | enum `estado_pago += 'iniciado'`, columns + indexes on `pagos` |
+| `supabase/migrations/20260601130000_pagadito_iniciado_enum.sql` | enum `estado_pago += 'iniciado'` (own tx so the partial index in the next migration can reference it) |
+| `supabase/migrations/20260601130001_pagadito_tracking_columns.sql` | columns + indexes on `pagos` |
 | `supabase/migrations/20260601130100_confirmar_cita_por_pago_rpc.sql` | atomic RPC: pago → verificado + cita → confirmado + cita_eventos |
 | `supabase/migrations/20260601130200_pagadito_pg_cron.sql` | scheduled reconcile (separate PR) |
 | `lib/pagadito/types.ts` | `PagaditoCurrency`, `PagaditoDetail`, `ExecTransInput`, `GetStatusResult` |
@@ -60,7 +61,7 @@
 ### Task 1: Migration — `pagadito_integration` schema
 
 **Files:**
-- Create: `supabase/migrations/20260601130000_pagadito_integration.sql`
+- Create: `supabase/migrations/20260601130000_pagadito_iniciado_enum.sql`
 
 - [ ] **Step 1: Create the migration file**
 
@@ -104,13 +105,13 @@ COMMIT;
 
 - [ ] **Step 2: Type-check syntax with a dry parse**
 
-Run: `psql --no-psqlrc -f supabase/migrations/20260601130000_pagadito_integration.sql --set ON_ERROR_STOP=on -d postgres -h localhost -p 54322 -U postgres` (against local supabase if available)
+Run: `psql --no-psqlrc -f supabase/migrations/20260601130000_pagadito_iniciado_enum.sql --set ON_ERROR_STOP=on -d postgres -h localhost -p 54322 -U postgres` (against local supabase if available)
 OR just inspect visually. Skip if local supabase isn't running — the next task applies it.
 
 - [ ] **Step 3: Commit**
 
 ```bash
-git add supabase/migrations/20260601130000_pagadito_integration.sql
+git add supabase/migrations/20260601130000_pagadito_iniciado_enum.sql
 git commit -m "feat(pagadito): add schema migration for tracking columns
 
 Extends estado_pago enum with 'iniciado' and adds pagadito_token,
