@@ -78,8 +78,8 @@ BEGIN
 END;
 $$;
 
--- Only service_role and the route handlers (which use service_role for internal endpoints,
--- or anon for the return URL which doesn't have a session) need to call this.
+-- All callers (return URL, reconcile cron) use service_role. The grant is to
+-- service_role only; REVOKE from PUBLIC blocks anon and authenticated roles.
 REVOKE ALL ON FUNCTION public.confirmar_cita_por_pago(UUID, JSONB, TEXT) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.confirmar_cita_por_pago(UUID, JSONB, TEXT) TO service_role;
 

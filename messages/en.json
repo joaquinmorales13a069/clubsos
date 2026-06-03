@@ -419,7 +419,9 @@
               "unregistered_tx":      "Unregistered transaction.",
               "permission_denied":    "Permission denied.",
               "xss_detected":         "Invalid characters in input.",
-              "generic":              "Could not generate the link. Please retry."
+              "generic":              "Could not generate the link. Please retry.",
+              "transaction_registered": "The transaction was registered but cannot be processed right now.",
+              "transaction_status":     "Unknown transaction status. Contact support."
             },
             "retorno": {
               "ok":          "Payment confirmed! Your appointment is scheduled.",

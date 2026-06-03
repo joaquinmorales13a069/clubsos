@@ -419,7 +419,9 @@
               "unregistered_tx":      "Transacción no registrada.",
               "permission_denied":    "Permiso denegado.",
               "xss_detected":         "Caracteres no permitidos en los datos.",
-              "generic":              "No pudimos generar el enlace. Reintenta."
+              "generic":              "No pudimos generar el enlace. Reintenta.",
+              "transaction_registered": "La transacción fue registrada pero no puede procesarse ahora.",
+              "transaction_status":     "Estado de transacción desconocido. Contacta a soporte."
             },
             "retorno": {
               "ok":          "¡Pago confirmado! Tu cita está agendada.",
